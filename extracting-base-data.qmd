@@ -1,0 +1,11 @@
+---
+title: "Extracting and Formatting Base Data"
+---
+
+## Vector
+
+### Calculating distance to roads/water
+
+## Raster
+
+### Extract point attributes for telemetry point data

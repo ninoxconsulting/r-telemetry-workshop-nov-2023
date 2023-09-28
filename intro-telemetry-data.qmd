@@ -1,0 +1,9 @@
+---
+title: "Introduction to Telemetry Data"
+---
+
+## Working with spatial data in R: tips to avoid heartache
+
+## Cleaning and preparing telemetry data
+
+## Generating tabular summaries

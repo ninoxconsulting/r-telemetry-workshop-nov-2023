@@ -1,0 +1,14 @@
+Package: r-telemetry-workshop-nov-2023
+Title: Telemetry data with R
+Version: 0.0.0.9000
+Authors@R: 
+    c(person("Genevieve", "Perkins", , "genevieve.c.perkins@gmail.com", 
+             role = c("aut", "cre")),
+      person("Andy", "Teucher", , "andy.teucher@gmail.com", 
+             role = c("aut"),
+             comment = c(ORCID = "0000-0002-7840-692X")))
+Description: A workshop for biologists on using R for spatial data and analysis of wildife telemetry data.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
