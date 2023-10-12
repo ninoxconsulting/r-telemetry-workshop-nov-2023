@@ -1,6 +1,5 @@
 project:
   type: website
-  output-dir: docs
 
 website:
   title: "Using R for Wildlife Telemetry Data Analysis"
@@ -35,7 +34,7 @@ website:
 # bibliography: references.bib
 
 execute:
-  eval: false
+  freeze: auto
 
 format:
   html:

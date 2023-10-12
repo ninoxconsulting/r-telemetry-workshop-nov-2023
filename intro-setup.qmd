@@ -1,3 +1,9 @@
 ---
 title: "Introduction and System Setup"
 ---
+
+## Install R
+
+## Install RStudio
+
+## Install packages
