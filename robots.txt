@@ -1,0 +1,1 @@
+Sitemap: https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/sitemap.xml
