@@ -12,6 +12,8 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: intro-setup.qmd
+        text: "Setup instructions"
   repo-url: https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023
   repo-actions: [edit, issue]
   sidebar:
@@ -30,6 +32,11 @@ website:
             - exploring-raster-data.qmd
             - extracting-base-data.qmd
             - rsf.qmd
+        - section: "Bonus content"
+          contents:
+            - bonus-1.qmd
+            - bonus-2.qmd
+            - bonus-3.qmd
 
 # bibliography: references.bib
 
