@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -85,6 +119,10 @@ ul.task-list li input[type="checkbox"] {
   <li class="nav-item">
     <a class="nav-link" href="./index.html" rel="" target="">
  <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./intro-setup.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Setup instructions</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -189,6 +227,26 @@ ul.task-list li input[type="checkbox"] {
 </li>
       </ul>
   </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Bonus content</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+ <span class="menu-text">bonus-1.qmd</span>
+  </li>
+          <li class="sidebar-item">
+ <span class="menu-text">bonus-2.qmd</span>
+  </li>
+          <li class="sidebar-item">
+ <span class="menu-text">bonus-3.qmd</span>
+  </li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -217,6 +275,184 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bcdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'bcdata'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:stats':
+
+    filter</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bcdc_search</span>(<span class="st">"caribou"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of B.C. Data Catalogue Records
+Number of records: 43
+Titles:
+1: Causes of Caribou Mortality (other)
+ ID: 64ff3af9-50c4-4914-a276-777b37eab2a2
+ Name: causes-of-caribou-mortality
+2: Boreal Caribou Habitat Data
+This record has no resources. bcdata will not be able to access any
+ data.
+ ID: 9cd36e31-8981-4ba3-bc2c-ae355b2c9e4e
+ Name: boreal-caribou-habitat-data
+3: Caribou in British Columbia (other)
+ ID: c95424ee-009b-4ecf-b0af-c3eb1065055f
+ Name: caribou-in-british-columbia
+4: Itcha Ilgachuz Caribou Habitat Area (multiple, wms, kml)
+ ID: 6e58aa4d-7e29-4a0e-8ca4-66752d9355db
+ Name: itcha-ilgachuz-caribou-habitat-area
+5: Caribou Herd Locations for BC (multiple, wms, kml, arcgis_rest)
+ ID: 2b217585-f48d-4d9f-b7ba-746909ac35ca
+ Name: caribou-herd-locations-for-bc
+6: Caribou Capability Clearwater Forest District (oracle_sde)
+ ID: 82a34614-f34e-41d1-8011-810fc7b96c47
+ Name: caribou-capability-clearwater-forest-district
+7: Caribou Suitability Clearwater Forest District (oracle_sde)
+ ID: 5c9c8019-6243-427e-9b7d-7bf732c4d326
+ Name: caribou-suitability-clearwater-forest-district
+8: Caribou in British Columbia Spatial View (arcgis_rest)
+ ID: b96694e0-e07f-4594-a016-14adbbb58747
+ Name: caribou-in-british-columbia-spatial-view
+9: Caribou Recovery Areas - Polygons - Kootenay Region (oracle_sde)
+ ID: 0a477a2e-5304-4716-bdbd-0e0edf60d539
+ Name: caribou-recovery-areas-polygons-kootenay-region
+10: Caribou Recovery Areas - Lines - Kootenay Region (oracle_sde)
+ ID: 56fe6b42-30b8-40da-92d2-eac110025f7b
+ Name: caribou-recovery-areas-lines-kootenay-region
+11: Boreal Caribou Core Habitat Areas - Peace Region (multiple)
+ ID: 8d197a91-f137-45b8-8c94-0cc12a3c7752
+ Name: boreal-caribou-core-habitat-areas-peace-region
+12: Caribou Movement Corridors Clearwater Forest District - Lines
+ (multiple)
+ ID: 7c7768f2-7a3d-4a8f-958e-e7a8dd2b18f2
+ Name: caribou-movement-corridors-clearwater-forest-district-lines
+13: Caribou Habitat Suitability - Morice FD - Skeena Region
+ (oracle_sde)
+ ID: f88a9b98-c9c3-4b1b-a513-64d60390629f
+ Name: caribou-habitat-suitability-morice-fd-skeena-region
+14: GPS Derived Caribou Locations Clearwater Forest District
+ (oracle_sde)
+ ID: 88db1d2e-4c09-4d30-a8f4-b93c0e355767
+ Name: gps-derived-caribou-locations-clearwater-forest-district
+15: North Thompson Caribou Habitat Clearwater Forest District
+ (multiple)
+ ID: 6271d5dc-4870-41e4-903d-4d378c297353
+ Name: north-thompson-caribou-habitat-clearwater-forest-district
+16: Caribou Historic Use Areas - Telkwa - Skeena Region (oracle_sde)
+ ID: f946aa21-c215-4174-b977-e4f0a7c21805
+ Name: caribou-historic-use-areas-telkwa-skeena-region
+17: Caribou Habitat Mapping - Tweedsmuir Entiako - Skeena Region
+ (oracle_sde)
+ ID: 50f0d612-95eb-46b7-b4eb-9b67672bdece
+ Name: caribou-habitat-mapping-tweedsmuir-entiako-skeena-region
+18: Moose and Caribou SRB Surveys - Skeena Region (oracle_sde)
+ ID: 52f89d1a-eb97-4f5d-92a1-c6eeded0806b
+ Name: moose-and-caribou-srb-surveys-skeena-region
+19: Caribou Habitat Model for the Western Cariboo Region (2017)
+ (multiple, wms, kml, pdf)
+ ID: 6d983c4e-7d5f-4a16-975d-f33a2dfbd6e0
+ Name: caribou-habitat-model-for-the-western-cariboo-region-2017-
+20: Caribou Habitat Model for the Western Cariboo Region (2001)
+ (multiple, pdf, wms, kml)
+ ID: 7ea6556b-c113-4194-92f2-7ddb55a340b6
+ Name: caribou-habitat-model-for-the-western-cariboo-region-2001
+21: Caribou Survey Units for Stratified Random Block - Skeena Region
+ (oracle_sde)
+ ID: 72f95c0c-592b-4eb1-936d-b78474be8c9d
+ Name: caribou-survey-units-for-stratified-random-block-skeena-region
+22: Broad Ecosystem Inventory Wildlife Habitat Ratings Interpretations
+ for Mammals (oracle_sde)
+ ID: 36afb87d-58e7-4f05-b790-200ea849a8c2
+ Name:
+  broad-ecosystem-inventory-wildlife-habitat-ratings-interpretations-for-mammals
+23: Caribou Habitat Model - E. Cariboo Region/Columbia Highlands/N.
+ Columbia Mountains (2001) (multiple, wms, kml)
+ ID: 321fbe63-3537-4c01-844e-463b8553ff3c
+ Name:
+  caribou-habitat-model-e-cariboo-region-columbia-highlands-n-columbia-mountains-2001
+24: Northern Caribou Habitat Units of the Itcha and Ilgachuz Areas -
+ Cariboo Region (multiple, other, wms, kml)
+ ID: 65cb3683-f6a4-46d2-b6fc-4a5ed099d5a1
+ Name:
+  northern-caribou-habitat-units-of-the-itcha-and-ilgachuz-areas-cariboo-region
+25: Wolves and Linear Features (other)
+ ID: 8ed0711d-56b6-41df-8c3c-4e41258545b7
+ Name: wolves-and-linear-features
+26: PNCP - High Elevation Winter Range (multiple, wms, kml)
+ ID: b112e825-0642-46f9-9895-513fcbb8e89e
+ Name: pncp-high-elevation-winter-range
+27: Northern Rockies Snowmobile Management (other)
+ ID: 6554ed31-ae65-4120-a8fe-a824f3e2a015
+ Name: northern-rockies-snowmobile-management
+28: Landscape Units (Subdivisions) for Wildlife Habitat Area 5-086
+ (multiple, wms, kml)
+ ID: 5018ae96-a5f1-4709-9848-981561032f3c
+ Name: landscape-units-subdivisions-for-wildlife-habitat-area-5-086
+29: Central Selkirk Snowmobile Management Map (other)
+ ID: 02d0c773-c17d-480d-b560-3814561016b3
+ Name: central-selkirk-snowmobile-management-map
+30: Central Selkirk Snowmobile Management Zones (other)
+ ID: 86e1f84a-274f-4b48-8b45-1564b10ef58d
+ Name: central-selkirk-snowmobile-management-zones
+31: Snowmobile Management Areas - Access Management Areas (AMA)
+ (multiple, wms, kml)
+ ID: e6e31638-afe9-4355-aa4d-9853e53de55c
+ Name: snowmobile-management-areas-access-management-areas-ama
+32: Snowmobile Management Trails - Access Management Area (AMA)
+ (multiple, wms, kml)
+ ID: fe210f8a-60f5-43f8-b9ab-0f0d70ca44f8
+ Name: snowmobile-management-trails-access-management-area-ama
+33: EcoCat - The Ecological Reports Catalogue (other)
+ ID: 9241367c-54f9-483d-a918-67ed53c1e080
+ Name: ecocat-the-ecological-reports-catalogue
+34: Habitat Capability for the Cariboo Region (multiple)
+ ID: b9f74385-e5b2-4c84-a049-ce2f5d207338
+ Name: habitat-capability-for-the-cariboo-region
+35: Wildlife Species Inventory - Survey Summary - Publicly Available
+ (multiple)
+ ID: d65e64a5-1477-46d7-a4f6-f978963b21cf
+ Name: wildlife-species-inventory-survey-summary-publicly-available
+36: Wildlife Species Inventory - Masked Survey Observations - Publicly
+ Available (multiple)
+ ID: 067f8b29-1329-4878-8be8-faf893b9c3eb
+ Name:
+  wildlife-species-inventory-masked-survey-observations-publicly-available
+37: Wildlife Species Inventory - Survey Observation Points - Ungulates
+ - All (multiple)
+ ID: 433101ce-18e5-4543-845e-71b240351d7f
+ Name:
+  wildlife-species-inventory-survey-observation-points-ungulates-all
+38: Wildlife Species Inventory - Survey Observation Points - Ungulates
+ - Publicly Available (multiple, wms, kml)
+ ID: 1733feb0-9e33-4228-8078-d0f0e4df568e
+ Name:
+  wildlife-species-inventory-survey-observation-points-ungulates-publicly-available
+39: Hunter Sample Survey Estimates 1976 to Current (csv, xlsx)
+ ID: 8425b848-517e-4a20-b26c-6121720382af
+ Name: hunter-sample-survey-estimates-1976-to-current
+40: Non Legal Planning Features - All - Polygon (multiple, other)
+ ID: ad71d3c2-0776-4233-9765-18fbf18580cf
+ Name: non-legal-planning-features-all-polygon
+41: Non Legal Planning Features - Current - Polygon (multiple, wms,
+ kml, other)
+ ID: 5d859a89-f173-4006-82f9-16254de2c1fc
+ Name: non-legal-planning-features-current-polygon
+42: Strategic Land and Resource Plans - All (multiple, other)
+ ID: 298d1034-c1be-4fd1-ad4b-d00ad5ab4b88
+ Name: strategic-land-and-resource-plans-all
+43: Strategic Land and Resource Plans - Current (multiple, wms, kml,
+ other, oracle_sde)
+ ID: 4b142d4c-83d6-4ecc-b66c-66601ae65992
+ Name: strategic-land-and-resource-plans-current
+
+Access a single record by calling `bcdc_get_record(ID)` with the ID
+ from the desired record.</code></pre>
+</div>
+</div>
 
 
 
