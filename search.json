@@ -1,0 +1,51 @@
+[
+  {
+    "objectID": "intro-setup.html#install-rstudio",
+    "href": "intro-setup.html#install-rstudio",
+    "title": "Introduction and System Setup",
+    "section": "Install RStudio",
+    "text": "Install RStudio"
+  },
+  {
+    "objectID": "intro-setup.html#install-packages",
+    "href": "intro-setup.html#install-packages",
+    "title": "Introduction and System Setup",
+    "section": "Install packages",
+    "text": "Install packages"
+  },
+  {
+    "objectID": "extracting-base-data.html#raster",
+    "href": "extracting-base-data.html#raster",
+    "title": "Extracting and Formatting Base Data",
+    "section": "Raster",
+    "text": "Raster\n\nExtract point attributes for telemetry point data"
+  },
+  {
+    "objectID": "LICENSE.html",
+    "href": "LICENSE.html",
+    "title": "MIT License",
+    "section": "",
+    "text": "MIT License\nCopyright (c) 2023 r-telemetry-workshop-nov-2023 authors\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "r-telemetry-workshop-nov-2023",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "intro-telemetry-data.html#cleaning-and-preparing-telemetry-data",
+    "href": "intro-telemetry-data.html#cleaning-and-preparing-telemetry-data",
+    "title": "Introduction to Telemetry Data",
+    "section": "Cleaning and preparing telemetry data",
+    "text": "Cleaning and preparing telemetry data"
+  },
+  {
+    "objectID": "intro-telemetry-data.html#generating-tabular-summaries",
+    "href": "intro-telemetry-data.html#generating-tabular-summaries",
+    "title": "Introduction to Telemetry Data",
+    "section": "Generating tabular summaries",
+    "text": "Generating tabular summaries"
+  }
+]
