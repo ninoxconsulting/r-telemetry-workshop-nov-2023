@@ -4,6 +4,13 @@ title: "Introduction to Telemetry Data"
 
 ## Working with spatial data in R: tips to avoid heartache
 
+```{r}
+library(sf)
+
+read.csv("data/Mountain caribou in British Columbia-reference-data.csv")
+```
+
+
 ## Cleaning and preparing telemetry data
 
 ## Generating tabular summaries

@@ -1,5 +1,5 @@
 ---
-title: "r-telemetry-workshop-nov-2023"
+title: "R Telemetry Workshop, November 2023"
 ---
 
 This is a Quarto website.
@@ -9,3 +9,5 @@ To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
 ```{r}
 1 + 1
 ```
+
+For setup instructions go to [setup instructions](intro-setup.qmd).
