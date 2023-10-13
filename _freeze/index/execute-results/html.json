@@ -1,7 +1,7 @@
 {
-  "hash": "41491e519f77e63088de73f09b612e9e",
+  "hash": "9ba41cdc7af70637ba11d3f5550c6269",
   "result": {
-    "markdown": "---\ntitle: \"r-telemetry-workshop-nov-2023\"\n---\n\n\nThis is a Quarto website.\n\nTo learn more about Quarto websites visit <https://quarto.org/docs/websites>.\n\n\n::: {.cell}\n\n```{.r .cell-code}\n1 + 1\n```\n\n::: {.cell-output .cell-output-stdout}\n```\n[1] 2\n```\n:::\n:::\n",
+    "markdown": "---\ntitle: \"R Telemetry Workshop, November 2023\"\n---\n\n\nThis is a Quarto website.\n\nTo learn more about Quarto websites visit <https://quarto.org/docs/websites>.\n\n\n::: {.cell}\n\n```{.r .cell-code}\n1 + 1\n```\n\n::: {.cell-output .cell-output-stdout}\n```\n[1] 2\n```\n:::\n:::\n\n\nFor setup instructions go to [setup instructions](intro-setup.qmd).\n",
     "supporting": [],
     "filters": [
       "rmarkdown/pagebreak.lua"

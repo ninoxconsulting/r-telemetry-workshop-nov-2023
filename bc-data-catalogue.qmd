@@ -1,3 +1,10 @@
 ---
 title: "Exploring the BC Data Catalogue with R"
 ---
+
+```{r}
+library(bcdata)
+
+bcdc_search("caribou")
+```
+
