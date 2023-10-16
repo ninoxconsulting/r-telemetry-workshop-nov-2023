@@ -4,7 +4,7 @@ title: "Introduction to Telemetry Data"
 
 ## How to QA and summarise your Telemetry Data
 
-In this course we will be using Telemetry data from Mountain Caribou (*Rangifer terendus*) herds in the Peace region of British Columbia. While the full dataset and metadata can be found on [movebank](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study216040785), we will be working on a modified subset throughout this course.
+In this course we will be using Telemetry data from Mountain Caribou (*Rangifer terendus*) herds in the Peace region of British Columbia. While the full dataset and metadata can be found on [movebank](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study216040785), we will be working on a modified subset throughout this course. TEST
 
 ### 1. Reading our data into R.
 
@@ -45,7 +45,6 @@ head(loc_raw)
 
 ```
 
-
 We can combine these two dataset and keep only the columns which are of interest
 
 ```{r}
@@ -60,7 +59,6 @@ all_data <- all_data %>%
 head(all_data)
 
 ```
-
 
 ### 2. Clean and QA the data
 
@@ -127,9 +125,7 @@ tdata  <- tdata  %>%
 
 ```
 
-Now we have fixed our data entry problems we also want to review the spatial accuracy. 
-We have two metrics : DOP (Dilution of Precision), and a Fix Type. 
-
+Now we have fixed our data entry problems we also want to review the spatial accuracy. We have two metrics : DOP (Dilution of Precision), and a Fix Type.
 
 ```{r}
 # DOP 
@@ -152,15 +148,6 @@ fixtype <- fdata %>%
 
 ```
 
-
- 
-
-
-
 ## Cleaning and preparing telemetry data
-
-
-
-
 
 ## Generating tabular summaries
