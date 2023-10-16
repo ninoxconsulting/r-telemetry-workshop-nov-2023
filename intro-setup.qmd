@@ -2,6 +2,23 @@
 title: "Introduction and System Setup"
 ---
 
+
+## overview of course 
+
+Will include: 
+- how to read in, clean, QA your telemetry data
+- how to summarise your data (tables, figures, maps)
+- how to leverage bc data catalogue (vector, raster)
+- how to perform spatial operations to model covariates
+
+
+
+Wont include: 
+- methodological detail of telemetry methods ie DOP calculations
+- wont be working with individual datasets (until Friday!)
+
+
+
 ## Install R
 
 ## Install RStudio
