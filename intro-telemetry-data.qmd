@@ -2,15 +2,165 @@
 title: "Introduction to Telemetry Data"
 ---
 
-## Working with spatial data in R: tips to avoid heartache
+## How to QA and summarise your Telemetry Data
+
+In this course we will be using Telemetry data from Mountain Caribou (*Rangifer terendus*) herds in the Peace region of British Columbia. While the full dataset and metadata can be found on [movebank](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study216040785), we will be working on a modified subset throughout this course.
+
+### 1. Reading our data into R.
+
+Our first step is to see what our data looks like. In this course we will be providing two csv files (Mountain caribou in British Columbia-reference-data.csv and Mountain caribou.csv).
 
 ```{r}
-library(sf)
+# Read in our data files.
 
-read.csv("data/Mountain caribou in British Columbia-reference-data.csv")
+library(sf)
+library(readxl)
+library(dplyr)
+
+ref_raw <- read.csv("data/Mountain caribou in British Columbia-reference-data.csv")
+
+loc_raw <- read_excel("data/Mountain caribou.xlsx")
+
+
+```
+
+Lets take a look....
+
+```{r}
+
+head(ref_raw)
+
+names(ref_raw)
+
+
+ref_short <- ref_raw %>%
+  dplyr::select("tag.id","animal.id", "deploy.on.date", "animal.sex", "animal.reproductive.condition",
+                "deployment.end.type","tag.model", "tag.manufacturer.name", "tag.serial.no"    )
+
+
+
+
+head(loc_raw)
+
+
 ```
 
 
+We can combine these two dataset and keep only the columns which are of interest
+
+```{r}
+
+all_data <- left_join(loc_raw, ref_raw, by = c('tag.local.identifier'= 'tag.id') )
+
+all_data <- all_data %>% 
+  dplyr::select(event.id, location.long, location.lat, DOP, FixType, comments ,
+                study.specific.measurement , sensor.type, tag.local.identifier, date, animal.id,
+                animal.sex, animal.reproductive.condition, tag.manufacturer.name, tag.model )
+
+head(all_data)
+
+```
+
+
+### 2. Clean and QA the data
+
+Now we have a single dataset we can QA the data and provide more useful columns for further analysis.
+
+```{r}
+
+head(all_data)
+
+# check if there are NA's in the data 
+
+apply(all_data, 2, function(x) any(is.na(x)))
+
+# Lets filter out any missing values 
+
+length(all_data$event.id)
+
+tdata <- all_data %>% 
+  filter(!is.na(date)) %>%
+  filter(!is.na(location.long)) %>%
+  filter(!is.na(location.lat))
+
+
+length(tdata$event.id)
+
+```
+
+Now lets covert the timestamp into a usable format
+
+```{r}
+
+library(lubridate)
+
+# calculate time differences
+tdata <- tdata  %>%
+  mutate(date_time = ymd_hms(date)) 
+
+# owch we still have an error in this dataset
+
+# lets see if we can find it..... 
+
+head(sort(unique(tdata$date)))
+tail(sort(unique(tdata$date)))
+
+
+tdata <- tdata  %>% 
+  filter(date != "NA")
+
+tdata  <- tdata  %>%
+  mutate(date_time = ymd_hms(date)) 
+
+# Note the Universal Coordinated Time Zone
+
+
+# lets split this data format into something more useful 
+
+tdata  <- tdata  %>%
+  mutate(year = year(date_time )) %>%
+  mutate(month = month(date_time ),
+         day = day(date_time),
+         hour = hour(date_time),
+         minute = minute(date_time))
+
+
+```
+
+Now we have fixed our data entry problems we also want to review the spatial accuracy. 
+We have two metrics : DOP (Dilution of Precision), and a Fix Type. 
+
+
+```{r}
+# DOP 
+
+range (tdata$DOP)
+hist(tdata$DOP)
+
+# for this example we only want to keep fixes with a DOP less than 10m
+
+fdata <- tdata %>% 
+  filter(DOP <= 10)
+
+
+# Fix Type : 
+
+fixtype <- fdata %>% 
+  group_by(FixType) %>%
+  summarise(count = n())
+
+
+```
+
+
+ 
+
+
+
 ## Cleaning and preparing telemetry data
+
+
+
+
 
 ## Generating tabular summaries
