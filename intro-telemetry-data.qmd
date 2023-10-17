@@ -10,23 +10,25 @@ In this course we will be using Telemetry data from Mountain Caribou (*Rangifer 
 
 Our first step is to see what our data looks like. In this course we will be providing two csv files (Mountain caribou in British Columbia-reference-data.csv and Mountain caribou.csv).
 
-```{r}
+```{r read in raw data}
 # Read in our data files.
 
 library(sf)
 library(readxl)
 library(dplyr)
+library(lubridate)
+library(ggplot2)
 
-ref_raw <- read.csv("data/Mountain caribou in British Columbia-reference-data.csv")
+ref_raw <- read.csv("raw_data/Mountain caribou in British Columbia-reference-data.csv")
 
-loc_raw <- read_excel("data/Mountain caribou.xlsx")
+loc_raw <- read_excel("raw_data/Mountain caribou.xlsx")
 
 
 ```
 
 Lets take a look....
 
-```{r}
+```{r review raw data}
 
 head(ref_raw)
 
@@ -38,8 +40,6 @@ ref_short <- ref_raw %>%
                 "deployment.end.type","tag.model", "tag.manufacturer.name", "tag.serial.no"    )
 
 
-
-
 head(loc_raw)
 
 
@@ -47,7 +47,7 @@ head(loc_raw)
 
 We can combine these two dataset and keep only the columns which are of interest
 
-```{r}
+```{r filter raw fields}
 
 all_data <- left_join(loc_raw, ref_raw, by = c('tag.local.identifier'= 'tag.id') )
 
@@ -56,15 +56,17 @@ all_data <- all_data %>%
                 study.specific.measurement , sensor.type, tag.local.identifier, date, animal.id,
                 animal.sex, animal.reproductive.condition, tag.manufacturer.name, tag.model )
 
-head(all_data)
+#head(all_data)
 
 ```
 
 ### 2. Clean and QA the data
 
-Now we have a single dataset we can QA the data and provide more useful columns for further analysis.
+#### 2a. Data input errors and column formats
 
-```{r}
+Now we have a single data set we can QA the data and provide more useful columns for further analysis.
+
+```{r remove NA values}
 
 head(all_data)
 
@@ -79,18 +81,31 @@ length(all_data$event.id)
 tdata <- all_data %>% 
   filter(!is.na(date)) %>%
   filter(!is.na(location.long)) %>%
-  filter(!is.na(location.lat))
+  filter(!is.na(location.lat)) 
 
 
-length(tdata$event.id)
+# comments 
+unique(tdata$comments)
+
+# two missing herd values which we can fill in (or delete)
+
+tdata <- tdata %>% 
+  mutate(comments = case_when(
+    animal.id == "BP_car043" ~ "Burnt Pine", 
+    animal.id == "SC_car170" ~ "Scott",
+    .default = comments
+  ))
+
+
+
+#length(tdata$event.id)
+
 
 ```
 
 Now lets covert the timestamp into a usable format
 
-```{r}
-
-library(lubridate)
+```{r convert time stamp}
 
 # calculate time differences
 tdata <- tdata  %>%
@@ -110,6 +125,8 @@ tdata <- tdata  %>%
 tdata  <- tdata  %>%
   mutate(date_time = ymd_hms(date)) 
 
+head(tdata$date_time) 
+
 # Note the Universal Coordinated Time Zone
 
 
@@ -125,9 +142,31 @@ tdata  <- tdata  %>%
 
 ```
 
-Now we have fixed our data entry problems we also want to review the spatial accuracy. We have two metrics : DOP (Dilution of Precision), and a Fix Type.
+#### 2a. QA Spatial accuracy values
 
-```{r}
+Now we have fixed our data entry problems we also want to review the spatial accuracy. We have two metrics: DOP (Dilution of Precision), and a Fix Type.
+
+```{r clean lat longs}
+
+# review the lat / longs 
+
+range(tdata$location.lat)
+hist(tdata$location.lat)
+
+# above 65 latidude
+
+range(tdata$location.long)
+hist(tdata$location.long)
+
+# greater than -100 longitude. 
+
+tdata <- tdata %>% 
+  filter(location.long <= -100) %>%
+  filter(location.lat <= 65)
+
+#bou <- st_as_sf(tdata, coords = c("location.long", "location.lat"), crs = 4326)
+#mapview::mapview (bou)
+
 # DOP 
 
 range (tdata$DOP)
@@ -138,6 +177,7 @@ hist(tdata$DOP)
 fdata <- tdata %>% 
   filter(DOP <= 10)
 
+hist(fdata$DOP)
 
 # Fix Type : 
 
@@ -145,9 +185,200 @@ fixtype <- fdata %>%
   group_by(FixType) %>%
   summarise(count = n())
 
+fixtype
+
+# remove the 2d locations 
+
+fdata <- fdata %>% 
+  filter(FixType != "GPS-2D")
+
+# see what the data looks like
+glimpse(fdata)
+ 
+# lets check if this column is any use? 
+unique(fdata$sensor.type)
+
+
+# remove the columns that we dont need
+fdata <- fdata %>% 
+  select(-FixType, -DOP, -date, -study.specific.measurement , -sensor.type, -event.id)
+
 
 ```
 
-## Cleaning and preparing telemetry data
+
+## conver to spatial file and export 
+
+```{r write out , eval = FALSE}
+
+# conver to a sf object 
+
+bou <- st_as_sf(fdata, coords = c("location.long", "location.lat"), crs = 4326)
+
+#mapview::mapview (bou)
+
+
+# export as .gpkg
+st_write(bou, "clean_data/caribou.gpkg")
+
+st_write(bou, "clean_data/caribou.shp", append=FALSE)
+
+# note warning on names for shapefile
+
+```
+
+## Output cleaned 
+
+We can output out cleaned data as a table
+
+```{r write csv, eval = FALSE}
+
+write.csv(fdata, "clean_data/caribou.csv", row.names = F)
+
+
+```
 
 ## Generating tabular summaries
+
+
+Now we have clean data to work with we can get to the fun data exploration part! 
+
+```{r read in geopackage}
+
+#bou = read.csv("clean_data/caribou.csv")
+bou_sf = st_read("clean_data/caribou.gpkg")
+
+bou <- bou_sf %>%
+  cbind(st_coordinates(bou_sf)) %>%
+          st_drop_geometry(bou_sf)
+
+
+head(bou)
+glimpse(bou)
+
+```
+Many Questions we can ask here: 
+
+- how many herds do we have? 
+- how many animals in each herd? 
+- what is the sex ratio of collared animals?
+- what is the duration of each collar? Start and end years?
+
+```{r summarise clean data}
+
+No_herds = unique(bou$comments)
+
+no_records <- bou %>% 
+  group_by(comments)%>% 
+  summarise(count = n())
+
+
+no_animals_sex <- bou %>% 
+  group_by(comments, animal.sex)%>% 
+  summarise(count = n())
+
+
+no_animals_id <- bou %>% 
+  group_by(comments, animal.id)%>% 
+  summarise(count = n())
+
+```
+Lets concentrate on the Scott herd. 
+
+```{rsummarise scott herd, eval = FALSE}
+# look at the Scott herd.
+
+sbou <- bou %>% 
+  filter(comments == "Scott")
+
+# how many animals?
+no_animals <- unique(sbou$animal.id)
+
+
+# lets look at the time period: 
+
+p1 <- ggplot(sbou, aes(year, fill = animal.id))+
+    geom_bar(position = "dodge")#+
+    #xlim(2021,2024)#+
+
+
+# duration of the collars within the Scott herd. 
+
+table_max <- sbou %>% 
+  dplyr::select(animal.id, date_time) %>%
+  slice_max(date_time, by = animal.id) 
+colnames(table_max)<- c("animal.id","max")
+
+table_min <- sbou %>% 
+  dplyr::select(animal.id, date_time) %>%
+  slice_min(date_time, by = animal.id) 
+colnames(table_min)<- c("animal.id","min")
+
+dur <- left_join(table_max, table_min, by = join_by(animal.id)) %>%
+  distinct() %>%
+  dplyr::mutate(duration = max - min) %>%
+  mutate(dur_days = round( duration,1))%>%
+  mutate(dur_hrs = round(as.numeric(dur_days)*24,1)) %>%
+ #mutate(dur_days = round( dur_hrs/24,1))%>%
+  mutate(year_start = year(min), 
+         year_end = year(max))
+
+
+
+dur_plot <- ggplot(dur, aes(y=factor(animal.id))) +
+  geom_segment(aes(x=min, xend=max, y=factor(animal.id), yend=factor(animal.id)), size=1)+
+  xlab("Date") + ylab("Tag") 
+
+dur_plot
+
+
+
+# months of the year. 
+p_duration <- ggplot(sbou, aes(factor(month), fill = factor(year)))+
+  geom_bar(position = "dodge") +
+  #xlim(1,12)+
+  facet_wrap(~animal.id)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+
+# months of the year. 
+p_duration <- ggplot(sbou, aes(factor(year), fill = factor(month)))+
+  geom_bar(position = "dodge") +
+  #xlim(1,12)+
+  facet_wrap(~animal.id)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+# convert the dates to seasons 
+
+Next we format the date variable so we can filter by months and years. We can also assign fixes to seasons based on the following dates : 
+
+* Spring/calving (April,May)
+* Summer (June to August)
+*	Fall (September to November)
+*	Winter (December to March)
+
+
+```{r add seasons, eval = FALSE}
+sbou <- sbou %>% 
+  mutate(season = case_when(
+            month %in% c(4,5) ~ "spring",
+            month %in% c(6,7,8) ~ "summer",
+            month %in% c(9,10,11) ~ "Fall",
+            month %in% c(12,1,2,3) ~ "winter", 
+            
+  
+# check data spread
+counts.per.season = indata %>%
+  group_by(season) %>%
+  summarise(count = n())
+
+ggplot(counts.per.season, aes(x = season, y = count)) + 
+  geom_bar(stat = "identity") + 
+  labs(x = "season", y = "no.of.fixes", title = "Scott Herd")
+
+
+```
+
