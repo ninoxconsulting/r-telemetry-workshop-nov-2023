@@ -3,17 +3,23 @@ title: "Introduction and System Setup"
 ---
 
 
-## overview of course 
+## Workshop Overview
 
-### Will include: 
-- how to read in, clean, QA your telemetry data
-- how to summarise your data (tables, figures, maps)
-- how to leverage bc data catalogue (vector, raster)
-- how to perform spatial operations to model covariates
+This two-day course will introduce you to the basics of working with telemetry data in R.
 
-### Wont include: 
-- methodological detail of telemetry methods ie DOP calculations
-- wont be working with individual datasets (until Friday!)
+### The worksop will include: 
+- The basics of spatial data in R
+- How to read in, clean, and QA your telemetry data
+- How to create useful summaries of your data
+- Data visualization techniques for spatial and telemetry data (graphs and maps)
+- How to use the `bcmaps` and `bcdata` packages to get vector and raster data from
+official BC government sources.
+- How to perform spatial operations to model covariates
+
+### The workshop will not include: 
+- Methodological detail of telemetry methods ie DOP calculations
+- Advanced modeling techniques
+- We wont be working with individual datasets (until Friday!)
 
 ## Computing requirements
 
