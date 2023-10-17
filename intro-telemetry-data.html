@@ -262,8 +262,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#reading-our-data-into-r." id="toc-reading-our-data-into-r." class="nav-link" data-scroll-target="#reading-our-data-into-r.">1. Reading our data into R.</a></li>
   <li><a href="#clean-and-qa-the-data" id="toc-clean-and-qa-the-data" class="nav-link" data-scroll-target="#clean-and-qa-the-data">2. Clean and QA the data</a></li>
   </ul></li>
-  <li><a href="#cleaning-and-preparing-telemetry-data" id="toc-cleaning-and-preparing-telemetry-data" class="nav-link" data-scroll-target="#cleaning-and-preparing-telemetry-data">Cleaning and preparing telemetry data</a></li>
+  <li><a href="#conver-to-spatial-file-and-export" id="toc-conver-to-spatial-file-and-export" class="nav-link" data-scroll-target="#conver-to-spatial-file-and-export">conver to spatial file and export</a></li>
+  <li><a href="#output-cleaned" id="toc-output-cleaned" class="nav-link" data-scroll-target="#output-cleaned">Output cleaned</a></li>
   <li><a href="#generating-tabular-summaries" id="toc-generating-tabular-summaries" class="nav-link" data-scroll-target="#generating-tabular-summaries">Generating tabular summaries</a></li>
+  <li><a href="#convert-the-dates-to-seasons" id="toc-convert-the-dates-to-seasons" class="nav-link" data-scroll-target="#convert-the-dates-to-seasons">convert the dates to seasons</a></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/intro-telemetry-data.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
@@ -316,13 +318,25 @@ Attaching package: 'dplyr'</code></pre>
 
     intersect, setdiff, setequal, union</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ref_raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/Mountain caribou in British Columbia-reference-data.csv"</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>loc_raw <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"data/Mountain caribou.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'lubridate'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    date, intersect, setdiff, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>ref_raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"raw_data/Mountain caribou in British Columbia-reference-data.csv"</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>loc_raw <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"raw_data/Mountain caribou.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Lets take a look….</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ref_raw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ref_raw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   tag.id  animal.id      animal.taxon deploy.on.date deploy.off.date
 1  151.51 HR_151.510 Rangifer tarandus                               
@@ -374,7 +388,7 @@ Attaching package: 'dplyr'</code></pre>
 5                                              
 6                                              </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(ref_raw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(ref_raw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] "tag.id"                        "animal.id"                    
  [3] "animal.taxon"                  "deploy.on.date"               
@@ -390,14 +404,12 @@ Attaching package: 'dplyr'</code></pre>
 [23] "tag.beacon.frequency"          "tag.manufacturer.name"        
 [25] "tag.model"                     "tag.serial.no"                </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>ref_short <span class="ot">&lt;-</span> ref_raw <span class="sc">%&gt;%</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="st">"tag.id"</span>,<span class="st">"animal.id"</span>, <span class="st">"deploy.on.date"</span>, <span class="st">"animal.sex"</span>, <span class="st">"animal.reproductive.condition"</span>,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                <span class="st">"deployment.end.type"</span>,<span class="st">"tag.model"</span>, <span class="st">"tag.manufacturer.name"</span>, <span class="st">"tag.serial.no"</span>    )</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(loc_raw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>ref_short <span class="ot">&lt;-</span> ref_raw <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="st">"tag.id"</span>,<span class="st">"animal.id"</span>, <span class="st">"deploy.on.date"</span>, <span class="st">"animal.sex"</span>, <span class="st">"animal.reproductive.condition"</span>,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                <span class="st">"deployment.end.type"</span>,<span class="st">"tag.model"</span>, <span class="st">"tag.manufacturer.name"</span>, <span class="st">"tag.serial.no"</span>    )</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(loc_raw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 14
     event.id timestamp location.long location.lat   DOP FixType     comments
@@ -415,36 +427,23 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 <p>We can combine these two dataset and keep only the columns which are of interest</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>all_data <span class="ot">&lt;-</span> <span class="fu">left_join</span>(loc_raw, ref_raw, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">'tag.local.identifier'</span><span class="ot">=</span> <span class="st">'tag.id'</span>) )</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>all_data <span class="ot">&lt;-</span> all_data <span class="sc">%&gt;%</span> </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(event.id, location.long, location.lat, DOP, FixType, comments ,</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                study.specific.measurement , sensor.type, tag.local.identifier, date, animal.id,</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                animal.sex, animal.reproductive.condition, tag.manufacturer.name, tag.model )</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(all_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 15
-    event.id location.long location.lat   DOP FixType     comments
-       &lt;dbl&gt;         &lt;dbl&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;   
-1 2270202009         -124.         55.9     1 val. GPS-3D Scott   
-2 2270202041         -124.         55.9     1 val. GPS-3D Scott   
-3 2270202100         -124.         55.9     1 val. GPS-3D Scott   
-4 2270202901         -123.         55.8     1 val. GPS-3D Scott   
-5 2270202132         -123.         55.9     1 val. GPS-3D Scott   
-6 2270202890         -123.         55.9     1 val. GPS-3D Scott   
-# ℹ 9 more variables: study.specific.measurement &lt;chr&gt;, sensor.type &lt;chr&gt;,
-#   tag.local.identifier &lt;chr&gt;, date &lt;chr&gt;, animal.id &lt;chr&gt;, animal.sex &lt;chr&gt;,
-#   animal.reproductive.condition &lt;chr&gt;, tag.manufacturer.name &lt;chr&gt;,
-#   tag.model &lt;chr&gt;</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>all_data <span class="ot">&lt;-</span> <span class="fu">left_join</span>(loc_raw, ref_raw, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">'tag.local.identifier'</span><span class="ot">=</span> <span class="st">'tag.id'</span>) )</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>all_data <span class="ot">&lt;-</span> all_data <span class="sc">%&gt;%</span> </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(event.id, location.long, location.lat, DOP, FixType, comments ,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                study.specific.measurement , sensor.type, tag.local.identifier, date, animal.id,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                animal.sex, animal.reproductive.condition, tag.manufacturer.name, tag.model )</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">#head(all_data)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="clean-and-qa-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="clean-and-qa-the-data">2. Clean and QA the data</h3>
-<p>Now we have a single dataset we can QA the data and provide more useful columns for further analysis.</p>
+<section id="a.-data-input-errors-and-column-formats" class="level4">
+<h4 class="anchored" data-anchor-id="a.-data-input-errors-and-column-formats">2a. Data input errors and column formats</h4>
+<p>Now we have a single data set we can QA the data and provide more useful columns for further analysis.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(all_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(all_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 15
     event.id location.long location.lat   DOP FixType     comments
@@ -460,9 +459,9 @@ Attaching package: 'dplyr'</code></pre>
 #   animal.reproductive.condition &lt;chr&gt;, tag.manufacturer.name &lt;chr&gt;,
 #   tag.model &lt;chr&gt;</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check if there are NA's in the data </span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">apply</span>(all_data, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">any</span>(<span class="fu">is.na</span>(x)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check if there are NA's in the data </span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">apply</span>(all_data, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">any</span>(<span class="fu">is.na</span>(x)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                     event.id                 location.long 
                         FALSE                          TRUE 
@@ -481,35 +480,38 @@ animal.reproductive.condition         tag.manufacturer.name
                     tag.model 
                         FALSE </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lets filter out any missing values </span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(all_data<span class="sc">$</span>event.id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lets filter out any missing values </span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(all_data<span class="sc">$</span>event.id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 17197</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>tdata <span class="ot">&lt;-</span> all_data <span class="sc">%&gt;%</span> </span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(date)) <span class="sc">%&gt;%</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(location.long)) <span class="sc">%&gt;%</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(location.lat))</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(tdata<span class="sc">$</span>event.id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>tdata <span class="ot">&lt;-</span> all_data <span class="sc">%&gt;%</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(date)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(location.long)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(location.lat)) </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># comments </span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(tdata<span class="sc">$</span>comments)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 17195</code></pre>
+<pre><code>[1] "Scott"      "Burnt Pine" NA          </code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># two missing herd values which we can fill in (or delete)</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>tdata <span class="ot">&lt;-</span> tdata <span class="sc">%&gt;%</span> </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">comments =</span> <span class="fu">case_when</span>(</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    animal.id <span class="sc">==</span> <span class="st">"BP_car043"</span> <span class="sc">~</span> <span class="st">"Burnt Pine"</span>, </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    animal.id <span class="sc">==</span> <span class="st">"SC_car170"</span> <span class="sc">~</span> <span class="st">"Scott"</span>,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">.default =</span> comments</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co">#length(tdata$event.id)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now lets covert the timestamp into a usable format</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'lubridate'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    date, intersect, setdiff, union</code></pre>
-</div>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate time differences</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>tdata <span class="ot">&lt;-</span> tdata  <span class="sc">%&gt;%</span></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date_time =</span> <span class="fu">ymd_hms</span>(date)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -541,49 +543,351 @@ Caused by warning:
 <span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>tdata  <span class="ot">&lt;-</span> tdata  <span class="sc">%&gt;%</span></span>
 <span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date_time =</span> <span class="fu">ymd_hms</span>(date)) </span>
 <span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Note the Universal Coordinated Time Zone</span></span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="co"># lets split this data format into something more useful </span></span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>tdata  <span class="ot">&lt;-</span> tdata  <span class="sc">%&gt;%</span></span>
-<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(date_time )) <span class="sc">%&gt;%</span></span>
-<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">month =</span> <span class="fu">month</span>(date_time ),</span>
-<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">day</span>(date_time),</span>
-<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">hour =</span> <span class="fu">hour</span>(date_time),</span>
-<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>         <span class="at">minute =</span> <span class="fu">minute</span>(date_time))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(tdata<span class="sc">$</span>date_time) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2013-09-23 10:01:00 UTC" "2013-10-09 10:01:00 UTC"
+[3] "2013-10-30 10:01:00 UTC" "2014-08-11 10:01:00 UTC"
+[5] "2013-11-10 02:01:00 UTC" "2014-08-07 10:01:00 UTC"</code></pre>
 </div>
-<p>Now we have fixed our data entry problems we also want to review the spatial accuracy. We have two metrics : DOP (Dilution of Precision), and a Fix Type.</p>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note the Universal Coordinated Time Zone</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># lets split this data format into something more useful </span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>tdata  <span class="ot">&lt;-</span> tdata  <span class="sc">%&gt;%</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(date_time )) <span class="sc">%&gt;%</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">month =</span> <span class="fu">month</span>(date_time ),</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">day</span>(date_time),</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">hour =</span> <span class="fu">hour</span>(date_time),</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">minute =</span> <span class="fu">minute</span>(date_time))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="a.-qa-spatial-accuracy-values" class="level4">
+<h4 class="anchored" data-anchor-id="a.-qa-spatial-accuracy-values">2a. QA Spatial accuracy values</h4>
+<p>Now we have fixed our data entry problems we also want to review the spatial accuracy. We have two metrics: DOP (Dilution of Precision), and a Fix Type.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DOP </span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span> (tdata<span class="sc">$</span>DOP)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># review the lat / longs </span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(tdata<span class="sc">$</span>location.lat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  55.2249 155.4764</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(tdata<span class="sc">$</span>location.lat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="intro-telemetry-data_files/figure-html/clean lat longs-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># above 65 latidude</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(tdata<span class="sc">$</span>location.long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -123.6684  -22.0000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(tdata<span class="sc">$</span>location.long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="intro-telemetry-data_files/figure-html/clean lat longs-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># greater than -100 longitude. </span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>tdata <span class="ot">&lt;-</span> tdata <span class="sc">%&gt;%</span> </span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(location.long <span class="sc">&lt;=</span> <span class="sc">-</span><span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(location.lat <span class="sc">&lt;=</span> <span class="dv">65</span>)</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="co">#bou &lt;- st_as_sf(tdata, coords = c("location.long", "location.lat"), crs = 4326)</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a><span class="co">#mapview::mapview (bou)</span></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a><span class="co"># DOP </span></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span> (tdata<span class="sc">$</span>DOP)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  1.0 43.1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(tdata<span class="sc">$</span>DOP)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(tdata<span class="sc">$</span>DOP)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="intro-telemetry-data_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="intro-telemetry-data_files/figure-html/clean lat longs-3.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for this example we only want to keep fixes with a DOP less than 10m</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>fdata <span class="ot">&lt;-</span> tdata <span class="sc">%&gt;%</span> </span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DOP <span class="sc">&lt;=</span> <span class="dv">10</span>)</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix Type : </span></span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>fixtype <span class="ot">&lt;-</span> fdata <span class="sc">%&gt;%</span> </span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(FixType) <span class="sc">%&gt;%</span></span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for this example we only want to keep fixes with a DOP less than 10m</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>fdata <span class="ot">&lt;-</span> tdata <span class="sc">%&gt;%</span> </span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DOP <span class="sc">&lt;=</span> <span class="dv">10</span>)</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(fdata<span class="sc">$</span>DOP)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="intro-telemetry-data_files/figure-html/clean lat longs-4.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix Type : </span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>fixtype <span class="ot">&lt;-</span> fdata <span class="sc">%&gt;%</span> </span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(FixType) <span class="sc">%&gt;%</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>())</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>fixtype</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  FixType     count
+  &lt;chr&gt;       &lt;int&gt;
+1 GPS-2D         92
+2 GPS-3D        291
+3 val. GPS-3D 16801</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove the 2d locations </span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>fdata <span class="ot">&lt;-</span> fdata <span class="sc">%&gt;%</span> </span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(FixType <span class="sc">!=</span> <span class="st">"GPS-2D"</span>)</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="co"># see what the data looks like</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(fdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 17,092
+Columns: 21
+$ event.id                      &lt;dbl&gt; 2270202009, 2270202041, 2270202100, 2270…
+$ location.long                 &lt;dbl&gt; -123.6036, -123.5987, -123.5903, -123.49…
+$ location.lat                  &lt;dbl&gt; 55.90000, 55.87343, 55.87470, 55.83741, …
+$ DOP                           &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+$ FixType                       &lt;chr&gt; "val. GPS-3D", "val. GPS-3D", "val. GPS-…
+$ comments                      &lt;chr&gt; "Scott", "Scott", "Scott", "Scott", "Sco…
+$ study.specific.measurement    &lt;chr&gt; "Summer", "Summer", "Summer", "Summer", …
+$ sensor.type                   &lt;chr&gt; "gps", "gps", "gps", "gps", "gps", "gps"…
+$ tag.local.identifier          &lt;chr&gt; "car170", "car170", "car170", "car170", …
+$ date                          &lt;chr&gt; "2013-09-23 10:01:00.000", "2013-10-09 1…
+$ animal.id                     &lt;chr&gt; "SC_car170", "SC_car170", "SC_car170", "…
+$ animal.sex                    &lt;chr&gt; "f", "f", "f", "f", "f", "f", "f", "f", …
+$ animal.reproductive.condition &lt;chr&gt; "with calf: N", "with calf: N", "with ca…
+$ tag.manufacturer.name         &lt;chr&gt; "ATS", "ATS", "ATS", "ATS", "ATS", "ATS"…
+$ tag.model                     &lt;chr&gt; "GPS Iridium", "GPS Iridium", "GPS Iridi…
+$ date_time                     &lt;dttm&gt; 2013-09-23 10:01:00, 2013-10-09 10:01:0…
+$ year                          &lt;dbl&gt; 2013, 2013, 2013, 2014, 2013, 2014, 2014…
+$ month                         &lt;dbl&gt; 9, 10, 10, 8, 11, 8, 9, 12, 7, 11, 6, 12…
+$ day                           &lt;int&gt; 23, 9, 30, 11, 10, 7, 19, 6, 8, 24, 20, …
+$ hour                          &lt;int&gt; 10, 10, 10, 10, 2, 10, 2, 18, 18, 2, 2, …
+$ minute                        &lt;int&gt; 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 0, 0, 1…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># lets check if this column is any use? </span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(fdata<span class="sc">$</span>sensor.type)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "gps"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove the columns that we dont need</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>fdata <span class="ot">&lt;-</span> fdata <span class="sc">%&gt;%</span> </span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>FixType, <span class="sc">-</span>DOP, <span class="sc">-</span>date, <span class="sc">-</span>study.specific.measurement , <span class="sc">-</span>sensor.type, <span class="sc">-</span>event.id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
-<section id="cleaning-and-preparing-telemetry-data" class="level2">
-<h2 class="anchored" data-anchor-id="cleaning-and-preparing-telemetry-data">Cleaning and preparing telemetry data</h2>
+</section>
+<section id="conver-to-spatial-file-and-export" class="level2">
+<h2 class="anchored" data-anchor-id="conver-to-spatial-file-and-export">conver to spatial file and export</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># conver to a sf object </span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>bou <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(fdata, <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"location.long"</span>, <span class="st">"location.lat"</span>), <span class="at">crs =</span> <span class="dv">4326</span>)</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="co">#mapview::mapview (bou)</span></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a><span class="co"># export as .gpkg</span></span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a><span class="fu">st_write</span>(bou, <span class="st">"clean_data/caribou.gpkg"</span>)</span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a><span class="fu">st_write</span>(bou, <span class="st">"clean_data/caribou.shp"</span>, <span class="at">append=</span><span class="cn">FALSE</span>)</span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a><span class="co"># note warning on names for shapefile</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="output-cleaned" class="level2">
+<h2 class="anchored" data-anchor-id="output-cleaned">Output cleaned</h2>
+<p>We can output out cleaned data as a table</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(fdata, <span class="st">"clean_data/caribou.csv"</span>, <span class="at">row.names =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 <section id="generating-tabular-summaries" class="level2">
 <h2 class="anchored" data-anchor-id="generating-tabular-summaries">Generating tabular summaries</h2>
+<p>Now we have clean data to work with we can get to the fun data exploration part!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co">#bou = read.csv("clean_data/caribou.csv")</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>bou_sf <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"clean_data/caribou.gpkg"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `caribou' from data source 
+  `C:\Users\genev\OneDrive\Documents\02.Contracts\2023_bcgov_geospatial\03.Course_material\r-telemetry-workshop-nov-2023\clean_data\caribou.gpkg' 
+  using driver `GPKG'
+Simple feature collection with 17092 features and 13 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: -123.6684 ymin: 55.2249 xmax: -122.081 ymax: 56.01707
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>bou <span class="ot">&lt;-</span> bou_sf <span class="sc">%&gt;%</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(<span class="fu">st_coordinates</span>(bou_sf)) <span class="sc">%&gt;%</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>          <span class="fu">st_drop_geometry</span>(bou_sf)</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bou)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  comments tag.local.identifier animal.id animal.sex
+1    Scott               car170 SC_car170          f
+2    Scott               car170 SC_car170          f
+3    Scott               car170 SC_car170          f
+4    Scott               car170 SC_car170          f
+5    Scott               car170 SC_car170          f
+6    Scott               car170 SC_car170          f
+  animal.reproductive.condition tag.manufacturer.name   tag.model
+1                  with calf: N                   ATS GPS Iridium
+2                  with calf: N                   ATS GPS Iridium
+3                  with calf: N                   ATS GPS Iridium
+4                  with calf: N                   ATS GPS Iridium
+5                  with calf: N                   ATS GPS Iridium
+6                  with calf: N                   ATS GPS Iridium
+            date_time year month day hour minute         X        Y
+1 2013-09-23 03:01:00 2013     9  23   10      1 -123.6036 55.90000
+2 2013-10-09 03:01:00 2013    10   9   10      1 -123.5987 55.87343
+3 2013-10-30 03:01:00 2013    10  30   10      1 -123.5903 55.87470
+4 2014-08-11 03:01:00 2014     8  11   10      1 -123.4915 55.83741
+5 2013-11-09 18:01:00 2013    11  10    2      1 -123.4740 55.87877
+6 2014-08-07 03:01:00 2014     8   7   10      1 -123.4412 55.85412</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(bou)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 17,092
+Columns: 15
+$ comments                      &lt;chr&gt; "Scott", "Scott", "Scott", "Scott", "Sco…
+$ tag.local.identifier          &lt;chr&gt; "car170", "car170", "car170", "car170", …
+$ animal.id                     &lt;chr&gt; "SC_car170", "SC_car170", "SC_car170", "…
+$ animal.sex                    &lt;chr&gt; "f", "f", "f", "f", "f", "f", "f", "f", …
+$ animal.reproductive.condition &lt;chr&gt; "with calf: N", "with calf: N", "with ca…
+$ tag.manufacturer.name         &lt;chr&gt; "ATS", "ATS", "ATS", "ATS", "ATS", "ATS"…
+$ tag.model                     &lt;chr&gt; "GPS Iridium", "GPS Iridium", "GPS Iridi…
+$ date_time                     &lt;dttm&gt; 2013-09-23 03:01:00, 2013-10-09 03:01:0…
+$ year                          &lt;dbl&gt; 2013, 2013, 2013, 2014, 2013, 2014, 2014…
+$ month                         &lt;dbl&gt; 9, 10, 10, 8, 11, 8, 9, 12, 7, 11, 6, 12…
+$ day                           &lt;int&gt; 23, 9, 30, 11, 10, 7, 19, 6, 8, 24, 20, …
+$ hour                          &lt;int&gt; 10, 10, 10, 10, 2, 10, 2, 18, 18, 2, 2, …
+$ minute                        &lt;int&gt; 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 0, 0, 1…
+$ X                             &lt;dbl&gt; -123.6036, -123.5987, -123.5903, -123.49…
+$ Y                             &lt;dbl&gt; 55.90000, 55.87343, 55.87470, 55.83741, …</code></pre>
+</div>
+</div>
+<p>Many Questions we can ask here:</p>
+<ul>
+<li>how many herds do we have?</li>
+<li>how many animals in each herd?</li>
+<li>what is the sex ratio of collared animals?</li>
+<li>what is the duration of each collar? Start and end years?</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>No_herds <span class="ot">=</span> <span class="fu">unique</span>(bou<span class="sc">$</span>comments)</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>no_records <span class="ot">&lt;-</span> bou <span class="sc">%&gt;%</span> </span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(comments)<span class="sc">%&gt;%</span> </span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>())</span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>no_animals_sex <span class="ot">&lt;-</span> bou <span class="sc">%&gt;%</span> </span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(comments, animal.sex)<span class="sc">%&gt;%</span> </span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'comments'. You can override using the
+`.groups` argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>no_animals_id <span class="ot">&lt;-</span> bou <span class="sc">%&gt;%</span> </span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(comments, animal.id)<span class="sc">%&gt;%</span> </span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'comments'. You can override using the
+`.groups` argument.</code></pre>
+</div>
+</div>
+<p>Lets concentrate on the Scott herd.</p>
+<div class="cell">
+<pre class="rsummarise cell-code"><code># look at the Scott herd.
+
+sbou &lt;- bou %&gt;% 
+  filter(comments == "Scott")
+
+# how many animals?
+no_animals &lt;- unique(sbou$animal.id)
+
+
+# lets look at the time period: 
+
+p1 &lt;- ggplot(sbou, aes(year, fill = animal.id))+
+    geom_bar(position = "dodge")#+
+    #xlim(2021,2024)#+
+
+
+# duration of the collars within the Scott herd. 
+
+table_max &lt;- sbou %&gt;% 
+  dplyr::select(animal.id, date_time) %&gt;%
+  slice_max(date_time, by = animal.id) 
+colnames(table_max)&lt;- c("animal.id","max")
+
+table_min &lt;- sbou %&gt;% 
+  dplyr::select(animal.id, date_time) %&gt;%
+  slice_min(date_time, by = animal.id) 
+colnames(table_min)&lt;- c("animal.id","min")
+
+dur &lt;- left_join(table_max, table_min, by = join_by(animal.id)) %&gt;%
+  distinct() %&gt;%
+  dplyr::mutate(duration = max - min) %&gt;%
+  mutate(dur_days = round( duration,1))%&gt;%
+  mutate(dur_hrs = round(as.numeric(dur_days)*24,1)) %&gt;%
+ #mutate(dur_days = round( dur_hrs/24,1))%&gt;%
+  mutate(year_start = year(min), 
+         year_end = year(max))
+
+
+
+dur_plot &lt;- ggplot(dur, aes(y=factor(animal.id))) +
+  geom_segment(aes(x=min, xend=max, y=factor(animal.id), yend=factor(animal.id)), size=1)+
+  xlab("Date") + ylab("Tag") 
+
+dur_plot
+
+
+
+# months of the year. 
+p_duration &lt;- ggplot(sbou, aes(factor(month), fill = factor(year)))+
+  geom_bar(position = "dodge") +
+  #xlim(1,12)+
+  facet_wrap(~animal.id)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+
+# months of the year. 
+p_duration &lt;- ggplot(sbou, aes(factor(year), fill = factor(month)))+
+  geom_bar(position = "dodge") +
+  #xlim(1,12)+
+  facet_wrap(~animal.id)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+</code></pre>
+</div>
+</section>
+<section id="convert-the-dates-to-seasons" class="level1">
+<h1>convert the dates to seasons</h1>
+<p>Next we format the date variable so we can filter by months and years. We can also assign fixes to seasons based on the following dates :</p>
+<ul>
+<li>Spring/calving (April,May)</li>
+<li>Summer (June to August)</li>
+<li>Fall (September to November)</li>
+<li>Winter (December to March)</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>sbou <span class="ot">&lt;-</span> sbou <span class="sc">%&gt;%</span> </span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">season =</span> <span class="fu">case_when</span>(</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>            month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">5</span>) <span class="sc">~</span> <span class="st">"spring"</span>,</span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>            month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span>) <span class="sc">~</span> <span class="st">"summer"</span>,</span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>            month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">9</span>,<span class="dv">10</span>,<span class="dv">11</span>) <span class="sc">~</span> <span class="st">"Fall"</span>,</span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>            month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">12</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>) <span class="sc">~</span> <span class="st">"winter"</span>, </span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-9"><a href="#cb66-9" aria-hidden="true" tabindex="-1"></a><span class="co"># check data spread</span></span>
+<span id="cb66-10"><a href="#cb66-10" aria-hidden="true" tabindex="-1"></a><span class="at">counts.per.season =</span> indata <span class="sc">%&gt;%</span></span>
+<span id="cb66-11"><a href="#cb66-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(season) <span class="sc">%&gt;%</span></span>
+<span id="cb66-12"><a href="#cb66-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>())</span>
+<span id="cb66-13"><a href="#cb66-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-14"><a href="#cb66-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(counts.per.season, <span class="fu">aes</span>(<span class="at">x =</span> season, <span class="at">y =</span> count)) <span class="sc">+</span> </span>
+<span id="cb66-15"><a href="#cb66-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span> </span>
+<span id="cb66-16"><a href="#cb66-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"season"</span>, <span class="at">y =</span> <span class="st">"no.of.fixes"</span>, <span class="at">title =</span> <span class="st">"Scott Herd"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 
 
 </section>
