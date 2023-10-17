@@ -27,8 +27,23 @@ You will need:
 -   [R package development toolchain](#install-r-package-development-tools)
 -   [Several R packages](#packages)
 
+### Install R and RStudio {#install-r-and-rstudio}
 
-## Install R
+You will need:
+
+-   R version \>= 4.2.0
+-   RStudio \>= 2023.03.1
+
+#### Install R
+
+Download and install R for your operating system from <https://cloud.r-project.org/>.
+
+#### Install R Studio
+
+Download and install RStudio Desktop from <https://posit.co/download/rstudio-desktop/>.
+This page should automatically offer you the version suitable for your operating system, but you can scroll down to find versions for all operating systems.
+
+### Install packages {#packages}
 
 ## Install RStudio
 
