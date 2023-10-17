@@ -17,6 +17,17 @@ Wont include:
 - methodological detail of telemetry methods ie DOP calculations
 - wont be working with individual datasets (until Friday!)
 
+You will require the following software installed and configured for the workshop.
+Please have this set up and ready to go **before** we start.
+
+## Computing requirements
+
+You will need:
+
+-   A laptop computer with administrative privileges
+-   [R and RStudio](#install-r-and-rstudio)
+-   [R package development toolchain](#install-r-package-development-tools)
+-   [Several R packages](#packages)
 
 
 ## Install R
