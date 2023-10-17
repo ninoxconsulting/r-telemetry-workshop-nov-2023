@@ -45,6 +45,11 @@ This page should automatically offer you the version suitable for your operating
 
 ### Install packages {#packages}
 
-## Install RStudio
+In R, install the necessary packages by running:
 
-## Install packages
+```{r}
+#| eval: false
+install.packages(
+  c("tidyverse", "sf", "terra", "tmap", "mapview", "bcdata", "bcmaps", "readxl")
+)
+```
