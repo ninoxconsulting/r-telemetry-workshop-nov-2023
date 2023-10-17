@@ -5,27 +5,27 @@ title: "Introduction and System Setup"
 
 ## overview of course 
 
-Will include: 
+### Will include: 
 - how to read in, clean, QA your telemetry data
 - how to summarise your data (tables, figures, maps)
 - how to leverage bc data catalogue (vector, raster)
 - how to perform spatial operations to model covariates
 
-Wont include: 
+### Wont include: 
 - methodological detail of telemetry methods ie DOP calculations
 - wont be working with individual datasets (until Friday!)
+
+## Computing requirements
 
 You will require the following software installed and configured for the workshop.
 Please have this set up and ready to go **before** we start.
 
-## Computing requirements
-
 You will need:
 
--   A laptop computer with administrative privileges
+-   A laptop computer, preferably with administrative privileges
 -   [R and RStudio](#install-r-and-rstudio)
--   [R package development toolchain](#install-r-package-development-tools)
 -   [Several R packages](#packages)
+-   [QGIS](qgis) (optional)
 
 ### Install R and RStudio {#install-r-and-rstudio}
 
@@ -38,10 +38,18 @@ You will need:
 
 Download and install R for your operating system from <https://cloud.r-project.org/>.
 
+##### Windows with no admin rights:
+
+If you do not have administrator rights, the installer will default to installing somewhere in your user folder (e.g., `C:/Users/username/AppData/Local/Programs/`). If you prefer, you can change the location to another folder that you have write access to, just make sure it is on your `C:/` drive.
+
 #### Install R Studio
 
 Download and install RStudio Desktop from <https://posit.co/download/rstudio-desktop/>.
 This page should automatically offer you the version suitable for your operating system, but you can scroll down to find versions for all operating systems.
+
+##### Windows with no admin rights:
+
+Download the `.zip` archive for Windows under "Zip/Tarballs". Create a folder called `RStudio` in a location on your `C:/` drive, where you have write access (e.g. `C:/Users/username/AppData/Local/Programs/RStudio`), and extract the zip file into this folder. Find the RStudio program in this folder: it is named `rstudio.exe`, but the file extension will typically be hidden, so look for `rstudio`. Right-click this file to create a shortcut and drag it to your desktop/task bar. Use the shortcut to open RStudio.
 
 ### Install packages {#packages}
 
@@ -53,3 +61,9 @@ install.packages(
   c("tidyverse", "sf", "terra", "tmap", "mapview", "bcdata", "bcmaps", "readxl")
 )
 ```
+
+### QGIS {#qgis}
+
+QGIS is a free and open-source geographic information system (GIS) that allows you to create, edit, visualize, analyze and publish geospatial information.
+
+Download and install from the [QGIS website](https://qgis.org/en/site/forusers/download.html).
