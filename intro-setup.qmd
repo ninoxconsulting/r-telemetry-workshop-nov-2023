@@ -11,8 +11,6 @@ Will include:
 - how to leverage bc data catalogue (vector, raster)
 - how to perform spatial operations to model covariates
 
-
-
 Wont include: 
 - methodological detail of telemetry methods ie DOP calculations
 - wont be working with individual datasets (until Friday!)
