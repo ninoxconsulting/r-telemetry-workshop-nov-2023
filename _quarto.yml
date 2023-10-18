@@ -24,6 +24,7 @@ website:
         - section: "Intro to Telemetry Data and Visualization"
           contents:
             - intro-setup.qmd
+            - intro-spatial-data.qmd
             - intro-telemetry-data.qmd
             - spatial-data-viz.qmd
         - section: "Telemetry Analysis and Covariate Preparation"
