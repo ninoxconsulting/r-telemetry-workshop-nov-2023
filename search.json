@@ -67,34 +67,20 @@
     "href": "intro-setup.html",
     "title": "Introduction and System Setup",
     "section": "",
-    "text": "Will include: - how to read in, clean, QA your telemetry data - how to summarise your data (tables, figures, maps) - how to leverage bc data catalogue (vector, raster) - how to perform spatial operations to model covariates\nWont include: - methodological detail of telemetry methods ie DOP calculations - wont be working with individual datasets (until Friday!)"
+    "text": "how to read in, clean, QA your telemetry data\nhow to summarise your data (tables, figures, maps)\nhow to leverage bc data catalogue (vector, raster)\nhow to perform spatial operations to model covariates\n\n\n\n\n\nmethodological detail of telemetry methods ie DOP calculations\nwont be working with individual datasets (until Friday!)"
   },
   {
     "objectID": "intro-setup.html#overview-of-course",
     "href": "intro-setup.html#overview-of-course",
     "title": "Introduction and System Setup",
     "section": "",
-    "text": "Will include: - how to read in, clean, QA your telemetry data - how to summarise your data (tables, figures, maps) - how to leverage bc data catalogue (vector, raster) - how to perform spatial operations to model covariates\nWont include: - methodological detail of telemetry methods ie DOP calculations - wont be working with individual datasets (until Friday!)"
+    "text": "how to read in, clean, QA your telemetry data\nhow to summarise your data (tables, figures, maps)\nhow to leverage bc data catalogue (vector, raster)\nhow to perform spatial operations to model covariates\n\n\n\n\n\nmethodological detail of telemetry methods ie DOP calculations\nwont be working with individual datasets (until Friday!)"
   },
   {
-    "objectID": "intro-setup.html#install-r",
-    "href": "intro-setup.html#install-r",
+    "objectID": "intro-setup.html#computing-requirements",
+    "href": "intro-setup.html#computing-requirements",
     "title": "Introduction and System Setup",
-    "section": "Install R",
-    "text": "Install R"
-  },
-  {
-    "objectID": "intro-setup.html#install-rstudio",
-    "href": "intro-setup.html#install-rstudio",
-    "title": "Introduction and System Setup",
-    "section": "Install RStudio",
-    "text": "Install RStudio"
-  },
-  {
-    "objectID": "intro-setup.html#install-packages",
-    "href": "intro-setup.html#install-packages",
-    "title": "Introduction and System Setup",
-    "section": "Install packages",
-    "text": "Install packages"
+    "section": "Computing requirements",
+    "text": "Computing requirements\nYou will require the following software installed and configured for the workshop. Please have this set up and ready to go before we start.\nYou will need:\n\nA laptop computer, preferably with administrative privileges\nR and RStudio\nSeveral R packages\nQGIS (optional)\n\n\nInstall R and RStudio\nYou will need:\n\nR version &gt;= 4.2.0\nRStudio &gt;= 2023.03.1\n\n\nInstall R\nDownload and install R for your operating system from https://cloud.r-project.org/.\n\nWindows with no admin rights:\nIf you do not have administrator rights, the installer will default to installing somewhere in your user folder (e.g., C:/Users/username/AppData/Local/Programs/). If you prefer, you can change the location to another folder that you have write access to, just make sure it is on your C:/ drive.\n\n\n\nInstall R Studio\nDownload and install RStudio Desktop from https://posit.co/download/rstudio-desktop/. This page should automatically offer you the version suitable for your operating system, but you can scroll down to find versions for all operating systems.\n\nWindows with no admin rights:\nDownload the .zip archive for Windows under “Zip/Tarballs”. Create a folder called RStudio in a location on your C:/ drive, where you have write access (e.g. C:/Users/username/AppData/Local/Programs/RStudio), and extract the zip file into this folder. Find the RStudio program in this folder: it is named rstudio.exe, but the file extension will typically be hidden, so look for rstudio. Right-click this file to create a shortcut and drag it to your desktop/task bar. Use the shortcut to open RStudio.\n\n\n\n\nInstall packages\nIn R, install the necessary packages by running:\n\ninstall.packages(\n  c(\"tidyverse\", \"sf\", \"terra\", \"tmap\", \"mapview\", \"bcdata\", \"bcmaps\", \"readxl\")\n)\n\n\n\nQGIS\nQGIS is a free and open-source geographic information system (GIS) that allows you to create, edit, visualize, analyze and publish geospatial information.\nDownload and install from the QGIS website."
   }
 ]
