@@ -2,7 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
-
 /.quarto/
 /_site/
 /docs/
+intro-spatial-data_files
+intro-spatial-data_cache

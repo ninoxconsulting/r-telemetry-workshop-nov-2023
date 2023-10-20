@@ -2,10 +2,12 @@
 title: "Introduction to Spatial Data with R"
 format: 
   revealjs:
-    theme: [default, slides.scss]
+    theme: [serif, slides.scss]
+    code-copy: false
 footer: "[Workshop Home](https://ninoxconsulting.github.io/r-telemetry-workshop-nov-2023)"
 execute: 
   echo: true
+  cache: true
 ---
 
 ```{r}
@@ -13,6 +15,8 @@ execute:
 library(sf)
 library(mapview)
 library(bcdata)
+library(ggplot2)
+library(bcmaps)
 ```
 
 
@@ -31,7 +35,7 @@ library(bcdata)
 
 ---
 
-![](http://www.tailsfromthefield.net/wp-content/uploads/2014/07/5.VectorRaster.png){fig-alt="Vector-Raster" fig-align="center"}
+![](images/vector-raster.png){fig-alt="Vector-Raster" fig-align="center"}
 
 ::: aside
 Image: http://www.tailsfromthefield.net
@@ -55,7 +59,6 @@ Spatial data divided into two categories: Vector and Raster
 :::: {.columns}
 
 ::: {.column width="50%"}
-\
 
 ### The `sf` R package^[sf package: <https://cran.r-project.org/package=sf>]
 
@@ -66,7 +69,7 @@ Spatial data divided into two categories: Vector and Raster
 :::
 
 ::: {.column width="50%"}
-![](https://geocompr.robinlovelace.net/figures/sf-classes.png){fig-alt="Simple Features" fig-width="600px" fig-align="center"}^[Geocomputation with R, fig 2.2: <https://geocompr.robinlovelace.net>]
+![](images/sf-classes.png){fig-alt="Simple Features" fig-width="600px" fig-align="center"}^[Geocomputation with R, fig 2.2: <https://geocompr.robinlovelace.net>]
 :::
 ::::
 
@@ -79,9 +82,10 @@ agreed-upon way to represent vector spatial data
 - rgdal and rgeos are now retired and removed from CRAN
 :::
 
-## Reading and previewing spatial data
+## Reading & previewing spatial data
 
 :::: {.columns}
+
 ::: {.column width="50%"}
 ```{r}
 #| eval: false
@@ -97,10 +101,8 @@ mapview(airports)
 :::
 
 ::: {.column width="50%"}
-
 ```{r}
 #| echo: false
-#| cache: true
 airports <- read_sf("raw_data/bc_airports.gpkg", quiet = TRUE)
 mapview(airports)
 ```
@@ -109,7 +111,7 @@ mapview(airports)
 
 ## mapview
 
-```{r fig.width=10, cache=TRUE}
+```{r fig.width=10}
 mapview(airports, zcol = "NUMBER_OF_RUNWAYS")
 ```
 
@@ -126,189 +128,176 @@ go through sf header info:
 - geometry type
 - dimension (XY - can have Z and M)
 - bbox
-- epsg
-- proj4
+- CRS
 
 :::
 
-<!-- --- -->
+## Key features of an `sf` object
 
-<!-- # Key features of an `sf` object -->
+:::: {.columns}
+::: {.column width="50%"}
+```{r}
+#| class-output: small-output
+#| message: true
+st_geometry(airports)
+st_bbox(airports)
+```
+:::
 
-<!-- ```{r message=TRUE} -->
+::: {.column width="50%"}
+```{r}
+#| classes: small-output
+#| message: true
+st_crs(airports)
+```
+:::
+::::
 
-<!-- st_geometry(airports) -->
+## An `sf` object is a `data.frame`
 
-<!-- st_bbox(airports) -->
+```{r}
+class(airports)
+is.data.frame(airports)
+summary(airports)
+```
 
-<!-- st_crs(airports) -->
-<!-- ``` -->
+## Coordinate Reference Systems
 
-<!-- --- -->
+:::: {.columns .small-text}
 
-<!-- # An `sf` object is a `data.frame` -->
+::: {.column width="50%"}
+### Geographic
+- spherical or ellipsoidal surface
+- ellipsoid defined by the _datum_
+- lat/long, measured in angular distances (degrees/radians)
 
-<!-- ```{r} -->
-<!-- class(airports) -->
-<!-- is.data.frame(airports) -->
-<!-- summary(airports) -->
+![](images/world-geographic.jpg){fig-align="center"}
+:::
 
-<!-- ``` -->
+::: {.column width="50%"}
+### Projected
+- Cartesian coordinates on a flat plane
+- origin, x and y axes, linear unit of measurement (e.g., m)
 
-<!-- --- -->
+![](images/world-projected.jpg)
+:::
+::::
 
-<!-- ## We can turn it into a normal `data.frame` -->
+::: {.notes}
 
-<!-- ```{r} -->
-<!-- airports_df <- st_drop_geometry(airports) -->
-<!-- head(airports_df) -->
-<!-- ``` -->
+defines how the spatial elements of the data relate to the surface of the Earth
 
-<!-- --- -->
+Geographic:
+- identify any location on the Earth’s surface using two values — longitude and latitude.
+- Longitude is location in the East-West direction in angular distance from the Prime Meridian plane.
+- Latitude is angular distance North or South of the equatorial plane.
+- Distances in geographic CRSs are therefore not measured in meters. This has important consequences
 
-<!-- ## Coordinate Reference Systems -->
-<!-- .pull-left[ -->
-<!-- ### Geographic -->
-<!-- - spherical or ellipsoidal surface; ellipsoid defined by the _datum_ -->
-<!-- - lat/long, measured in angular distances (degrees/radians) -->
+Projected:
+- based on a geographic CRS
+- rely on map projections to convert the three-dimensional surface of the Earth into Easting and Northing (x and y) values in a projected CRS
+- often named based on a property they preserve: equal-area preserves area, azimuthal preserve direction, equidistant preserve distance, and conformal preserve local shape.
+- conic, cylindrical, planar
+:::
 
-<!-- <center><img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Azimutalprojektion-schief_kl.jpg" alt="geocrs" /></center> -->
-<!-- ] -->
+## CRSs in R: EPSG codes
 
-<!-- .pull-right[ -->
-<!-- ### Projected -->
-<!-- - Cartesian coordinates on a flat plane -->
-<!-- - origin, x and y axes, linear unit of measurement (e.g., m) -->
+```{r}
+st_crs(airports)$input
+```
 
-<!-- <center><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Albers_projection_SW.jpg/1920px-Albers_projection_SW.jpg" alt="geocrs" /></center> -->
-<!-- ] -->
+<br>
 
-<!-- .small.pull-left[https://en.wikipedia.org/wiki/Geographic_coordinate_system] -->
-<!-- .small.pull-right[https://en.wikipedia.org/wiki/Albers_projection] -->
+:::: {.columns}
+::: {.column width="50%"}
 
-<!-- ??? -->
+#### BC Albers - B.C.'s standard projection
+- Equal Area conic
+- Centre: c(-126, 54)
+:::
 
-<!-- defines how the spatial elements of the data relate to the surface of the Earth -->
+::: {.column width="50%"}
 
-<!-- Geographic:  -->
-<!-- - identify any location on the Earth’s surface using two values — longitude and latitude.  -->
-<!-- - Longitude is location in the East-West direction in angular distance from the Prime Meridian plane.  -->
-<!-- - Latitude is angular distance North or South of the equatorial plane.  -->
-<!-- - Distances in geographic CRSs are therefore not measured in meters. This has important consequences -->
+```{r echo=FALSE, cache=TRUE}
+#| fig-width: 6
+albers_centre <- st_sfc(st_point(c(-126, 54)), crs = 4326) %>%
+  st_transform(3005)
 
-<!-- Projected: -->
-<!-- - based on a geographic CRS -->
-<!-- - rely on map projections to convert the three-dimensional surface of the Earth into Easting and Northing (x and y) values in a projected CRS -->
-<!-- - often named based on a property they preserve: equal-area preserves area, azimuthal preserve direction, equidistant preserve distance, and conformal preserve local shape. -->
-<!-- - conic, cylindrical, planar -->
+ggplot() +
+  geom_sf(data = bc_bound()) +
+  geom_sf(data = albers_centre, colour = "blue", size = 5) +
+  geom_sf(data = bc_cities() %>% filter(NAME == "Burns Lake")) +
+  geom_sf_text(data = bc_cities() %>% filter(NAME == "Burns Lake"), aes(label = NAME), nudge_x = 100000, nudge_y = 30000) +
+  theme_void()
+```
 
-<!-- --- -->
+:::
+::::
 
-<!-- # CRSs in R -->
+::: center-x
+https://epsg.io/3005
+:::
 
-<!-- ```{r} -->
-<!-- st_crs(airports) -->
-<!-- ``` -->
+::: {.notes}
 
-<!-- .pull-left[ -->
-<!-- ## BC Albers - B.C.'s standard projection -->
-<!-- - Equal Area conic -->
-<!-- - Centre: c(-126, 54) -->
-<!-- https://epsg.io/3005 -->
-<!-- ] -->
+EPSG codes
+BC Albers
 
-<!-- .pull-right[ -->
-<!-- ```{r echo=FALSE, cache=TRUE} -->
+:::
 
-<!-- albers_centre <- st_sfc(st_point(c(-126, 54)), crs = 4326) %>%  -->
-<!--   st_transform(3005) -->
+## WKT (Well-Known Text)
 
-<!-- ggplot() +  -->
-<!--   geom_sf(data = bc_bound()) +  -->
-<!--   geom_sf(data = albers_centre, colour = "blue", size = 5) +  -->
-<!--   geom_sf(data = bc_cities() %>% filter(NAME == "Burns Lake")) +  -->
-<!--   geom_sf_text(data = bc_cities() %>% filter(NAME == "Burns Lake"), aes(label = NAME), nudge_x = 100000, nudge_y = 30000) +  -->
-<!--   theme_void() -->
+```{r}
+st_crs(3005)$wkt
+```
 
-<!-- ``` -->
-<!-- ] -->
+## Your turn {.inverse}
+<br>
 
-<!-- ??? -->
+### Read in the electoral districts data in the `data` folder:
 
-<!-- EPSG codes -->
-<!-- BC Albers -->
+- What type of geometry is it?
+- What is the CRS?
+- What is the EPSG code?
 
-<!-- --- -->
+## Solution
 
-<!-- ## Proj4 String -->
+```{r}
+#| class-output: small-output
+elec_bc <- read_sf("raw_data/bc_electoral_districts.shp")
+st_geometry_type(elec_bc, by_geometry = FALSE)
+st_crs(elec_bc)
+```
 
-<!-- ```{r} -->
-<!-- st_crs(3005)$proj4string -->
-<!-- ``` -->
+<https://epsg.io/4326>
 
-<!-- .pull-left[ -->
-<!-- - projection (`proj`) -->
-<!-- - standard parallels (`lat_1`, `lat_2`) -->
-<!-- - origin (`lat_0`, `lon_0`, `x_0`, `y_0`) -->
-<!-- - ellipsis (`ellps`) -->
-<!-- - conversion to WGS84 (`towgs84`) -->
-<!-- - `units` -->
-<!-- - `no_defs` - no defaults are read from the defaults files -->
-<!-- - `datum` -->
-<!-- ] -->
+## Basic plotting
 
-<!-- .pull-right[ -->
-<!-- ```{r} -->
-<!-- # one of "have_datum_files", "proj", "ellps",  -->
-<!-- # "datum", "units" or "prime_meridians" -->
-<!-- st_proj_info("proj") %>% head() -->
+```{r}
+#| fig-align: center
+plot(elec_bc)
+```
 
-<!-- ``` -->
-<!-- ] -->
+## Basic plotting
 
-<!-- --- -->
+:::: {.columns}
+::: {.column width="50%"}
+```{r}
+#| fig-width: 6
+plot(st_geometry(elec_bc))
+```
+:::
 
-<!-- class: inverse, left, middle -->
-
-<!-- # Your turn -->
-
-<!-- .Large[ -->
-<!-- Read in the electoral districts data in the `data` folder. -->
-<!-- - What type of geometry is it? -->
-<!-- - What is the CRS? -->
-<!-- - What is the EPSG code? -->
-<!-- ] -->
-
-<!-- --- -->
-
-<!-- ## Solution -->
-
-<!-- ```{r message=TRUE, cache=TRUE} -->
-<!-- elec_bc <- read_sf("data/20191106_Day_2_AM_Vector/bc_electoral_districts.shp") -->
-<!-- st_geometry(elec_bc) -->
-<!-- st_crs(elec_bc) -->
-<!-- ``` -->
-
-<!-- https://epsg.io/4326 -->
-
-<!-- --- -->
-
-<!-- ## Basic plotting -->
-
-<!-- .pull-left[ -->
-<!-- ```{r cache=TRUE} -->
-<!-- plot(elec_bc) -->
-<!-- ``` -->
-<!-- ] -->
-
-<!-- .pull-right[ -->
-<!-- ```{r} -->
-<!-- plot(elec_bc["ED_NAME"]) -->
-<!-- ``` -->
-<!-- ] -->
+::: {.column width="50%"}
+```{r}
+#| fig-width: 6
+plot(elec_bc["ED_NAME"])
+```
+:::
+::::
 
 
-<!-- --- -->
+---
 
 <!-- # Use `ggplot2::geom_sf()` to make nice maps -->
 

@@ -1,8 +1,40 @@
 /*-- scss:defaults --*/
+$body-bg-inverse: #383D3D;
+$body-bg: #f0f1eb;
+$code-block-bg: lighten($body-bg, 5%);
+$code-block-border-color: darken($body-bg, 20%);
 
 /*-- scss:rules --*/
+
+.reveal .cell-output pre code {
+  background-color: $code-block-bg;
+  margin-bottom: 10px !important;
+}
+
+.reveal div.sourceCode {
+  border-radius: 5px;
+  margin-bottom: 10px !important;
+}
 
 .reveal .slide aside,.reveal .slide div.aside {
     bottom: 10px;
     font-size: 0.5em;
+}
+
+/*small-output is custom*/
+.reveal .small-output code {
+    font-size: 0.9em;
+}
+
+.reveal .columns.small-text .column ul {
+  font-size: 0.75em;
+}
+
+.center-x p {
+  text-align: center;
+}
+
+.reveal .inverse {
+  background-color: $body-bg-inverse;
+  color: $body-bg;
 }
