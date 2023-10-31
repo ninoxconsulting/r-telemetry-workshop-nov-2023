@@ -32,6 +32,7 @@ library(bcmaps)
    - Read a variety of vector data into R
    - Understand sf objects in R
 - Understanding of Coordinate Reference Systems (CRS)
+- Basic operations with spatial data using `sf`
 
 ---
 
@@ -54,7 +55,7 @@ Spatial data divided into two categories: Vector and Raster
 :::
 
 
-## Simple Features {.center}
+## Vector: Simple Features {.center}
 
 :::: {.columns}
 
