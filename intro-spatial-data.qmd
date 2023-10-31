@@ -249,7 +249,7 @@ BC Albers
 ## WKT (Well-Known Text)
 
 ```{r}
-st_crs(3005)$wkt
+st_crs(3005)
 ```
 
 ## Your turn {.inverse}
@@ -383,7 +383,7 @@ head(ski_resorts)
 
 :::: {.columns}
 ::: {.column width="50%"}
-### Geometric Measurements
+#### Geometric Measurements
 
 - `st_area()`
 - `st_length()`
@@ -391,7 +391,7 @@ head(ski_resorts)
 :::
 
 ::: {.column width="50%"}
-### Geometric Operations
+#### Geometric Operations
 
 - `st_union()`
 - `st_intersection()`
@@ -402,24 +402,28 @@ head(ski_resorts)
 
 ## Geometry Predicates
 
+::: center-x
+Use with `st_filter()` or `st_join()`
+:::
+
 :::: {.columns}
 ::: {.column width="50%"}
-- `st_intersects()`: touch or overlap
-- `st_disjoint()`: !intersects
+- `st_intersects()`:<br>  touch or overlap
+- `st_disjoint()`:<br>  !intersects
 - `st_touches()`: touch
-- `st_crosses()`: cross (don't touch)
+- `st_crosses()`:<br>  cross (don't touch)
 - `st_within()`: within
-- `st_contains()`: contains
 :::
 
 ::: {.column width="50%"}
-- `st_overlaps()`: overlaps
+- `st_contains()`:<br>  contains
+- `st_overlaps()`:<br>  overlaps
 - `st_covers()`: cover
-- `st_covered_by()`: covered by
+- `st_covered_by()`:<br>  covered by
 - `st_equals()`: equals
-- `st_equals_exact()`: equals, with some fuzz
 :::
 ::::
+
 
 ## Manipulating Geometries
 
@@ -435,17 +439,30 @@ head(ski_resorts)
 
 ::: {.column width="50%"}
 - `st_polygonize()`
-- `st_simplify()`
 - `st_split()`
 - `st_buffer()`
 - `st_make_valid()`
 - `st_boundary()`
+- ...
 :::
 ::::
 
+## Your turn {.inverse}
+
+1. Calculate the area of each electoral district
+2. Create an sf object of only airports within the Nelson-Creston electoral district.
+3. Plot the ski resorts as circles, where the size of the circle is related to the elevation of the resort.
 
 
+::: notes
 
+st_area(elec_bc_albers)
+
+st_filter(airports, elec_bc_albers[elec_bc_albers$ED_NAME == "Nelson-Creston", ])
+
+mapview(st_buffer(ski_resorts, dist = ski_resorts$elevation*10))
+
+:::
 
 
 
