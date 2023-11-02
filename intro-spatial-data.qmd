@@ -24,15 +24,16 @@ library(bcmaps)
 
 - Introduction to Simple Features and the `sf` package
 - Coordinate Reference Systems
-- Reading various spatial data formats
+- Reading various spatial data formats into R
+- Basic operations with spatial data
 
-## What are you going to come away with?
+## Learning objectives
 
-- Use `sf` package to:
-   - Read a variety of vector data into R
-   - Understand sf objects in R
-- Understanding of Coordinate Reference Systems (CRS)
-- Basic operations with spatial data using `sf`
+- The "simple features" representation of vector data
+- Use and understand `sf` objects in R
+- Basic understanding of Coordinate Reference Systems (CRS)
+- Use `mapview` and `sf` to preview spatial data
+- How to do basic operations with spatial data using `sf`
 
 ---
 
