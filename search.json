@@ -175,11 +175,39 @@
     "text": "MIT License\nCopyright (c) 2023 r-telemetry-workshop-nov-2023 authors\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
   },
   {
-    "objectID": "extracting-base-data.html#raster",
-    "href": "extracting-base-data.html#raster",
+    "objectID": "extracting-base-data.html",
+    "href": "extracting-base-data.html",
     "title": "Extracting and Formatting Base Data",
-    "section": "Raster",
-    "text": "Raster\n\nExtract point attributes for telemetry point data"
+    "section": "",
+    "text": "Basic list, not exclusive. bu fine for demo purpose\n\nVRI - gen to fiddle with this a little.\nRoads\nwater lakes/wetlands\nwater stream\ndisturbance - cutblocks &lt; 30yrs\nfIRE AND FIRE INTENSITY? PERHAPS WE CAN SHELVE THIS?"
+  },
+  {
+    "objectID": "extracting-base-data.html#vector",
+    "href": "extracting-base-data.html#vector",
+    "title": "Extracting and Formatting Base Data",
+    "section": "",
+    "text": "Basic list, not exclusive. bu fine for demo purpose\n\nVRI - gen to fiddle with this a little.\nRoads\nwater lakes/wetlands\nwater stream\ndisturbance - cutblocks &lt; 30yrs\nfIRE AND FIRE INTENSITY? PERHAPS WE CAN SHELVE THIS?"
+  },
+  {
+    "objectID": "extracting-base-data.html#bec",
+    "href": "extracting-base-data.html#bec",
+    "title": "Extracting and Formatting Base Data",
+    "section": "Bec:",
+    "text": "Bec:\n     \n\n\n## Cutblocks"
+  },
+  {
+    "objectID": "extracting-base-data.html#fire-perim.",
+    "href": "extracting-base-data.html#fire-perim.",
+    "title": "Extracting and Formatting Base Data",
+    "section": "Fire Perim.",
+    "text": "Fire Perim."
+  },
+  {
+    "objectID": "extracting-base-data.html#roads",
+    "href": "extracting-base-data.html#roads",
+    "title": "Extracting and Formatting Base Data",
+    "section": "roads",
+    "text": "roads\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPART 2: Calculating distance to roads/water"
   },
   {
     "objectID": "index.html",
