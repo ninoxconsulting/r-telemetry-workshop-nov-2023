@@ -1,3 +1,10 @@
 ---
 title: "Visualization of Spatial Data"
 ---
+
+## Outline
+
+- Quick recap of `plot()`
+- Pretty (and useful) maps with `ggplot2`
+- Interactive maps with mapview/leaflet
+
