@@ -112,7 +112,7 @@ ggplot(data = caribou) +
 ```{r}
 ggplot(data = caribou) +
   geom_sf(
-    aes(colour = comments)
+    aes(colour = comments, shape = animal.sex)
   )
 ```
 
@@ -122,12 +122,36 @@ obscured. We can fix this in several ways:
 ### Transparency
 
 ```{r}
-coords <- st_coordinates(caribou)
+ggplot(data = caribou) +
+  geom_sf(
+    aes(colour = comments), 
+    alpha = 0.2
+  ) + 
+  scale_colour_viridis_d() + 
+  theme_bw()
+```
+
+### Binning
+
+```{r}
+# TODO: Gen will update the gpkg to keep the coordinates as columns
+caribou <- cbind(st_coordinates(caribou), caribou)
 
 ggplot(data = caribou) +
-  geom_hex(aes(x = coords[,1], y = coords[,2]), alpha = 0.8, bins = 50) + 
+  geom_hex(aes(x = X, y = Y)) + 
   scale_fill_viridis_c() + 
   coord_sf() +
+  theme_bw()
+```
+
+We can use facetting to split out the two herds:
+
+```{r}
+ggplot(data = caribou) +
+  geom_hex(aes(x = X, y = Y)) + 
+  scale_fill_viridis_c() + 
+  coord_sf() +
+  facet_wrap(vars(comments)) +
   theme_bw()
 ```
 
