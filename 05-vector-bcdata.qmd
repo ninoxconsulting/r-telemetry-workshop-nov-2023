@@ -21,6 +21,7 @@ Basic list, not exclusive. bu fine for demo purpose
 
 ```{r}
 library(bcdata)
+library(sf)
 
 bcdc_search("caribou")
 ```
@@ -28,7 +29,14 @@ bcdc_search("caribou")
 ## Create an Area of Interest (AOI)
 
 ```{r}
-st_bbox(...)
+
+scott <- read_sf("clean_data/caribou.shp") |> 
+  filter(commnts == "Scott")
+
+scott_aoi <- st_bbox(scott) |> 
+  st_as_sfc()
+
+st_write(scott_aoi, "clean_data/scott_aoi.gpkg")
 
 ```
 
