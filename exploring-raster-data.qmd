@@ -1,3 +1,32 @@
 ---
 title: "Exploring Raster Data"
 ---
+
+
+<!-- # 7. download DEM via CDED package -->
+
+<!--     get_dem <- function(in_aoi, out_path){ -->
+
+<!--       file_already_exists <- file.exists(file.path(out_path, "dem.tif")) -->
+
+<!--       if(overwrite == FALSE & file_already_exists == TRUE) { -->
+
+<!--         message("\r dem already exists, skipping download") -->
+
+<!--       } else { -->
+
+<!--       trim_raw <- bcmaps::cded_raster(in_aoi) -->
+<!--       trim <- terra::rast(trim_raw) -->
+
+<!--       #write out dem # in case -->
+<!--       terra::writeRaster(trim, file.path(out_path, "dem.tif"), overwrite = TRUE) -->
+
+<!--       # generate slope -->
+<!--       rslope <- terra::terrain(trim, v = "slope", neighbors = 8, unit = "degrees") -->
+
+<!--       #write out dem # in case -->
+<!--       terra::writeRaster(rslope, file.path(out_path, "slope.tif"), overwrite = TRUE) -->
+
+<!--       } -->
+<!--       return(TRUE) -->
+<!--     } -->

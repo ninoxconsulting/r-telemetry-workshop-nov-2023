@@ -4,8 +4,309 @@ title: "Extracting and Formatting Base Data"
 
 ## Vector
 
-### Calculating distance to roads/water
 
-## Raster
+Basic list, not exclusive. bu fine for demo purpose
 
-### Extract point attributes for telemetry point data
+1) VRI  - gen to fiddle with this a little. 
+2) Roads
+3) water lakes/wetlands
+4) water stream
+5) disturbance - cutblocks < 30yrs 
+
+
+
+
+6) fIRE AND FIRE INTENSITY? PERHAPS WE CAN SHELVE THIS?
+
+
+
+
+### PART 2: Calculating distance to roads/water
+
+
+
+## Bec: 
+
+ <!-- # # 1) BEC Biogeographical linework -->
+ <!--  bec <- bcdc_query_geodata("f358a53b-ffde-4830-a325-a5a03ff672c3") %>% -->
+ <!--    bcdata::filter(INTERSECTS(in_aoi)) %>% -->
+ <!--    bcdata::collect() %>% -->
+ <!--    dplyr::select(MAP_LABEL) %>% -->
+ <!--    {if(nrow(.) > 0) st_intersection(., in_aoi) else .} -->
+
+ <!--  if(sf::st_crs(in_aoi) == st_crs(bec)){ -->
+
+ <!--  st_write(bec, file.path(out_path, "bec.gpkg"), append = FALSE) -->
+ 
+ 
+ ## Cutblocks
+ 
+  <!-- # 6. download cutblocks -->
+
+  <!-- get_harvest <- function(in_aoi, out_path) { -->
+
+  <!--   file_already_exists <- file.exists(file.path(out_path, "cutblocks.gpkg")) -->
+
+  <!--   if(overwrite == FALSE & file_already_exists == TRUE) { -->
+
+  <!--     message("\r cutblocks already exists, skipping download") -->
+
+  <!--   } else { -->
+
+  <!--     message("\rDownloading cutblock layers") -->
+
+  <!--     cutblocks <- bcdata::bcdc_query_geodata("b1b647a6-f271-42e0-9cd0-89ec24bce9f7") %>% -->
+  <!--       bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
+  <!--       bcdata::select(c("HARVEST_YEAR")) %>% -->
+  <!--       bcdata::collect() -->
+
+  <!--   if (all(is.na(cutblocks)) || nrow(cutblocks) == 0) { -->
+  <!--       print("No recent cutblocks disturbance in area of interest") } else { -->
+  <!--   sf::st_write(cutblocks, file.path(out_path, "cutblocks.gpkg"), append = FALSE) -->
+  <!--       } -->
+
+  <!--   } -->
+  <!--   return(TRUE) -->
+  <!--   } -->
+
+
+## Fire Perim.
+
+
+
+<!--   get_fires <- function(in_aoi, out_path) { -->
+
+<!--     fire_exists <- file.exists(file.path(out_path, "fire.gpkg")) -->
+
+<!--     if(overwrite == FALSE & fire_exists == TRUE) { -->
+
+<!--       message("\rfirealready exists, skipping download, select overwrite = TRUE to force download of water layers") -->
+
+<!--     } else { -->
+
+<!--       message("\rDownloading fire disturbance") -->
+
+<!--       # check the sticky columns -->
+<!--       #ff<- bcdc_describe_feature("cdfc2d7b-c046-4bf0-90ac-4897232619e1") -->
+
+<!--       fire_records <- c("cdfc2d7b-c046-4bf0-90ac-4897232619e1", -->
+<!--                         "22c7cb44-1463-48f7-8e47-88857f207702") -->
+
+<!--       fires_all <- NA ## placeholder -->
+
+<!--       for (i in 1:length(fire_records)) { -->
+<!--         #i = 2 -->
+<!--         fires <- bcdata::bcdc_query_geodata(fire_records[i]) %>% -->
+<!--           bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
+<!--           bcdata::select(id, FIRE_YEAR)%>% -->
+<!--           collect() %>% -->
+<!--           {if(nrow(.) > 0) sf::st_intersection(., in_aoi) else .} -->
+
+<!--         if(nrow(fires) > 0) { -->
+<!--           ## bind results of loops -->
+<!--           if (i == 1) { -->
+<!--             fires_all <- fires } else { ## i > 1 -->
+<!--               if(all(is.na(fires_all))) {fires_all <- fires } else {fires_all <- rbind(fires_all, fires)} -->
+<!--             } -->
+<!--         } #else {print("No fires in layer queried") } -->
+
+<!--         # rm(fires) -->
+<!--       } ## end loop -->
+
+
+<!--       if (all(is.na(fires_all)) || nrow(fires_all) == 0) { -->
+<!--         print("No recent fire disturbance in area of interest") } else { -->
+<!--           sf::st_write(fires_all, file.path(out_path, "fire.gpkg"), append = FALSE) -->
+<!--         } -->
+
+<!--       } -->
+<!--       return(TRUE) -->
+<!--     } -->
+
+
+
+
+
+
+# 5. download fire intensity
+
+<!--   get_fire_intensity <- function(in_aoi, out_path) { -->
+
+<!--     fire_int_exists <- file.exists(file.path(out_path, "fire_int.gpkg")) -->
+
+<!--     if(overwrite == FALSE & fire_int_exists == TRUE) { -->
+
+<!--       message("\r fire intensity already exists, skipping download, select overwrite = TRUE to force download of water layers") -->
+
+<!--     } else { -->
+
+<!--       message("\rDownloading fire intensity") -->
+<!--       # check the sticky columns -->
+<!--       #ff<- bcdc_describe_feature("cdfc2d7b-c046-4bf0-90ac-4897232619e1") -->
+
+<!--       fire_int_records <- c("c58a54e5-76b7-4921-94a7-b5998484e697", -->
+<!--                         "04c5ad28-d8eb-4c49-90c5-48b9b98fdfe9") -->
+
+<!--       fires_int_all <- NA ## placeholder -->
+
+<!--       for (i in 1:length(fire_int_records)) { -->
+<!--         #i = 1 -->
+<!--         fires_int <- bcdata::bcdc_query_geodata(fire_int_records[i]) %>% -->
+<!--           bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
+<!--           bcdata::select(id, FIRE_YEAR, BURN_SEVERITY_RATING)%>% -->
+<!--           bcdata::filter(BURN_SEVERITY_RATING %in% c("High", "Medium")) %>% -->
+<!--           collect() %>% -->
+<!--           {if(nrow(.) > 0) sf::st_intersection(., in_aoi) else .} -->
+
+<!--         if(nrow(fires_int) > 0) { -->
+<!--           ## bind results of loops -->
+<!--           if (i == 1) { -->
+<!--             fires_int_all <- fires_int } else { ## i > 1 -->
+<!--               if(all(is.na(fires_int_all))) {fires_int_all <- fires_int } else {fires_int_all <- rbind(fires_int_all, fires_int)} -->
+<!--             } -->
+<!--         } -->
+
+<!--       } ## end loop -->
+
+
+<!--       if (all(is.na(fires_int_all)) || nrow(fires_int_all) == 0) { -->
+<!--         print("No recent fire intensity in area of interest") } else { -->
+<!--           sf::st_write(fires_int_all, file.path(out_path, "fire_int.gpkg"), append = FALSE) -->
+<!--         } -->
+
+<!--     } -->
+<!--     return(TRUE) -->
+<!--   } -->
+
+
+
+
+  # 3. download stream index
+
+  <!-- get_streams <- function(in_aoi, out_path) { -->
+
+  <!--   streams_exists <- file.exists(file.path(out_path, "streams.gpkg")) -->
+
+  <!--   if(overwrite == FALSE & streams_exists == TRUE) { -->
+
+  <!--     message("\r streams already exists, skipping download, select overwrite = TRUE to force download of water layers") -->
+
+  <!--   } else { -->
+
+  <!--   message("\rDownloading streams") -->
+
+  <!-- #streamd <- bcdc_describe_feature("92344413-8035-4c08-b996-65a9b3f62fca") -->
+  <!-- streams <- bcdata::bcdc_query_geodata("92344413-8035-4c08-b996-65a9b3f62fca") %>% -->
+  <!--   bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
+  <!--   bcdata::select(c(id, STREAM_ORDER)) %>% -->
+  <!--   bcdata::collect() -->
+
+  <!-- if(length(st_is_empty(streams)) > 0 ){ -->
+  <!--   streams <- streams %>% dplyr::select(c("id", "STREAM_ORDER"))%>% -->
+  <!--     sf::st_zm() -->
+
+  <!--  sf::st_write(streams, file.path(out_path, "streams.gpkg"), append = FALSE) -->
+  <!--   } -->
+  <!-- } -->
+
+  <!--   return(TRUE) -->
+  <!--     } -->
+
+
+
+  # 2. download water bodies
+
+
+<!--  get_water <- function(in_aoi, out_path) { -->
+
+<!--     water_exists <- file.exists(file.path(out_path, "lakes.gpkg")) -->
+
+<!--     if(overwrite == FALSE & water_exists == TRUE) { -->
+
+<!--       message("\rwater already exists, skipping download, select overwrite = TRUE to force download of water layers") -->
+
+<!--     } else { -->
+
+
+<!--       message("\rDownloading lake, streams and wetland layers") -->
+
+<!--       ## LAKES ## -->
+
+<!--       # 1 Square Kilometer = 100.00 Hectare -->
+
+<!--       # Uses date filter which filters lakes -->
+<!--       lakes <- bcdata::bcdc_query_geodata("cb1e3aba-d3fe-4de1-a2d4-b8b6650fb1f6") %>% -->
+<!--         bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
+<!--         bcdata::select(id, WATERBODY_TYPE, AREA_HA) %>% -->
+<!--         bcdata::collect() -->
+
+<!--       if(length(st_is_empty(lakes)) > 0 ){ -->
+<!--       lakes <- lakes %>% dplyr::select("id", "WATERBODY_TYPE", "AREA_HA") -->
+<!--       sf::st_write(lakes, file.path(out_path, "lakes.gpkg"), append = FALSE) -->
+<!--       } -->
+
+<!--   # download wetlands -->
+
+<!--       wetlands <- bcdata::bcdc_query_geodata("93b413d8-1840-4770-9629-641d74bd1cc6") %>% -->
+<!--         bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
+<!--         bcdata::select(id, WATERBODY_TYPE, AREA_HA) %>% -->
+<!--         bcdata::collect() -->
+
+<!--       wetlands <- wetlands %>% dplyr::filter(AREA_HA < 100) %>% -->
+<!--         dplyr::select(id, WATERBODY_TYPE, AREA_HA)%>% -->
+<!--         sf::st_union() -->
+
+<!--       if(length(st_is_empty(wetlands) > 0)){ -->
+<!--         sf::st_write(wetlands, file.path(out_path, "wetlands.gpkg"), append = FALSE) -->
+<!--       } -->
+
+<!--     } -->
+
+<!--       return(TRUE) -->
+<!--     } -->
+
+## roads
+
+
+<!-- get_roads <- function(in_aoi, out_path) { -->
+<!--   # The main road network layer has too many roads in it. Filter it down to only -->
+<!--   # include named roads and combine those with actual mapped FSR's -->
+
+<!--   message("\rDownloading Road network") -->
+<!--   roads <- bcdc_query_geodata("bb060417-b6e6-4548-b837-f9060d94743e") %>% -->
+<!--     bcdata::filter(BBOX(local(st_bbox(in_aoi)))) %>% # slightly larger extent -->
+<!--     bcdata::select(id, ROAD_NAME_FULL, ROAD_CLASS, ROAD_SURFACE, FEATURE_LENGTH_M) %>% -->
+<!--     collect() %>% -->
+<!--     dplyr::select(id, ROAD_NAME_FULL,ROAD_SURFACE, ROAD_CLASS,FEATURE_LENGTH_M) %>% -->
+<!--        {if(nrow(.) > 0) { -->
+<!--       st_intersection(., in_aoi) %>% -->
+<!--        st_cast("MULTILINESTRING") -->
+<!--     } else .} -->
+
+<!--   fsr <- bcdc_query_geodata("9e5bfa62-2339-445e-bf67-81657180c682") %>% -->
+<!--     bcdata::filter( -->
+<!--       BBOX(local(st_bbox(in_aoi)))) %>% -->
+<!--     collect() %>% -->
+<!--     dplyr::select(id, FILE_TYPE_DESCRIPTION, FEATURE_LENGTH_M) %>% -->
+<!--     dplyr::rename(ROAD_CLASS = FILE_TYPE_DESCRIPTION) %>% -->
+<!--     dplyr::mutate(ROAD_CLASS = dplyr::case_when( -->
+<!--       ROAD_CLASS == "Forest Service Road" ~ "resource", -->
+<!--       ROAD_CLASS == "Road Permit" ~ "unclassifed")) %>% -->
+<!--     dplyr::mutate(ROAD_SURFACE = dplyr::case_when( -->
+<!--     ROAD_CLASS == "resource" ~ "loose", -->
+<!--     ROAD_CLASS == "unclassifed" ~ "rough")) %>% -->
+<!--     {if(nrow(.) > 0) { -->
+<!--       st_intersection(., in_aoi) %>% -->
+<!--         st_cast("MULTILINESTRING") -->
+<!--     } else .} -->
+
+<!--   road_merge <- dplyr::bind_rows(roads, fsr) -->
+
+<!--   st_write(road_merge, file.path(out_path, "road_network.gpkg"), append = FALSE) -->
+<!-- } -->
+
+
+
+
+### PART 2: Calculating distance to roads/water
+
