@@ -6,5 +6,128 @@ title: "Visualization of Spatial Data"
 
 - Quick recap of `plot()`
 - Pretty (and useful) maps with `ggplot2`
+- Visualizing point density
 - Interactive maps with mapview/leaflet
+
+## `plot` sf objects
+
+Previously we used `plot()` to quickly plot sf objects:
+
+First, read in the caribou data:
+
+```{r}
+#| message: false
+#| warning: false
+library(sf)
+library(dplyr)
+
+caribou <- read_sf("clean_data/caribou.gpkg")
+
+plot(caribou)
+```
+
+You can see that by default, this plots all of the attributes (up to 9). But we 
+can plot just the points by extracting just the geometry with `st_geometry()`:
+
+```{r}
+st_geometry(caribou) |> 
+  plot()
+```
+Or, plot just one variable of interest:
+
+```{r}
+#| warning: false
+caribou |> 
+  select(comments) |> # select just the herd column (called comments)
+  plot(key.pos = 1)
+```
+
+We can also add a base map for context. Let's use the `bcmaps` package to get a map of the
+B.C. Natural resource boundaries:
+
+```{r}
+#| warning: false
+#| message: false
+library(bcmaps)
+
+nr <- nr_districts()
+
+st_geometry(nr) |> 
+  plot()
+
+caribou |> 
+  st_transform(st_crs(nr)) |> # transform so in the same crs as nr
+  select(comments) |> # select just the herd column (called comments)
+  plot(add = TRUE)
+
+```
+
+But we can quickly get past the point where basic plotting lets us do what we 
+want to do...
+
+## ggplot2
+
+[ggplot2](https://ggplot2.tidyverse.org) is a plotting package built on the theory of the "Grammar of Graphics", 
+where a plot is built up in layers:
+
+We start with the data, then add the graphical marks (points, lines, bars, etc. called "geom"s) we want to use
+to represent the data, and specify "aesthetics" for how to map variables in our data to
+visual representations on the plot.
+
+let's start with a simple histogram of fixes over time:
+
+```{r}
+library(ggplot2)
+
+ggplot(data = caribou) + # start with data
+  geom_histogram( # specify the geom
+    aes( # specify aesthetics - how to map variables to visual representations
+      x = date_time
+    ), 
+    position = "dodge" # make the bars side by side instead of stacked
+  )
+```
+
+We can add a "fill" aesthetic to differentiate herds:
+
+```{r}
+library(ggplot2)
+
+ggplot(data = caribou) + # start with data
+  geom_histogram( # specify the geom
+    aes( # specify aesthetics - how to map variables to visual representations
+      x = date_time,
+      fill = comments
+    ), 
+    position = "dodge" # make the bars side by side instead of stacked
+  )
+```
+
+We can use the same pattern to make a map:
+
+```{r}
+ggplot(data = caribou) +
+  geom_sf() # x and y are inferred from the geometry column
+```
+```{r}
+ggplot(data = caribou) +
+  geom_sf(
+    aes(colour = comments)
+  )
+```
+
+We have a lot of overlapping points, so the actual density of fixes is somewhat
+obscured. We can fix this in several ways:
+
+### Transparency
+
+```{r}
+coords <- st_coordinates(caribou)
+
+ggplot(data = caribou) +
+  geom_hex(aes(x = coords[,1], y = coords[,2]), alpha = 0.8, bins = 50) + 
+  scale_fill_viridis_c() + 
+  coord_sf() +
+  theme_bw()
+```
 
