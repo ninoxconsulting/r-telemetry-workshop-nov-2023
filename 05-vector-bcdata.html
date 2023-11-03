@@ -278,7 +278,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#create-an-area-of-interest-aoi" id="toc-create-an-area-of-interest-aoi" class="nav-link active" data-scroll-target="#create-an-area-of-interest-aoi">Create an Area of Interest (AOI)</a></li>
+  <li><a href="#vector" id="toc-vector" class="nav-link active" data-scroll-target="#vector">Vector</a></li>
+  <li><a href="#create-an-area-of-interest-aoi" id="toc-create-an-area-of-interest-aoi" class="nav-link" data-scroll-target="#create-an-area-of-interest-aoi">Create an Area of Interest (AOI)</a></li>
+  <li><a href="#bec" id="toc-bec" class="nav-link" data-scroll-target="#bec">Bec:</a></li>
+  <li><a href="#fire-perim." id="toc-fire-perim." class="nav-link" data-scroll-target="#fire-perim.">Fire Perim.</a></li>
+  <li><a href="#fire-intensity" id="toc-fire-intensity" class="nav-link" data-scroll-target="#fire-intensity">fire intensity</a></li>
+  <li><a href="#stream-index" id="toc-stream-index" class="nav-link" data-scroll-target="#stream-index">stream index</a></li>
+  <li><a href="#water-bodies" id="toc-water-bodies" class="nav-link" data-scroll-target="#water-bodies">water bodies</a></li>
+  <li><a href="#roads" id="toc-roads" class="nav-link" data-scroll-target="#roads">roads</a></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/05-vector-bcdata.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
@@ -302,21 +309,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
+<section id="vector" class="level2">
+<h2 class="anchored" data-anchor-id="vector">Vector</h2>
+<p>Basic list, not exclusive. bu fine for demo purpose</p>
+<ol type="1">
+<li><p>VRI - gen to fiddle with this a little.</p></li>
+<li><p>Roads</p></li>
+<li><p>water lakes/wetlands</p></li>
+<li><p>water stream</p></li>
+<li><p>disturbance - cutblocks &lt; 30yrs</p></li>
+<li><p>fIRE AND FIRE INTENSITY? PERHAPS WE CAN SHELVE THIS?</p></li>
+</ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bcdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'bcdata'</code></pre>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bcdata)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bcdc_search</span>(<span class="st">"caribou"</span>, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:stats':
-
-    filter</code></pre>
+<pre><code>Found 43 matches. Returning the first 5.
+To see them all, rerun the search and set the 'n' argument to 43.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bcdc_search</span>(<span class="st">"caribou"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of B.C. Data Catalogue Records
-Number of records: 43
+Number of records: 5
 Titles:
 1: Causes of Caribou Mortality (other)
  ID: 64ff3af9-50c4-4914-a276-777b37eab2a2
@@ -335,154 +351,197 @@ This record has no resources. bcdata will not be able to access any
 5: Caribou Herd Locations for BC (multiple, wms, kml, arcgis_rest)
  ID: 2b217585-f48d-4d9f-b7ba-746909ac35ca
  Name: caribou-herd-locations-for-bc
-6: Caribou Capability Clearwater Forest District (oracle_sde)
- ID: 82a34614-f34e-41d1-8011-810fc7b96c47
- Name: caribou-capability-clearwater-forest-district
-7: Caribou Suitability Clearwater Forest District (oracle_sde)
- ID: 5c9c8019-6243-427e-9b7d-7bf732c4d326
- Name: caribou-suitability-clearwater-forest-district
-8: Caribou in British Columbia Spatial View (arcgis_rest)
- ID: b96694e0-e07f-4594-a016-14adbbb58747
- Name: caribou-in-british-columbia-spatial-view
-9: Caribou Recovery Areas - Polygons - Kootenay Region (oracle_sde)
- ID: 0a477a2e-5304-4716-bdbd-0e0edf60d539
- Name: caribou-recovery-areas-polygons-kootenay-region
-10: Caribou Recovery Areas - Lines - Kootenay Region (oracle_sde)
- ID: 56fe6b42-30b8-40da-92d2-eac110025f7b
- Name: caribou-recovery-areas-lines-kootenay-region
-11: Boreal Caribou Core Habitat Areas - Peace Region (multiple)
- ID: 8d197a91-f137-45b8-8c94-0cc12a3c7752
- Name: boreal-caribou-core-habitat-areas-peace-region
-12: Caribou Movement Corridors Clearwater Forest District - Lines
- (multiple)
- ID: 7c7768f2-7a3d-4a8f-958e-e7a8dd2b18f2
- Name: caribou-movement-corridors-clearwater-forest-district-lines
-13: Caribou Habitat Suitability - Morice FD - Skeena Region
- (oracle_sde)
- ID: f88a9b98-c9c3-4b1b-a513-64d60390629f
- Name: caribou-habitat-suitability-morice-fd-skeena-region
-14: GPS Derived Caribou Locations Clearwater Forest District
- (oracle_sde)
- ID: 88db1d2e-4c09-4d30-a8f4-b93c0e355767
- Name: gps-derived-caribou-locations-clearwater-forest-district
-15: North Thompson Caribou Habitat Clearwater Forest District
- (multiple)
- ID: 6271d5dc-4870-41e4-903d-4d378c297353
- Name: north-thompson-caribou-habitat-clearwater-forest-district
-16: Caribou Historic Use Areas - Telkwa - Skeena Region (oracle_sde)
- ID: f946aa21-c215-4174-b977-e4f0a7c21805
- Name: caribou-historic-use-areas-telkwa-skeena-region
-17: Caribou Habitat Mapping - Tweedsmuir Entiako - Skeena Region
- (oracle_sde)
- ID: 50f0d612-95eb-46b7-b4eb-9b67672bdece
- Name: caribou-habitat-mapping-tweedsmuir-entiako-skeena-region
-18: Moose and Caribou SRB Surveys - Skeena Region (oracle_sde)
- ID: 52f89d1a-eb97-4f5d-92a1-c6eeded0806b
- Name: moose-and-caribou-srb-surveys-skeena-region
-19: Caribou Habitat Model for the Western Cariboo Region (2017)
- (multiple, wms, kml, pdf)
- ID: 6d983c4e-7d5f-4a16-975d-f33a2dfbd6e0
- Name: caribou-habitat-model-for-the-western-cariboo-region-2017-
-20: Caribou Habitat Model for the Western Cariboo Region (2001)
- (multiple, pdf, wms, kml)
- ID: 7ea6556b-c113-4194-92f2-7ddb55a340b6
- Name: caribou-habitat-model-for-the-western-cariboo-region-2001
-21: Caribou Survey Units for Stratified Random Block - Skeena Region
- (oracle_sde)
- ID: 72f95c0c-592b-4eb1-936d-b78474be8c9d
- Name: caribou-survey-units-for-stratified-random-block-skeena-region
-22: Caribou Habitat Model - E. Cariboo Region/Columbia Highlands/N.
- Columbia Mountains (2001) (multiple, wms, kml)
- ID: 321fbe63-3537-4c01-844e-463b8553ff3c
- Name:
-  caribou-habitat-model-e-cariboo-region-columbia-highlands-n-columbia-mountains-2001
-23: Northern Caribou Habitat Units of the Itcha and Ilgachuz Areas -
- Cariboo Region (multiple, other, wms, kml)
- ID: 65cb3683-f6a4-46d2-b6fc-4a5ed099d5a1
- Name:
-  northern-caribou-habitat-units-of-the-itcha-and-ilgachuz-areas-cariboo-region
-24: Broad Ecosystem Inventory Wildlife Habitat Ratings Interpretations
- for Mammals (oracle_sde)
- ID: 36afb87d-58e7-4f05-b790-200ea849a8c2
- Name:
-  broad-ecosystem-inventory-wildlife-habitat-ratings-interpretations-for-mammals
-25: Wolves and Linear Features (other)
- ID: 8ed0711d-56b6-41df-8c3c-4e41258545b7
- Name: wolves-and-linear-features
-26: PNCP - High Elevation Winter Range (multiple, wms, kml)
- ID: b112e825-0642-46f9-9895-513fcbb8e89e
- Name: pncp-high-elevation-winter-range
-27: Northern Rockies Snowmobile Management (other)
- ID: 6554ed31-ae65-4120-a8fe-a824f3e2a015
- Name: northern-rockies-snowmobile-management
-28: Landscape Units (Subdivisions) for Wildlife Habitat Area 5-086
- (multiple, wms, kml)
- ID: 5018ae96-a5f1-4709-9848-981561032f3c
- Name: landscape-units-subdivisions-for-wildlife-habitat-area-5-086
-29: Central Selkirk Snowmobile Management Map (other)
- ID: 02d0c773-c17d-480d-b560-3814561016b3
- Name: central-selkirk-snowmobile-management-map
-30: Central Selkirk Snowmobile Management Zones (other)
- ID: 86e1f84a-274f-4b48-8b45-1564b10ef58d
- Name: central-selkirk-snowmobile-management-zones
-31: Snowmobile Management Areas - Access Management Areas (AMA)
- (multiple, wms, kml)
- ID: e6e31638-afe9-4355-aa4d-9853e53de55c
- Name: snowmobile-management-areas-access-management-areas-ama
-32: Snowmobile Management Trails - Access Management Area (AMA)
- (multiple, wms, kml)
- ID: fe210f8a-60f5-43f8-b9ab-0f0d70ca44f8
- Name: snowmobile-management-trails-access-management-area-ama
-33: EcoCat - The Ecological Reports Catalogue (other)
- ID: 9241367c-54f9-483d-a918-67ed53c1e080
- Name: ecocat-the-ecological-reports-catalogue
-34: Habitat Capability for the Cariboo Region (multiple)
- ID: b9f74385-e5b2-4c84-a049-ce2f5d207338
- Name: habitat-capability-for-the-cariboo-region
-35: Wildlife Species Inventory - Survey Summary - Publicly Available
- (multiple)
- ID: d65e64a5-1477-46d7-a4f6-f978963b21cf
- Name: wildlife-species-inventory-survey-summary-publicly-available
-36: Wildlife Species Inventory - Masked Survey Observations - Publicly
- Available (multiple)
- ID: 067f8b29-1329-4878-8be8-faf893b9c3eb
- Name:
-  wildlife-species-inventory-masked-survey-observations-publicly-available
-37: Wildlife Species Inventory - Survey Observation Points - Ungulates
- - All (multiple)
- ID: 433101ce-18e5-4543-845e-71b240351d7f
- Name:
-  wildlife-species-inventory-survey-observation-points-ungulates-all
-38: Wildlife Species Inventory - Survey Observation Points - Ungulates
- - Publicly Available (multiple, wms, kml)
- ID: 1733feb0-9e33-4228-8078-d0f0e4df568e
- Name:
-  wildlife-species-inventory-survey-observation-points-ungulates-publicly-available
-39: Hunter Sample Survey Estimates 1976 to Current (csv, xlsx)
- ID: 8425b848-517e-4a20-b26c-6121720382af
- Name: hunter-sample-survey-estimates-1976-to-current
-40: Non Legal Planning Features - All - Polygon (multiple, other)
- ID: ad71d3c2-0776-4233-9765-18fbf18580cf
- Name: non-legal-planning-features-all-polygon
-41: Non Legal Planning Features - Current - Polygon (multiple, wms,
- kml, other)
- ID: 5d859a89-f173-4006-82f9-16254de2c1fc
- Name: non-legal-planning-features-current-polygon
-42: Strategic Land and Resource Plans - All (multiple, other)
- ID: 298d1034-c1be-4fd1-ad4b-d00ad5ab4b88
- Name: strategic-land-and-resource-plans-all
-43: Strategic Land and Resource Plans - Current (multiple, wms, kml,
- other, oracle_sde)
- ID: 4b142d4c-83d6-4ecc-b66c-66601ae65992
- Name: strategic-land-and-resource-plans-current
 
 Access a single record by calling `bcdc_get_record(ID)` with the ID
  from the desired record.</code></pre>
 </div>
 </div>
+</section>
 <section id="create-an-area-of-interest-aoi" class="level2">
 <h2 class="anchored" data-anchor-id="create-an-area-of-interest-aoi">Create an Area of Interest (AOI)</h2>
-<p>st_bbox(…)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>scott <span class="ot">&lt;-</span> <span class="fu">read_sf</span>(<span class="st">"clean_data/caribou.shp"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(commnts <span class="sc">==</span> <span class="st">"Scott"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>scott_aoi <span class="ot">&lt;-</span> <span class="fu">st_bbox</span>(scott) <span class="sc">|&gt;</span> </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sfc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_write</span>(scott_aoi, <span class="st">"clean_data/scott_aoi.gpkg"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="bec" class="level2">
+<h2 class="anchored" data-anchor-id="bec">Bec:</h2>
+<p><!-- # # 1) BEC Biogeographical linework --> <!--  bec <- bcdc_query_geodata("f358a53b-ffde-4830-a325-a5a03ff672c3") %>% --> <!--    bcdata::filter(INTERSECTS(in_aoi)) %>% --> <!--    bcdata::collect() %>% --> <!--    dplyr::select(MAP_LABEL) %>% --> <!--    {if(nrow(.) > 0) st_intersection(., in_aoi) else .} --></p>
+<p><!--  if(sf::st_crs(in_aoi) == st_crs(bec)){ --></p>
+<p><!--  st_write(bec, file.path(out_path, "bec.gpkg"), append = FALSE) --></p>
+<p>## Cutblocks</p>
+<p><!-- # 6. download cutblocks --></p>
+<p><!-- get_harvest <- function(in_aoi, out_path) { --></p>
+<p><!--   file_already_exists <- file.exists(file.path(out_path, "cutblocks.gpkg")) --></p>
+<p><!--   if(overwrite == FALSE & file_already_exists == TRUE) { --></p>
+<p><!--     message("\r cutblocks already exists, skipping download") --></p>
+<p><!--   } else { --></p>
+<p><!--     message("\rDownloading cutblock layers") --></p>
+<p><!--     cutblocks <- bcdata::bcdc_query_geodata("b1b647a6-f271-42e0-9cd0-89ec24bce9f7") %>% --> <!--       bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% --> <!--       bcdata::select(c("HARVEST_YEAR")) %>% --> <!--       bcdata::collect() --></p>
+<p><!--   if (all(is.na(cutblocks)) || nrow(cutblocks) == 0) { --> <!--       print("No recent cutblocks disturbance in area of interest") } else { --> <!--   sf::st_write(cutblocks, file.path(out_path, "cutblocks.gpkg"), append = FALSE) --> <!--       } --></p>
+<p><!--   } --> <!--   return(TRUE) --> <!--   } --></p>
+</section>
+<section id="fire-perim." class="level2">
+<h2 class="anchored" data-anchor-id="fire-perim.">Fire Perim.</h2>
+<!--   get_fires <- function(in_aoi, out_path) { -->
+<!--     fire_exists <- file.exists(file.path(out_path, "fire.gpkg")) -->
+<!--     if(overwrite == FALSE & fire_exists == TRUE) { -->
+<!--       message("\rfirealready exists, skipping download, select overwrite = TRUE to force download of water layers") -->
+<!--     } else { -->
+<!--       message("\rDownloading fire disturbance") -->
+<!--       # check the sticky columns -->
+<!--       #ff<- bcdc_describe_feature("cdfc2d7b-c046-4bf0-90ac-4897232619e1") -->
+<!--       fire_records <- c("cdfc2d7b-c046-4bf0-90ac-4897232619e1", -->
+<!--                         "22c7cb44-1463-48f7-8e47-88857f207702") -->
+<!--       fires_all <- NA ## placeholder -->
+<!--       for (i in 1:length(fire_records)) { -->
+<!--         #i = 2 -->
+<!--         fires <- bcdata::bcdc_query_geodata(fire_records[i]) %>% -->
+<!--           bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
+<!--           bcdata::select(id, FIRE_YEAR)%>% -->
+<!--           collect() %>% -->
+<!--           {if(nrow(.) > 0) sf::st_intersection(., in_aoi) else .} -->
+<!--         if(nrow(fires) > 0) { -->
+<!--           ## bind results of loops -->
+<!--           if (i == 1) { -->
+<!--             fires_all <- fires } else { ## i > 1 -->
+<!--               if(all(is.na(fires_all))) {fires_all <- fires } else {fires_all <- rbind(fires_all, fires)} -->
+<!--             } -->
+<!--         } #else {print("No fires in layer queried") } -->
+<!--         # rm(fires) -->
+<!--       } ## end loop -->
+<!--       if (all(is.na(fires_all)) || nrow(fires_all) == 0) { -->
+<!--         print("No recent fire disturbance in area of interest") } else { -->
+<!--           sf::st_write(fires_all, file.path(out_path, "fire.gpkg"), append = FALSE) -->
+<!--         } -->
+<!--       } -->
+<!--       return(TRUE) -->
+<!--     } -->
+</section>
+<section id="fire-intensity" class="level2">
+<h2 class="anchored" data-anchor-id="fire-intensity">fire intensity</h2>
+<!--   get_fire_intensity <- function(in_aoi, out_path) { -->
+<!--     fire_int_exists <- file.exists(file.path(out_path, "fire_int.gpkg")) -->
+<!--     if(overwrite == FALSE & fire_int_exists == TRUE) { -->
+<!--       message("\r fire intensity already exists, skipping download, select overwrite = TRUE to force download of water layers") -->
+<!--     } else { -->
+<!--       message("\rDownloading fire intensity") -->
+<!--       # check the sticky columns -->
+<!--       #ff<- bcdc_describe_feature("cdfc2d7b-c046-4bf0-90ac-4897232619e1") -->
+<!--       fire_int_records <- c("c58a54e5-76b7-4921-94a7-b5998484e697", -->
+<!--                         "04c5ad28-d8eb-4c49-90c5-48b9b98fdfe9") -->
+<!--       fires_int_all <- NA ## placeholder -->
+<!--       for (i in 1:length(fire_int_records)) { -->
+<!--         #i = 1 -->
+<!--         fires_int <- bcdata::bcdc_query_geodata(fire_int_records[i]) %>% -->
+<!--           bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
+<!--           bcdata::select(id, FIRE_YEAR, BURN_SEVERITY_RATING)%>% -->
+<!--           bcdata::filter(BURN_SEVERITY_RATING %in% c("High", "Medium")) %>% -->
+<!--           collect() %>% -->
+<!--           {if(nrow(.) > 0) sf::st_intersection(., in_aoi) else .} -->
+<!--         if(nrow(fires_int) > 0) { -->
+<!--           ## bind results of loops -->
+<!--           if (i == 1) { -->
+<!--             fires_int_all <- fires_int } else { ## i > 1 -->
+<!--               if(all(is.na(fires_int_all))) {fires_int_all <- fires_int } else {fires_int_all <- rbind(fires_int_all, fires_int)} -->
+<!--             } -->
+<!--         } -->
+<!--       } ## end loop -->
+<!--       if (all(is.na(fires_int_all)) || nrow(fires_int_all) == 0) { -->
+<!--         print("No recent fire intensity in area of interest") } else { -->
+<!--           sf::st_write(fires_int_all, file.path(out_path, "fire_int.gpkg"), append = FALSE) -->
+<!--         } -->
+<!--     } -->
+<!--     return(TRUE) -->
+<!--   } -->
+</section>
+<section id="stream-index" class="level2">
+<h2 class="anchored" data-anchor-id="stream-index">stream index</h2>
+<p><!-- get_streams <- function(in_aoi, out_path) { --></p>
+<p><!--   streams_exists <- file.exists(file.path(out_path, "streams.gpkg")) --></p>
+<p><!--   if(overwrite == FALSE & streams_exists == TRUE) { --></p>
+<p><!--     message("\r streams already exists, skipping download, select overwrite = TRUE to force download of water layers") --></p>
+<p><!--   } else { --></p>
+<p><!--   message("\rDownloading streams") --></p>
+<p><!-- #streamd <- bcdc_describe_feature("92344413-8035-4c08-b996-65a9b3f62fca") --> <!-- streams <- bcdata::bcdc_query_geodata("92344413-8035-4c08-b996-65a9b3f62fca") %>% --> <!--   bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% --> <!--   bcdata::select(c(id, STREAM_ORDER)) %>% --> <!--   bcdata::collect() --></p>
+<p><!-- if(length(st_is_empty(streams)) > 0 ){ --> <!--   streams <- streams %>% dplyr::select(c("id", "STREAM_ORDER"))%>% --> <!--     sf::st_zm() --></p>
+<p><!--  sf::st_write(streams, file.path(out_path, "streams.gpkg"), append = FALSE) --> <!--   } --> <!-- } --></p>
+<p><!--   return(TRUE) --> <!--     } --></p>
+</section>
+<section id="water-bodies" class="level2">
+<h2 class="anchored" data-anchor-id="water-bodies">water bodies</h2>
+<!--  get_water <- function(in_aoi, out_path) { -->
+<!--     water_exists <- file.exists(file.path(out_path, "lakes.gpkg")) -->
+<!--     if(overwrite == FALSE & water_exists == TRUE) { -->
+<!--       message("\rwater already exists, skipping download, select overwrite = TRUE to force download of water layers") -->
+<!--     } else { -->
+<!--       message("\rDownloading lake, streams and wetland layers") -->
+<!--       ## LAKES ## -->
+<!--       # 1 Square Kilometer = 100.00 Hectare -->
+<!--       # Uses date filter which filters lakes -->
+<!--       lakes <- bcdata::bcdc_query_geodata("cb1e3aba-d3fe-4de1-a2d4-b8b6650fb1f6") %>% -->
+<!--         bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
+<!--         bcdata::select(id, WATERBODY_TYPE, AREA_HA) %>% -->
+<!--         bcdata::collect() -->
+<!--       if(length(st_is_empty(lakes)) > 0 ){ -->
+<!--       lakes <- lakes %>% dplyr::select("id", "WATERBODY_TYPE", "AREA_HA") -->
+<!--       sf::st_write(lakes, file.path(out_path, "lakes.gpkg"), append = FALSE) -->
+<!--       } -->
+<!--   # download wetlands -->
+<!--       wetlands <- bcdata::bcdc_query_geodata("93b413d8-1840-4770-9629-641d74bd1cc6") %>% -->
+<!--         bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
+<!--         bcdata::select(id, WATERBODY_TYPE, AREA_HA) %>% -->
+<!--         bcdata::collect() -->
+<!--       wetlands <- wetlands %>% dplyr::filter(AREA_HA < 100) %>% -->
+<!--         dplyr::select(id, WATERBODY_TYPE, AREA_HA)%>% -->
+<!--         sf::st_union() -->
+<!--       if(length(st_is_empty(wetlands) > 0)){ -->
+<!--         sf::st_write(wetlands, file.path(out_path, "wetlands.gpkg"), append = FALSE) -->
+<!--       } -->
+<!--     } -->
+<!--       return(TRUE) -->
+<!--     } -->
+</section>
+<section id="roads" class="level2">
+<h2 class="anchored" data-anchor-id="roads">roads</h2>
+<!-- get_roads <- function(in_aoi, out_path) { -->
+<!--   # The main road network layer has too many roads in it. Filter it down to only -->
+<!--   # include named roads and combine those with actual mapped FSR's -->
+<!--   message("\rDownloading Road network") -->
+<!--   roads <- bcdc_query_geodata("bb060417-b6e6-4548-b837-f9060d94743e") %>% -->
+<!--     bcdata::filter(BBOX(local(st_bbox(in_aoi)))) %>% # slightly larger extent -->
+<!--     bcdata::select(id, ROAD_NAME_FULL, ROAD_CLASS, ROAD_SURFACE, FEATURE_LENGTH_M) %>% -->
+<!--     collect() %>% -->
+<!--     dplyr::select(id, ROAD_NAME_FULL,ROAD_SURFACE, ROAD_CLASS,FEATURE_LENGTH_M) %>% -->
+<!--        {if(nrow(.) > 0) { -->
+<!--       st_intersection(., in_aoi) %>% -->
+<!--        st_cast("MULTILINESTRING") -->
+<!--     } else .} -->
+<!--   fsr <- bcdc_query_geodata("9e5bfa62-2339-445e-bf67-81657180c682") %>% -->
+<!--     bcdata::filter( -->
+<!--       BBOX(local(st_bbox(in_aoi)))) %>% -->
+<!--     collect() %>% -->
+<!--     dplyr::select(id, FILE_TYPE_DESCRIPTION, FEATURE_LENGTH_M) %>% -->
+<!--     dplyr::rename(ROAD_CLASS = FILE_TYPE_DESCRIPTION) %>% -->
+<!--     dplyr::mutate(ROAD_CLASS = dplyr::case_when( -->
+<!--       ROAD_CLASS == "Forest Service Road" ~ "resource", -->
+<!--       ROAD_CLASS == "Road Permit" ~ "unclassifed")) %>% -->
+<!--     dplyr::mutate(ROAD_SURFACE = dplyr::case_when( -->
+<!--     ROAD_CLASS == "resource" ~ "loose", -->
+<!--     ROAD_CLASS == "unclassifed" ~ "rough")) %>% -->
+<!--     {if(nrow(.) > 0) { -->
+<!--       st_intersection(., in_aoi) %>% -->
+<!--         st_cast("MULTILINESTRING") -->
+<!--     } else .} -->
+<!--   road_merge <- dplyr::bind_rows(roads, fsr) -->
+<!--   st_write(road_merge, file.path(out_path, "road_network.gpkg"), append = FALSE) -->
+<!-- } -->
 
 
 </section>
