@@ -2,12 +2,28 @@
 title: "R Telemetry Workshop, November 2023"
 ---
 
-This is a Quarto website.
+**Welcome!**
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+We are happy to be working with you to step through the process to use R to clean, summarise and analyse your telemetry data.
+This course will be for basic to medium R coders, but never fear, we will have material to follow along with and to take home so dont worry!
 
-```{r}
-1 + 1
-```
+**Event details**
 
-For setup instructions go to [setup instructions](00-intro-setup.qmd).
+- Where: Cedar Boardroom, 2000 South Ospika Blvd, Prince George.
+
+- When: November 15th, 16th, 17th 2023
+
+- Times: The course will be two days (8:30 - 4:30pm, 15th and 16th November)) followed by a half day hackathon (8:30 - 12:30, 17th November). We will have breaks for coffee and lunch. Please bring your own food and snacks. 
+
+- What to bring: Bring your laptop with installed versions of R and Rstudio. For setup instructions go to [setup instructions](intro-setup.qmd). Help will be available for the first 30 minutes before the course starts (8:30 - 9:00am) to help trouble shoot any computer problems
+
+
+What is a hackathon? 
+A hackathon is an opportunity to work with your peers on common problems. This might be talking through options, paired coding or splitting up to seperate tasks. We will provide more input during the course to help you best use this time. 
+
+If you have a dataset you would like to work on, please bring it with you and you can use this for the hacakthon. 
+
+
+**Thank-you**
+
+Thank-you to Ministry of Forests, Government of British Columbia for sponsering this workshop. 
