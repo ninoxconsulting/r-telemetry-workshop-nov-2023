@@ -2,13 +2,16 @@
 title: "Exploring the BC Data Catalogue with R"
 ---
 
-## Vector
+## bcdata
 
+![](images/bcdata.png){fig-alt="bcdata sticker" width="200"}
+
+## Vector
 
 Basic list, not exclusive. bu fine for demo purpose
 
-1) VRI  - gen to fiddle with this a little. 
-2) Roads
+1)  VRI - gen to fiddle with this a little.
+2)  Roads
 3) water lakes/wetlands
 4) water stream
 5) disturbance - cutblocks < 30yrs 
@@ -16,7 +19,7 @@ Basic list, not exclusive. bu fine for demo purpose
 
 
 
-6) fIRE AND FIRE INTENSITY? PERHAPS WE CAN SHELVE THIS?
+6)  fIRE AND FIRE INTENSITY? PERHAPS WE CAN SHELVE THIS?
 
 
 ```{r}
@@ -45,45 +48,45 @@ scott_aoi <- st_bbox(scott) |>
 st_write(scott_aoi, "clean_data/scott_aoi.gpkg")
 ```
 
-## Bec: 
+## Bec:
 
- <!-- # # 1) BEC Biogeographical linework -->
- <!--  bec <- bcdc_query_geodata("f358a53b-ffde-4830-a325-a5a03ff672c3") %>% -->
- <!--    bcdata::filter(INTERSECTS(in_aoi)) %>% -->
- <!--    bcdata::collect() %>% -->
- <!--    dplyr::select(MAP_LABEL) %>% -->
- <!--    {if(nrow(.) > 0) st_intersection(., in_aoi) else .} -->
+<!-- # # 1) BEC Biogeographical linework -->
+<!--  bec <- bcdc_query_geodata("f358a53b-ffde-4830-a325-a5a03ff672c3") %>% -->
+<!--    bcdata::filter(INTERSECTS(in_aoi)) %>% -->
+<!--    bcdata::collect() %>% -->
+<!--    dplyr::select(MAP_LABEL) %>% -->
+<!--    {if(nrow(.) > 0) st_intersection(., in_aoi) else .} -->
 
- <!--  if(sf::st_crs(in_aoi) == st_crs(bec)){ -->
+<!--  if(sf::st_crs(in_aoi) == st_crs(bec)){ -->
 
- <!--  st_write(bec, file.path(out_path, "bec.gpkg"), append = FALSE) -->
+<!--  st_write(bec, file.path(out_path, "bec.gpkg"), append = FALSE) -->
+
  
- 
- ## Cutblocks
- 
-  <!-- # 6. download cutblocks -->
+## Cutblocks
 
-  <!-- get_harvest <- function(in_aoi, out_path) { -->
+<!-- # 6. download cutblocks -->
 
-  <!--   file_already_exists <- file.exists(file.path(out_path, "cutblocks.gpkg")) -->
+<!-- get_harvest <- function(in_aoi, out_path) { -->
 
-  <!--   if(overwrite == FALSE & file_already_exists == TRUE) { -->
+<!--   file_already_exists <- file.exists(file.path(out_path, "cutblocks.gpkg")) -->
 
-  <!--     message("\r cutblocks already exists, skipping download") -->
+<!--   if(overwrite == FALSE & file_already_exists == TRUE) { -->
 
-  <!--   } else { -->
+<!--     message("\r cutblocks already exists, skipping download") -->
 
-  <!--     message("\rDownloading cutblock layers") -->
+<!--   } else { -->
 
-  <!--     cutblocks <- bcdata::bcdc_query_geodata("b1b647a6-f271-42e0-9cd0-89ec24bce9f7") %>% -->
-  <!--       bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
-  <!--       bcdata::select(c("HARVEST_YEAR")) %>% -->
-  <!--       bcdata::collect() -->
+<!--     message("\rDownloading cutblock layers") -->
 
-  <!--   if (all(is.na(cutblocks)) || nrow(cutblocks) == 0) { -->
-  <!--       print("No recent cutblocks disturbance in area of interest") } else { -->
-  <!--   sf::st_write(cutblocks, file.path(out_path, "cutblocks.gpkg"), append = FALSE) -->
-  <!--       } -->
+<!--     cutblocks <- bcdata::bcdc_query_geodata("b1b647a6-f271-42e0-9cd0-89ec24bce9f7") %>% -->
+<!--       bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
+<!--       bcdata::select(c("HARVEST_YEAR")) %>% -->
+<!--       bcdata::collect() -->
+
+<!--   if (all(is.na(cutblocks)) || nrow(cutblocks) == 0) { -->
+<!--       print("No recent cutblocks disturbance in area of interest") } else { -->
+<!--   sf::st_write(cutblocks, file.path(out_path, "cutblocks.gpkg"), append = FALSE) -->
+<!--       } -->
 
   <!--   } -->
   <!--   return(TRUE) -->
@@ -139,7 +142,7 @@ st_write(scott_aoi, "clean_data/scott_aoi.gpkg")
 <!--           sf::st_write(fires_all, file.path(out_path, "fire.gpkg"), append = FALSE) -->
 <!--         } -->
 
-<!--       } -->
+<!--         } -->
 <!--       return(TRUE) -->
 <!--     } -->
 
@@ -194,7 +197,7 @@ st_write(scott_aoi, "clean_data/scott_aoi.gpkg")
 <!--           sf::st_write(fires_int_all, file.path(out_path, "fire_int.gpkg"), append = FALSE) -->
 <!--         } -->
 
-<!--     } -->
+<!--         } -->
 <!--     return(TRUE) -->
 <!--   } -->
 
@@ -203,29 +206,29 @@ st_write(scott_aoi, "clean_data/scott_aoi.gpkg")
 
 ## stream index
 
-  <!-- get_streams <- function(in_aoi, out_path) { -->
+<!-- get_streams <- function(in_aoi, out_path) { -->
 
-  <!--   streams_exists <- file.exists(file.path(out_path, "streams.gpkg")) -->
+<!--   streams_exists <- file.exists(file.path(out_path, "streams.gpkg")) -->
 
-  <!--   if(overwrite == FALSE & streams_exists == TRUE) { -->
+<!--   if(overwrite == FALSE & streams_exists == TRUE) { -->
 
-  <!--     message("\r streams already exists, skipping download, select overwrite = TRUE to force download of water layers") -->
+<!--     message("\r streams already exists, skipping download, select overwrite = TRUE to force download of water layers") -->
 
-  <!--   } else { -->
+<!--   } else { -->
 
-  <!--   message("\rDownloading streams") -->
+<!--   message("\rDownloading streams") -->
 
-  <!-- #streamd <- bcdc_describe_feature("92344413-8035-4c08-b996-65a9b3f62fca") -->
-  <!-- streams <- bcdata::bcdc_query_geodata("92344413-8035-4c08-b996-65a9b3f62fca") %>% -->
-  <!--   bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
-  <!--   bcdata::select(c(id, STREAM_ORDER)) %>% -->
-  <!--   bcdata::collect() -->
+<!-- #streamd <- bcdc_describe_feature("92344413-8035-4c08-b996-65a9b3f62fca") -->
+<!-- streams <- bcdata::bcdc_query_geodata("92344413-8035-4c08-b996-65a9b3f62fca") %>% -->
+<!--   bcdata::filter(bcdata::INTERSECTS(in_aoi)) %>% -->
+<!--   bcdata::select(c(id, STREAM_ORDER)) %>% -->
+<!--   bcdata::collect() -->
 
-  <!-- if(length(st_is_empty(streams)) > 0 ){ -->
-  <!--   streams <- streams %>% dplyr::select(c("id", "STREAM_ORDER"))%>% -->
-  <!--     sf::st_zm() -->
+<!-- if(length(st_is_empty(streams)) > 0 ){ -->
+<!--   streams <- streams %>% dplyr::select(c("id", "STREAM_ORDER"))%>% -->
+<!--     sf::st_zm() -->
 
-  <!--  sf::st_write(streams, file.path(out_path, "streams.gpkg"), append = FALSE) -->
+<!--  sf::st_write(streams, file.path(out_path, "streams.gpkg"), append = FALSE) -->
   <!--   } -->
   <!-- } -->
 
