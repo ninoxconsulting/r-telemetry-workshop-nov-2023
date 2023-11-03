@@ -12,7 +12,7 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - href: intro-setup.qmd
+      - href: "00-intro-setup.qmd"
         text: "Setup instructions"
   repo-url: https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023
   repo-actions: [edit, issue]
@@ -23,21 +23,22 @@ website:
       contents:
         - section: "Intro to Telemetry Data and Visualization"
           contents:
-            - intro-setup.qmd
-            - intro-spatial-data.qmd
-            - intro-telemetry-data.qmd
-            - spatial-data-viz.qmd
+            - "00-intro-setup.qmd"
+            - "01-intro-motivation.qmd"
+            - "02-intro-spatial-data.qmd"
+            - "03-intro-telemetry-data.qmd"
+            - "04-spatial-data-viz.qmd"
         - section: "Telemetry Analysis and Covariate Preparation"
           contents:
-            - bc-data-catalogue.qmd
-            - exploring-raster-data.qmd
-            - extracting-base-data.qmd
-            - rsf.qmd
+            - "05-vector-bcdata.qmd"
+            - "06-raster-data.qmd"
+            - "07-processing-vector-data.qmd"
+            - "08-rsf-prep.qmd"
         - section: "Bonus content"
           contents:
-            - bonus-1.qmd
-            - bonus-2.qmd
-            - bonus-3.qmd
+            - bonus-kde.qmd
+            - bonus-interactive-graphics.qmd
+            - bonus-movebank.qmd
 
 # bibliography: references.bib
 
