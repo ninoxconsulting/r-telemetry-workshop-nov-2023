@@ -203,10 +203,22 @@ fdata <- fdata %>%
   select(-FixType, -DOP, -date, -study.specific.measurement , -sensor.type, -event.id)
 
 
+
+```
+
+## Output cleaned 
+
+We can output out cleaned data as a table
+
+```{r write csv, eval = FALSE}
+
+write.csv(fdata, "clean_data/caribou.csv", row.names = F)
+
+
 ```
 
 
-## conver to spatial file and export 
+## Convert to spatial file and export 
 
 ```{r write out , eval = FALSE}
 
@@ -221,17 +233,6 @@ st_write(bou, "clean_data/caribou.gpkg", append = FALSE)
 st_write(bou, "clean_data/caribou.shp", append=FALSE)
 
 # note warning on names for shapefile
-
-```
-
-## Output cleaned 
-
-We can output out cleaned data as a table
-
-```{r write csv, eval = FALSE}
-
-write.csv(fdata, "clean_data/caribou.csv", row.names = F)
-
 
 ```
 
@@ -284,16 +285,15 @@ collar_type <- bou %>%
   summarise(count = n())
 
 ```
-
-Lets concentrate on the Scott herd. 
+There is alot of data here. For the next section of this course we will just concentrate on the Scott Herd. 
 
 ```{rsummarise scott herd, eval = FALSE}
-# look at the Scott herd.
 
+# Filter to keep the Scott herd only 
 sbou <- bou %>% 
   dplyr::filter(comments == "Scott")
 
-# tidy the data 
+# tidy the data by removing columns that are redundant
 sbou <- sbou %>% dplyr::select(-comments, -tag.local.identifier, -tag.manufacturer.name, -tag.model)
 
 
@@ -350,15 +350,6 @@ p_duration <- ggplot(sbou, aes(factor(month), fill = factor(year)))+
 
 #Larger spikes in Oct 2015 and Feb 2016 
 
-# months of the year. 
-p_duration <- ggplot(sbou, aes(factor(year), fill = factor(month)))+
-  geom_bar(position = "dodge") +
-  #xlim(1,12)+
-  facet_wrap(~animal.id)+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
-# same pattern. 
-
 
 ```
 
@@ -372,7 +363,6 @@ Larger spikes in Oct 2015 and Feb 2016
 
 ```{r}
 
-# there looks to be some un
 
 head(sbou)
 
@@ -387,10 +377,10 @@ sbou_dur <- sbou %>%
 
 # we can see a big range in the time intervals for the fixes
 
-range(as.numeric(a$diff), na.rm = TRUE)
+range(as.numeric(sbou_dur$diff), na.rm = TRUE)
 
 # most fall in the less than than 10 
-hist(as.numeric(a$diff))
+hist(as.numeric(sbou_dur$diff))
 
 
 # lets look at the individual animals
@@ -400,8 +390,6 @@ ggplot(sbou_dur, aes(as.numeric(diff))) +
   facet_grid(.~animal.id)
 
 # much of the problem is with the SC_car171 individual 
-
-
 
 ggplot(sbou_dur, aes(y = as.numeric(diff), x = date_time)) + 
   geom_point() +
@@ -420,25 +408,90 @@ To create a standardized fix per day, lets take the first fix per day. This coul
 
 ```{r}
 
-sbou_sub <- sbou_dur %>%
-    group_by(animal.id, year, month, day) %>%
-    slice_head( n = 1) 
+# 
+# # we can subset base on the duration 
+# 
+# sbou_sub <- sbou_dur %>%
+#     group_by(animal.id, year, month, day) %>%
+#     slice_head( n = 1) 
+# 
+# length(sbou_sub$animal.id) # subset
+# length(sbou_dur$animal.id) # all data
+# 
+# sbou_sub <- sbou_sub %>%
+#  mutate(time = as.POSIXct(date_time, format = "%y/%d/%m %H:%M:%S")) %>%
+#     group_by(animal.id) %>%
+#     mutate(sdiff = difftime(time, lag(time),  units = c("hours")))
+# 
+# 
+# ggplot(sbou_sub, aes(y = as.numeric(sdiff), x = date_time)) + 
+#   geom_point() +
+#   facet_wrap(.~animal.id, scales = "free")
+# 
+# 
+# 
+# 
+# 
+# # or 
 
-length(sbou_sub$animal.id) # subset
-length(sbou_dur$animal.id) # all data
-
-sbou_sub <- sbou_sub %>%
- mutate(time = as.POSIXct(date_time, format = "%y/%d/%m %H:%M:%S")) %>%
-    group_by(animal.id) %>%
-    mutate(sdiff = difftime(time, lag(time),  units = c("hours")))
 
 
-ggplot(sbou_sub, aes(y = as.numeric(sdiff), x = date_time)) + 
+# we can subset base on a Julien date
+
+sbou_dur <- sbou_dur %>%
+  mutate(date2=as.Date(date_time, format = '%Y-%m-%d')) %>%
+  mutate(jdate=julian(date2))
+
+# Check the multiple counts of anaimals per day 
+counts.per.day.jdate <- sbou_dur %>% group_by(animal.id , jdate, year) %>% 
+  summarise(total = n(), unique = unique(jdate)) %>% 
+  group_by(animal.id, total, year) %>% 
+  summarise(total.j = n()) 
+
+
+ggplot(counts.per.day.jdate, aes(x = total, y = total.j)) + 
   geom_point() +
-  facet_wrap(.~animal.id, scales = "free")
+  geom_vline(xintercept = 1, color = "red")+
+  facet_wrap(.~animal.id + year)
 
 
-# not perfect but definitely better across the board. 
+
+
+sbou_sub <- sbou_dur %>%
+    group_by(animal.id, jdate) %>%
+    slice_sample( n = 1) 
+
+
+# repeat this
+
+# Check the multiple counts of anaimals per day 
+counts.per.day.jdate <- sbou_sub %>% group_by(animal.id , jdate, year) %>% 
+  summarise(total = n(), unique = unique(jdate)) %>% 
+  group_by(animal.id, total, year) %>% 
+  summarise(total.j = n()) 
+
+
+ggplot(counts.per.day.jdate, aes(x = total, y = total.j)) + 
+  geom_point() +
+  geom_vline(xintercept = 1, color = "red")+
+  facet_wrap(.~animal.id + year)
+
+
+length(sbou_sub$location.long)
+
+
+
+# lets write this out as .csv and .Gpkg
+
+write.csv(sbou_sub, "clean_data/scott_herd_subset.csv", row.names = F)
+
+
+# convert to a sf object 
+# 
+sbou_sub_sf <- st_as_sf(sbou_sub, coords = c("location.long", "location.lat"), crs = 4326, remove = FALSE)
+# 
+# # export as .gpkg
+st_write(sbou_sub_sf, "clean_data/scott_herd_subset.gpkg", append = FALSE)
 
 
 ```
@@ -474,11 +527,12 @@ counts.per.season = sbou %>%
 
 ggplot(counts.per.season, aes(x = season, y = count)) + 
   geom_bar(stat = "identity") + 
+  facet_wrap(~animal.id) +
   labs(x = "season", y = "no.of.fixes", title = "Scott Herd")
 
 # export plot 
 
-
+ggsave("caribou_fixes_per_id.jpeg", width = 10, height = 10, units = "cm")
 
 
 
@@ -490,6 +544,10 @@ with_calf <- sbou %>%
   unique()
 
 # we know only one individual was seen with a calf... SC_car171 
+
+
+
+# Other questions???
 
 
 
