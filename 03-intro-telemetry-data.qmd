@@ -56,7 +56,6 @@ all_data <- all_data %>%
                 study.specific.measurement , sensor.type, tag.local.identifier, date, animal.id,
                 animal.sex, animal.reproductive.condition, tag.manufacturer.name, tag.model )
 
-#head(all_data)
 
 ```
 
@@ -125,7 +124,7 @@ tdata <- tdata  %>%
 tdata  <- tdata  %>%
   mutate(date_time = ymd_hms(date)) 
 
-head(tdata$date_time) 
+#head(tdata$date_time) 
 
 # Note the Universal Coordinated Time Zone
 
@@ -164,13 +163,12 @@ tdata <- tdata %>%
   filter(location.long <= -100) %>%
   filter(location.lat <= 65)
 
-#bou <- st_as_sf(tdata, coords = c("location.long", "location.lat"), crs = 4326)
-#mapview::mapview (bou)
-
 # DOP 
 
 range (tdata$DOP)
 hist(tdata$DOP)
+unique(tdata$DOP)
+
 
 # for this example we only want to keep fixes with a DOP less than 10m
 
@@ -178,6 +176,7 @@ fdata <- tdata %>%
   filter(DOP <= 10)
 
 hist(fdata$DOP)
+unique(tdata$DOP)
 
 # Fix Type : 
 
@@ -213,13 +212,11 @@ fdata <- fdata %>%
 
 # conver to a sf object 
 
-bou <- st_as_sf(fdata, coords = c("location.long", "location.lat"), crs = 4326)
-
-#mapview::mapview (bou)
+bou <- st_as_sf(fdata, coords = c("location.long", "location.lat"), crs = 4326, remove = FALSE)
 
 
 # export as .gpkg
-st_write(bou, "clean_data/caribou.gpkg")
+st_write(bou, "clean_data/caribou.gpkg", append = FALSE)
 
 st_write(bou, "clean_data/caribou.shp", append=FALSE)
 
@@ -246,18 +243,20 @@ Now we have clean data to work with we can get to the fun data exploration part!
 ```{r read in geopackage}
 
 #bou = read.csv("clean_data/caribou.csv")
+
+# or 
+
 bou_sf = st_read("clean_data/caribou.gpkg")
 
-bou <- bou_sf %>%
-  cbind(st_coordinates(bou_sf)) %>%
-          st_drop_geometry(bou_sf)
+bou <- bou_sf %>% st_drop_geometry(bou_sf)
 
 
 head(bou)
 glimpse(bou)
 
 ```
-Many Questions we can ask here: 
+
+Many questions we can ask here: 
 
 - how many herds do we have? 
 - how many animals in each herd? 
@@ -266,37 +265,43 @@ Many Questions we can ask here:
 
 ```{r summarise clean data}
 
-No_herds = unique(bou$comments)
+no_herds = unique(bou$comments)
 
 no_records <- bou %>% 
   group_by(comments)%>% 
   summarise(count = n())
 
+no_animals_id <- bou %>% 
+  group_by(comments, animal.id)%>% 
+  summarise(count = n())
 
 no_animals_sex <- bou %>% 
   group_by(comments, animal.sex)%>% 
   summarise(count = n())
 
-
-no_animals_id <- bou %>% 
-  group_by(comments, animal.id)%>% 
+collar_type <- bou %>% 
+  group_by(comments, tag.manufacturer.name, tag.model)%>% 
   summarise(count = n())
 
 ```
+
 Lets concentrate on the Scott herd. 
 
 ```{rsummarise scott herd, eval = FALSE}
 # look at the Scott herd.
 
 sbou <- bou %>% 
-  filter(comments == "Scott")
+  dplyr::filter(comments == "Scott")
+
+# tidy the data 
+sbou <- sbou %>% dplyr::select(-comments, -tag.local.identifier, -tag.manufacturer.name, -tag.model)
+
 
 # how many animals?
 no_animals <- unique(sbou$animal.id)
 
 
 # lets look at the time period: 
-
 p1 <- ggplot(sbou, aes(year, fill = animal.id))+
     geom_bar(position = "dodge")#+
     #xlim(2021,2024)#+
@@ -326,11 +331,10 @@ dur <- left_join(table_max, table_min, by = join_by(animal.id)) %>%
 
 
 dur_plot <- ggplot(dur, aes(y=factor(animal.id))) +
-  geom_segment(aes(x=min, xend=max, y=factor(animal.id), yend=factor(animal.id)), size=1)+
+  geom_segment(aes(x=min, xend=max, y=factor(animal.id), yend=factor(animal.id)), linewidth = 3)+
   xlab("Date") + ylab("Tag") 
 
 dur_plot
-
 
 
 # months of the year. 
@@ -341,6 +345,10 @@ p_duration <- ggplot(sbou, aes(factor(month), fill = factor(year)))+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 
+# we can see that the number of fixes are relatively steady throughout the years for all individuals except SC_car171? 
+# something looks strange here: 
+
+#Larger spikes in Oct 2015 and Feb 2016 
 
 # months of the year. 
 p_duration <- ggplot(sbou, aes(factor(year), fill = factor(month)))+
@@ -349,7 +357,51 @@ p_duration <- ggplot(sbou, aes(factor(year), fill = factor(month)))+
   facet_wrap(~animal.id)+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
+# same pattern. 
+
+
 ```
+
+#### Lets check the number of fixes per month per individual 
+
+we can see that the number of fixes are relatively steady throughout the years for all individuals except SC_car171? 
+something looks strange here: 
+
+Larger spikes in Oct 2015 and Feb 2016 
+
+
+```{r}
+
+# there looks to be some un
+
+head(sbou)
+
+sbou <- sbou %>% 
+  arrange(animal.id, date_time)
+
+a <- sbou %>%
+    mutate(time = as.POSIXct(date_time, format = "%y/%d/%m %H:%M:%S")) %>%
+    group_by(animal.id) %>%
+    mutate(diff = difftime(time, lag(time),  units = c("hours")))
+
+
+
+
+
+hist(as.numeric(a$diff))
+
+
+```
+
+
+
+
+
+
+
+
+
+
 
 # convert the dates to seasons 
 
