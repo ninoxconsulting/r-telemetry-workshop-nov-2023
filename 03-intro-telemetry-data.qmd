@@ -379,16 +379,66 @@ head(sbou)
 sbou <- sbou %>% 
   arrange(animal.id, date_time)
 
-a <- sbou %>%
+sbou_dur <- sbou %>%
     mutate(time = as.POSIXct(date_time, format = "%y/%d/%m %H:%M:%S")) %>%
     group_by(animal.id) %>%
     mutate(diff = difftime(time, lag(time),  units = c("hours")))
 
 
+# we can see a big range in the time intervals for the fixes
 
+range(as.numeric(a$diff), na.rm = TRUE)
 
-
+# most fall in the less than than 10 
 hist(as.numeric(a$diff))
+
+
+# lets look at the individual animals
+
+ggplot(sbou_dur, aes(as.numeric(diff))) + 
+  geom_histogram(bins=30) +
+  facet_grid(.~animal.id)
+
+# much of the problem is with the SC_car171 individual 
+
+
+
+ggplot(sbou_dur, aes(y = as.numeric(diff), x = date_time)) + 
+  geom_point() +
+  facet_wrap(.~animal.id, scales = "free")
+
+
+# suspect that these are a mortality signal from ? 
+# some collars have a higher fix rate (SC_car168 consistent less than 10 hr difference)
+
+```
+
+
+
+To create a standardized fix per day, lets take the first fix per day. This could be based on a number of factors, depending on our research question we want to ask 
+
+
+```{r}
+
+sbou_sub <- sbou_dur %>%
+    group_by(animal.id, year, month, day) %>%
+    slice_head( n = 1) 
+
+length(sbou_sub$animal.id) # subset
+length(sbou_dur$animal.id) # all data
+
+sbou_sub <- sbou_sub %>%
+ mutate(time = as.POSIXct(date_time, format = "%y/%d/%m %H:%M:%S")) %>%
+    group_by(animal.id) %>%
+    mutate(sdiff = difftime(time, lag(time),  units = c("hours")))
+
+
+ggplot(sbou_sub, aes(y = as.numeric(sdiff), x = date_time)) + 
+  geom_point() +
+  facet_wrap(.~animal.id, scales = "free")
+
+
+# not perfect but definitely better across the board. 
 
 
 ```
@@ -397,13 +447,7 @@ hist(as.numeric(a$diff))
 
 
 
-
-
-
-
-
-
-# convert the dates to seasons 
+# Convert the dates to seasons 
 
 Next we format the date variable so we can filter by months and years. We can also assign fixes to seasons based on the following dates : 
 
@@ -414,22 +458,39 @@ Next we format the date variable so we can filter by months and years. We can al
 
 
 ```{r add seasons, eval = FALSE}
-sbou <- sbou %>% 
+
+sbou <- sbou_sub %>% 
   mutate(season = case_when(
             month %in% c(4,5) ~ "spring",
             month %in% c(6,7,8) ~ "summer",
-            month %in% c(9,10,11) ~ "Fall",
-            month %in% c(12,1,2,3) ~ "winter", 
+            month %in% c(9,10,11) ~ "fall",
+            month %in% c(12,1,2,3) ~ "winter")) 
             
   
 # check data spread
-counts.per.season = indata %>%
-  group_by(season) %>%
+counts.per.season = sbou %>%
+  group_by(season, animal.id) %>%
   summarise(count = n())
 
 ggplot(counts.per.season, aes(x = season, y = count)) + 
   geom_bar(stat = "identity") + 
   labs(x = "season", y = "no.of.fixes", title = "Scott Herd")
+
+# export plot 
+
+
+
+
+
+
+# we know that all the collared animals are female, but which are with calf or not 
+
+with_calf <- sbou %>% 
+  dplyr::select(animal.id, animal.reproductive.condition, season) %>% 
+  unique()
+
+# we know only one individual was seen with a calf... SC_car171 
+
 
 
 ```
