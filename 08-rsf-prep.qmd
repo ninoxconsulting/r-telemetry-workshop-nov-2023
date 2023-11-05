@@ -28,7 +28,7 @@ We will generate a simple set of "available" based on the geographic distributio
 
 Lets start by reading in the libraries we will use.
 
-```{r}
+```{r, eval = FALSE}
 
 library(dplyr)
 library(terra)
@@ -40,7 +40,7 @@ library(ggplot2)
 
 Next, read in the standardized data points for the Scott herd. If needed we can transform to BC Albers projection (EPGS:3005) to match our raster stack prepared in the previous step. 
 
-```{r}
+```{r, eval = FALSE}
 
 # read in the aoi template 
 
@@ -66,7 +66,7 @@ We can use the **spatSample** function to generate random points for our given s
 
 Lets generate a set of points the same length as our "presence" locations using a "random" method. 
 
-```{r}
+```{r, eval = FALSE}
 
 # Generate random points for RSF use areas.
 set.seed(123)
@@ -82,7 +82,7 @@ avail_points <- avail_points %>%
 
 We can do a quick review fo the points to see what they look like using mapview.  
 
-```{r}
+```{r, eval = FALSE}
 
 mapview(avail_points) +
 mapview(bou_pts, color = "red", cex= 3)
@@ -94,7 +94,7 @@ mapview(bou_pts, color = "red", cex= 3)
 We can now combine our caribou locations and "available" locations into a single dataset. We will retain the spatial information to allow us to easily extract the values in the corresponding raster stack 
 
 
-```{r}
+```{r, eval = FALSE}
 
 avail_points 
 
@@ -113,7 +113,7 @@ allpts <- bind_rows(bou_pts, avail_points )
 Next, we can read in our prepared raster stack as an .rds object. We can now use the **extract** function from the **terra** package to extract information for all layers in the raster stack for each of our points.  
 
 
-```{r}
+```{r, eval = FALSE}
 
 # read in the raster stack 
 
@@ -134,10 +134,6 @@ bou_full_pts <- cbind( allpts, atts) %>%
 # export this as spatial file # or 
 
 
-
-
-
-
 bou_table <- bou_full_pts %>%
   cbind(st_coordinates(.)) %>%
   st_drop_geometry()
@@ -153,7 +149,7 @@ write.csv(bou_table, file.path("clean_data", "allpts_att.csv"))
 
 # Summary of the extracted Point Values
 
-```{r}
+```{r, eval = FALSE}
 
 # tri - good overlap
 
@@ -176,23 +172,11 @@ ggplot(bou_table, aes(lyr.1)) +
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## OPTIONAL 
 
 ## Build a mask with the "occurance point" (optional)
 
-```{r}
+```{r, eval = FALSE}
 
 occur_raster <- rasterize(bou_pts, template, field = "pres_abs")
 template_mask <- terra::mask(template, occur_raster, inverse = TRUE)
