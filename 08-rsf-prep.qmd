@@ -2,19 +2,46 @@
 title: "Generate random sample points for RSF"
 ---
 
+
+## Resource Selection Functions
+
+Now that we have a cleaned and standardized dataset for the Scott Herd Caribou's we can prepare the data for further analysis.
+
+Resource Selection Functions are a common method used to assess what is driving patterns of animal habitat preference. This process uses information or covariates (i.e. landscape attribute features) for locations where animals are present and compares them to the same features where animals are absent. In this way we can gather some information on what conditions (i.e. landscape, aspect, distance from road, etc) which contribute to higher habitat use. You can find more references for Resource Selection Functions below.
+
+To prepare the data we need to:
+
+-   generate "availalable" or "background points" from our study area.
+-   extract information about our known and available locations
+-   export as table for future use.
+
+While in this example we are concentrating on future analysis, the process of extracting background information for known locations can also provide meaningful summary statistics, i.e. proportion of locations within a specific BEC zone.
+
+
+## 1. Generate availalble location points.
+
+We will generate a simple set of "available" based on the geographic distribution of the study area. Note you can limit this area in which you generate "background" points, using more sophisticated methods, such as within a kernal density or home range estimate.
+
+Lets start by reading in the libraries we will use.
+
 ```{r}
 
 library(dplyr)
 library(terra)
 library(sf)
+library(mapview)
+library(ggplot2)
 
 ```
 
-
-# 1: Extract cleaned points
-
+Next, read in the standardized data points for the Scott herd. If needed we can transform to BC Albers projection (EPGS:3005) to match our raster stack prepared in the previous step. 
 
 ```{r}
+
+# read in the aoi template 
+
+template <- rast(file.path("clean_data","template.tif"))
+
 
 # read in points 
 
@@ -22,34 +49,144 @@ bou_pts <- st_read(file.path("clean_data/scott_herd_subset.gpkg"))
 bou_pts <- st_transform(bou_pts, 3005)
 
 
-# keep only the imporant columns
+# Lets keep only the important columns and add a "presence/absence" column. 
+
 bou_pts <- bou_pts %>% 
   dplyr::select(animal.id, jdate)%>%
   mutate(pres_abs = 1)
-  
+
+```
+
+
+We can use the **spatSample** function to generate random points for our given study area. This function has many more options which can be reviewed by using : **?spatSample** in the console. 
+
+Lets generate a set of points the same length as our "presence" locations using a "random" method. 
+
+```{r}
+
+# Generate random points for RSF use areas.
+set.seed(123)
+avail_points <- spatSample(template, size = 2906, as.points = TRUE, na.rm = TRUE, method = "random")
+
+avail_points <- st_as_sf(avail_points)
+
+# lets rename the column to make it clear these are background points 
+avail_points <- avail_points %>%
+  rename("pres_abs" = lyr.1 )
+
+```
+
+We can do a quick review fo the points to see what they look like using mapview.  
+
+```{r}
+
+mapview(avail_points) +
+mapview(bou_pts, color = "red", cex= 3)
 
 
 ```
 
 
+We can now combine our caribou locations and "available" locations into a single dataset. We will retain the spatial information to allow us to easily extract the values in the corresponding raster stack 
+
 
 ```{r}
+
+avail_points 
+
+
+bou_pts
+
+# note we have slightly different column headers "geom" vs "geometry" 
+st_geometry(avail_points) = "geom" 
+
+
+allpts <- bind_rows(bou_pts, avail_points ) 
+
+```
+
+
+Next, we can read in our prepared raster stack as an .rds object. We can now use the **extract** function from the **terra** package to extract information for all layers in the raster stack for each of our points.  
+
+
+```{r}
+
 # read in the raster stack 
 
 rstack <- readRDS(file.path("clean_data", "covars.RDS"))
 
-atts <- terra::extract(rstack, bou_pts)
 
-# convert to a table
-bou_full_pts <- cbind(bou_pts, atts) %>% 
+# extract all values in the raster stack for each location in the bou_pts file. 
+
+atts <- terra::extract(rstack, allpts)
+
+
+# remove unused columns 
+
+bou_full_pts <- cbind( allpts, atts) %>%
+  select(-ID)
+
+
+# export this as spatial file # or 
+
+
+
+
+
+
+bou_table <- bou_full_pts %>%
   cbind(st_coordinates(.)) %>%
   st_drop_geometry()
+
+
+# write out as csv 
+
+write.csv(bou_table, file.path("clean_data", "allpts_att.csv"))
+
 
 ```
 
 
-# build a mask with the "occurance point" (optional) 
+# Summary of the extracted Point Values
 
+```{r}
+
+# tri - good overlap
+
+ggplot(bou_table, aes(aspect)) +
+  geom_histogram(binwidth = 20) +
+  facet_wrap(~pres_abs)
+
+
+ggplot(bou_table, aes(lyr.1)) +
+  geom_histogram(binwidth = 0.5) +
+  facet_wrap(~pres_abs)
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## OPTIONAL 
+
+## Build a mask with the "occurance point" (optional)
 
 ```{r}
 
@@ -60,46 +197,9 @@ plot(template_mask)
 
 ```
 
-# Generate random points for RSF use areas. 
-
-
-```{r}
-
-avail_points <- st_as_sf(spatSample(template, size = 2906, as.points = TRUE, na.rm = TRUE, method = "random")) 
-
-
-avail_points <- avail_points %>%
-  rename("pres_abs" = lyr.1 )
-
-
-mapview::mapview(avail_points) +
-mapview::mapview(bou_pts, color = "red", cex= 3)
-
-plot(avail_points)
-
-
-# extract the values for "Available points"
-avail_atts <- terra::extract(rstack, avail_points, xy = TRUE)
-
-avail_atts
-
-
-bou_abs_pts <- cbind(avail_points, avail_atts) %>%
-  dplyr::select(-x, -y)%>%
- cbind(st_coordinates(.)) %>%
-  st_drop_geometry()
-
-
-allpts <- bind_rows(bou_full_pts, bou_abs_pts) %>% 
-  dplyr::select(-ID)
-
-
-# write out as csv 
-
-
-write.csv(allpts, file.path("clean_data", "allpts_att.csv"))
 
 
 
-```
+# Reference
 
+## add RSF refs
