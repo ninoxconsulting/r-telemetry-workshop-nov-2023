@@ -1,9 +1,164 @@
 ---
 title: "Processing Base Vector Data"
 ---
+```{r}
+library(bcdata)
+library(sf)
+library(dplyr)
 
 
 
-## Calculating distance to roads/water
+# read in the spatial file 
+
+bou <- st_read(file.path("clean_data/scott_herd_subset.gpkg"), crs = 4326)
+
+# check this is not only output as a csv 
 
 
+# read in the aoi 
+
+aoi <- st_read(file.path("clean_data/scott_aoi.gpkg"))
+aoi <- st_transform(aoi, crs = 3005)
+
+# check with Andy if this is 3005 or 84?
+
+
+
+
+```
+
+
+## 1. convert the vectors to rasters
+
+For each of the base vectro data we extracted from before, we will convert this to a raster stack and extract all points at one time. 
+
+Note this can also be done at the vector stage, however predictive modelling will normally require a stacked covariate list so that you can predict from the built model 
+
+
+
+```{r}
+
+covars = bec, fire cutblock, etc.... 
+
+#convert to raster stacks
+
+
+
+```
+
+
+
+
+
+## 2 Calculate road density values 
+
+To capture the impact of roads, we also want to look at the impact of road type, and density of roads. 
+
+
+```{r}
+
+roads <- bcdc_query_geodata("bb060417-b6e6-4548-b837-f9060d94743e") %>% 
+  bcdata::filter(bcdata::INTERSECTS(aoi))  %>%
+  bcdata::select("id", "ROAD_CLASS", "ROAD_SURFACE") %>% 
+  collect() %>%
+  dplyr::select(ROAD_SURFACE, ROAD_CLASS) %>% 
+        {if(nrow(.) > 0) { 
+  st_intersection(., aoi) %>% 
+      st_cast("MULTILINESTRING") 
+    } else .} 
+  
+st_write(roads, "clean_data/roads.gpkg")
+
+
+# dont need this as it is the same as the above roads layer
+# fsr <- bcdc_query_geodata("9e5bfa62-2339-445e-bf67-81657180c682") %>% 
+#    bcdata::filter(bcdata::INTERSECTS(aoi))  %>%
+#    collect() %>% 
+#    dplyr::select(FILE_TYPE_DESCRIPTION) %>% 
+#    dplyr::rename(ROAD_CLASS = FILE_TYPE_DESCRIPTION) %>% 
+#     dplyr::mutate(ROAD_CLASS = dplyr::case_when( 
+#         ROAD_CLASS == "Forest Service Road" ~ "resource", 
+#         ROAD_CLASS == "Road Permit" ~ "unclassifed")) %>% 
+#     dplyr::mutate(ROAD_SURFACE = dplyr::case_when( 
+#     ROAD_CLASS == "resource" ~ "loose", 
+#     ROAD_CLASS == "unclassifed" ~ "rough")) %>% 
+#     {if(nrow(.) > 0) { 
+#       st_intersection(., aoi) %>%
+#        st_cast("MULTILINESTRING") 
+#    } else .} 
+# 
+#   road_merge <- dplyr::bind_rows(roads, fsr) 
+
+#st_write(road_merge, file.path("clean_data", "road_network.gpkg"), append = FALSE)
+
+```
+
+
+```{r}
+# read in roads
+roads <- st_read(file.path("clean_data", "roads.gpkg"))
+
+
+# assign a value to the roads based on estimated speed of travel or use
+
+roads <- roads %>% 
+  mutate(rd_value = case_when(
+            ROAD_SURFACE == "loose" ~ 25,
+            ROAD_SURFACE == "overgrown" ~ 5,
+            ROAD_SURFACE == "rough" ~ 10,
+            ROAD_SURFACE == "unknown" ~ 7.5)) 
+
+# read in template
+
+template <- rast(file.path("clean_data", "template.tif"))
+
+
+
+
+# convert roads to a raster 
+rroads <- rasterize(roads, template, field = "rd_value" )
+plot(rroads)
+
+
+# create a moving window 
+rrdens <- focal(rroads, w=9, fun="sum", na.rm=TRUE)
+plot(rrdens)
+
+terra::writeRaster(rrdens, file.path("clean_data", "road_density.tif"), overwrite = TRUE) 
+
+```
+
+## 3. Calculate distance from water metrics
+
+While density provides a measure of impact we may also be interested in capturing the distance of fixes to caribou points. In this case we will explore the distance to water bodies within the study areas. 
+
+```{r}
+
+# temp_pts <- as.points(template)
+# plot(temp_pts)
+# 
+
+dis_pts <- terra::distance(template, roads, unit="km")
+
+range(dis_pts)
+
+
+
+```
+
+
+## 4. Combine raster layers into a stack 
+
+```{r}
+
+
+rstack <- c(dis_pts, rrdens, template, aspect) #, slope, tri, dem)
+
+
+# we can write this out as a tif (raster object) 
+writeRaster(rstack, file.path("clean_data", "rstack.tif"), overwrite = T)
+
+
+## or we can write this out to a very small R object 
+
+saveRDS(rstack, file.path("clean_data", "covars.RDS")) # much faster
