@@ -21,7 +21,7 @@ In this module we will post-process the vector data we prepared earlier to gener
 Often we want to post-process our raw vector data to create more meaningful covariates in our analysis. In this case we are interested in the density of roads and how this might impact our caribou habitat choice. 
 
 
-```{r}
+```{r, eval = FALSE}
 # load in the libraries needed
 
 library(bcdata)
@@ -50,7 +50,8 @@ template <- rast(file.path("clean_data", "template.tif"))
 
 We can assume that the type of road will have a different impact on Caribou avoidance or predator use. We can assign a value based on the road type. In this case we will assign a higher value to roads used more frequently.
 
-```{r}
+```{r, eval = FALSE}
+
 # read in roads
 roads <- st_read(file.path("clean_data", "roads.gpkg"))
 
@@ -68,7 +69,7 @@ roads <- roads %>%
 
 Now we can convert this to a raster using the template we created already
 
-```{r}
+```{r, eval = FALSE}
 # convert roads to a raster 
 rroads <- rasterize(roads, template, field = "rd_value" )
 
@@ -77,7 +78,7 @@ plot(rroads)
 ```
 As the impact of the roads is likely to impact a wider influence than a single pixal we can use a moving window analysis to expand the influence of roads for a given value. 
 
-```{r}
+```{r, eval = FALSE}
 # create a moving window 
 rrdens <- focal(rroads, w=9, fun="sum", na.rm=TRUE)
 
@@ -93,7 +94,7 @@ terra::writeRaster(rrdens, file.path("clean_data", "road_density.tif"), overwrit
 
 While density provides a measure of impact we may also be interested in capturing the distance of fixes to caribou points. In this case we will explore the distance to water bodies within the study areas. 
 
-```{r}
+```{r, eval = FALSE}
 
 # read in water 
 water <- st_read(file.path("clean_data", "roads.gpkg"))
@@ -120,7 +121,7 @@ We can also convert each vector layer we extracted into a raster.
 Note this can also be done at the vector stage, however predictive modelling will normally require a stacked covariate list so that you can predict from the built model 
 
 
-```{r}
+```{r, eval = FALSE}
 
 # move this section to Andy; bc data section. 
 
@@ -167,7 +168,7 @@ st_write(vri_cc, file.path("clean_data", "vri_cc.gpkg"), append = FALSE)
 
 
 
-```{r}
+```{r, eval = FALSE}
 
 bec <- st_read(file.path("clean_data","bec.gpkg"))
 vri_cc <- st_read(file.path("clean_data","vri_cc.gpkg"))
@@ -194,7 +195,7 @@ vect_stack <- c(vri_cc, vri_conif, vri_ageclass, water_dis, rrdens)
 
 ## Lets combine our already created rasters 
 
-```{r}
+```{r, eval = FALSE}
 
 rslope <- rast(file.path("clean_data","slope.gpkg"))
 aspect <- rast(file.path("clean_data","aspect.gpkg"))
@@ -212,7 +213,7 @@ rast_stack <- c(trim_3005, rslope, aspect, tri)
 
 ## 4. Combine raster layers into a stack 
 
-```{r}
+```{r, eval = FALSE}
 
 # lets combine both the raster stack and the vector stack 
 
