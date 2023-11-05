@@ -3,17 +3,21 @@ title: "Generate random sample points for RSF"
 ---
 
 
-## Resource Selection Functions
+## Overview:
+
+In this module we use our prepared spatial data to generate the input datafiles to conduct a resource selection function analysis. This includes: 
+
+-   generate a set of "available" or "background points" from our study area.
+-   extract spatial information for presence and available point locations
+-   export as table for future use
+-   use the extracted data to provide further graphics and summary options
+
+
+## Background: Resource Selection Functions
 
 Now that we have a cleaned and standardized dataset for the Scott Herd Caribou's we can prepare the data for further analysis.
 
 Resource Selection Functions are a common method used to assess what is driving patterns of animal habitat preference. This process uses information or covariates (i.e. landscape attribute features) for locations where animals are present and compares them to the same features where animals are absent. In this way we can gather some information on what conditions (i.e. landscape, aspect, distance from road, etc) which contribute to higher habitat use. You can find more references for Resource Selection Functions below.
-
-To prepare the data we need to:
-
--   generate "availalable" or "background points" from our study area.
--   extract information about our known and available locations
--   export as table for future use.
 
 While in this example we are concentrating on future analysis, the process of extracting background information for known locations can also provide meaningful summary statistics, i.e. proportion of locations within a specific BEC zone.
 
