@@ -1,103 +1,58 @@
 ---
 title: "Processing Base Vector Data"
 ---
+
+
+## Overview:
+
+In this module we will post-process the vector data we prepared earlier to generate some additional covariates using the **terra** package. We will also prepare all data for the analysis. This includes  
+
+-   generating a road density layer
+
+-   calculating distance to water metrics
+
+-   converting our prepared vector to raster
+
+-   building a raster stack with all covariate data
+
+
+## 1. Calculate density of road network. 
+
+Often we want to post-process our raw vector data to create more meaningful covariates in our analysis. In this case we are interested in the density of roads and how this might impact our caribou habitat choice. 
+
+
 ```{r}
+# load in the libraries needed
+
 library(bcdata)
 library(sf)
 library(dplyr)
 
+# read in raster template
+template <- rast(file.path("clean_data", "template.tif"))
 
 
-# read in the spatial file 
-
-bou <- st_read(file.path("clean_data/scott_herd_subset.gpkg"), crs = 4326)
-
-# check this is not only output as a csv 
-
-
-# read in the aoi 
-
-aoi <- st_read(file.path("clean_data/scott_aoi.gpkg"))
-aoi <- st_transform(aoi, crs = 3005)
-
-# check with Andy if this is 3005 or 84?
-
-
-
-
-```
-
-
-## 1. convert the vectors to rasters
-
-For each of the base vectro data we extracted from before, we will convert this to a raster stack and extract all points at one time. 
-
-Note this can also be done at the vector stage, however predictive modelling will normally require a stacked covariate list so that you can predict from the built model 
-
-
-
-```{r}
-
-covars = bec, fire cutblock, etc.... 
-
-#convert to raster stacks
-
-
-
-```
-
-
-
-
-
-## 2 Calculate road density values 
-
-To capture the impact of roads, we also want to look at the impact of road type, and density of roads. 
-
-
-```{r}
-
-roads <- bcdc_query_geodata("bb060417-b6e6-4548-b837-f9060d94743e") %>% 
-  bcdata::filter(bcdata::INTERSECTS(aoi))  %>%
-  bcdata::select("id", "ROAD_CLASS", "ROAD_SURFACE") %>% 
-  collect() %>%
-  dplyr::select(ROAD_SURFACE, ROAD_CLASS) %>% 
-        {if(nrow(.) > 0) { 
-  st_intersection(., aoi) %>% 
-      st_cast("MULTILINESTRING") 
-    } else .} 
-  
-st_write(roads, "clean_data/roads.gpkg")
-
-
-# dont need this as it is the same as the above roads layer
-# fsr <- bcdc_query_geodata("9e5bfa62-2339-445e-bf67-81657180c682") %>% 
-#    bcdata::filter(bcdata::INTERSECTS(aoi))  %>%
-#    collect() %>% 
-#    dplyr::select(FILE_TYPE_DESCRIPTION) %>% 
-#    dplyr::rename(ROAD_CLASS = FILE_TYPE_DESCRIPTION) %>% 
-#     dplyr::mutate(ROAD_CLASS = dplyr::case_when( 
-#         ROAD_CLASS == "Forest Service Road" ~ "resource", 
-#         ROAD_CLASS == "Road Permit" ~ "unclassifed")) %>% 
-#     dplyr::mutate(ROAD_SURFACE = dplyr::case_when( 
-#     ROAD_CLASS == "resource" ~ "loose", 
-#     ROAD_CLASS == "unclassifed" ~ "rough")) %>% 
-#     {if(nrow(.) > 0) { 
-#       st_intersection(., aoi) %>%
-#        st_cast("MULTILINESTRING") 
-#    } else .} 
+# ## THIS WILL ALREADY BE INCLUDED IN ANDYS SECTION 
 # 
-#   road_merge <- dplyr::bind_rows(roads, fsr) 
-
-#st_write(road_merge, file.path("clean_data", "road_network.gpkg"), append = FALSE)
+# roads <- bcdc_query_geodata("bb060417-b6e6-4548-b837-f9060d94743e") %>% 
+#   bcdata::filter(bcdata::INTERSECTS(aoi))  %>%
+#   bcdata::select("id", "ROAD_CLASS", "ROAD_SURFACE") %>% 
+#   collect() %>%
+#   dplyr::select(ROAD_SURFACE, ROAD_CLASS) %>% 
+#         {if(nrow(.) > 0) { 
+#   st_intersection(., aoi) %>% 
+#       st_cast("MULTILINESTRING") 
+#     } else .} 
+#   
+# st_write(roads, "clean_data/roads.gpkg")
 
 ```
 
+We can assume that the type of road will have a different impact on Caribou avoidance or predator use. We can assign a value based on the road type. In this case we will assign a higher value to roads used more frequently.
 
 ```{r}
 # read in roads
 roads <- st_read(file.path("clean_data", "roads.gpkg"))
-
 
 # assign a value to the roads based on estimated speed of travel or use
 
@@ -108,40 +63,148 @@ roads <- roads %>%
             ROAD_SURFACE == "rough" ~ 10,
             ROAD_SURFACE == "unknown" ~ 7.5)) 
 
-# read in template
 
-template <- rast(file.path("clean_data", "template.tif"))
+```
 
+Now we can convert this to a raster using the template we created already
 
-
-
+```{r}
 # convert roads to a raster 
 rroads <- rasterize(roads, template, field = "rd_value" )
+
 plot(rroads)
 
+```
+As the impact of the roads is likely to impact a wider influence than a single pixal we can use a moving window analysis to expand the influence of roads for a given value. 
 
+```{r}
 # create a moving window 
 rrdens <- focal(rroads, w=9, fun="sum", na.rm=TRUE)
+
 plot(rrdens)
 
 terra::writeRaster(rrdens, file.path("clean_data", "road_density.tif"), overwrite = TRUE) 
 
 ```
 
-## 3. Calculate distance from water metrics
+
+
+## 2. Calculate distance from water
 
 While density provides a measure of impact we may also be interested in capturing the distance of fixes to caribou points. In this case we will explore the distance to water bodies within the study areas. 
 
 ```{r}
 
-# temp_pts <- as.points(template)
-# plot(temp_pts)
-# 
+# read in water 
+water <- st_read(file.path("clean_data", "roads.gpkg"))
 
-dis_pts <- terra::distance(template, roads, unit="km")
+# calculate the distance to water for each pixal in the raster
+# be patient - this might take some time. 
+water_dis <- terra::distance(template, water, unit="km")
 
-range(dis_pts)
+plot(water_dis)
 
+# what sort of values are we seeing?
+range(water_dis)
+sort(unique(values(water_dis)))
+range(unique(values(water_dis)))
+
+```
+
+
+## 3. Convert base vector data to rasters 
+
+We can also convert each vector layer we extracted into a raster. 
+
+
+Note this can also be done at the vector stage, however predictive modelling will normally require a stacked covariate list so that you can predict from the built model 
+
+
+```{r}
+
+# move this section to Andy; bc data section. 
+
+
+
+vri <- bcdata::bcdc_query_geodata("2ebb35d8-c82f-4a17-9c96-612ac3532d55") %>%
+      bcdata::filter(bcdata::INTERSECTS(aoi)) %>%
+      bcdata::select(c("PROJ_AGE_CLASS_CD_1","BCLCS_LEVEL_4","CROWN_CLOSURE_CLASS_CD")) %>% 
+      bcdata::collect()
+
+#(vri codes)[https://www2.gov.bc.ca/assets/gov/farming-natural-resources-and-industry/forestry/stewardship/forest-analysis-inventory/data-management/standards/vegcomp_poly_rank1_data_dictionaryv5_2019.pdf]
+
+
+# Tree coniferous leading - select coniferous leading vri plots
+vri_conif <- vri %>% 
+    dplyr::mutate(conif = BCLCS_LEVEL_4) %>%
+    dplyr::filter(conif == "TC") %>%
+    dplyr::select(conif )
+
+#plot(vri_conif$BCLCS_LEVEL_4)
+
+st_write(vri_conif, file.path("clean_data","vri_conif.gpkg") , append = FALSE)
+
+
+# Age class greater than 40 years
+vri_ageclass <- vri %>%
+    dplyr::mutate(age_class = as.numeric(PROJ_AGE_CLASS_CD_1)) %>%
+    dplyr::filter(age_class >= 3) %>%
+    dplyr::select(age_class)
+
+st_write(vri_ageclass, file.path("clean_data", "vri_ageclass.gpkg"), append = FALSE)
+ 
+
+# Crown closure class 
+vri_cc <- vri %>%
+    dplyr::mutate(cc_class = as.numeric(CROWN_CLOSURE_CLASS_CD)) %>%
+    dplyr::select(cc_class)
+st_write(vri_cc, file.path("clean_data", "vri_cc.gpkg"), append = FALSE)
+ 
+
+```
+
+
+
+
+
+```{r}
+
+bec <- st_read(file.path("clean_data","bec.gpkg"))
+vri_cc <- st_read(file.path("clean_data","vri_cc.gpkg"))
+vri_conif <- st_read(file.path("clean_data","vri_conif.gpkg"))
+vri_ageclass <- st_read(file.path("clean_data","vri_ageclass.gpkg"))
+#water
+#roads 
+#cutblocks
+
+
+
+
+# convert to rasters
+vri_cc <- rasterize(vri_cc, template, field = "cc_class" )
+vri_conif <- rasterize(vri_conif, template, field = "conif" )
+vri_ageclass <- rasterize(vri_ageclass, template, field = "age_class" )
+
+
+# stack into a set of rasters
+vect_stack <- c(vri_cc, vri_conif, vri_ageclass, water_dis, rrdens)
+
+
+```
+
+## Lets combine our already created rasters 
+
+```{r}
+
+rslope <- rast(file.path("clean_data","slope.gpkg"))
+aspect <- rast(file.path("clean_data","aspect.gpkg"))
+tri  <- rast(file.path("clean_data","tri.gpkg"))
+trim_3005 <- rast(file.path("clean_data","dem.gpkg"))
+
+
+
+# create a raster stack
+rast_stack <- c(trim_3005, rslope, aspect, tri)
 
 
 ```
@@ -151,14 +214,16 @@ range(dis_pts)
 
 ```{r}
 
+# lets combine both the raster stack and the vector stack 
 
-rstack <- c(dis_pts, rrdens, template, aspect) #, slope, tri, dem)
+all_stack <- c(vect_stack, rast_stack)
 
+plot(all_stack)
 
 # we can write this out as a tif (raster object) 
-writeRaster(rstack, file.path("clean_data", "rstack.tif"), overwrite = T)
+#writeRaster(all_stack, file.path("clean_data", "rstack.tif"), overwrite = T)
 
 
 ## or we can write this out to a very small R object 
 
-saveRDS(rstack, file.path("clean_data", "covars.RDS")) # much faster
+saveRDS(all_stack, file.path("clean_data", "covars.RDS")) # much faster
