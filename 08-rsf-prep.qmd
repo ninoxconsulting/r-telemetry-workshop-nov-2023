@@ -1,3 +1,105 @@
 ---
 title: "Generate random sample points for RSF"
 ---
+
+```{r}
+
+library(dplyr)
+library(terra)
+library(sf)
+
+```
+
+
+# 1: Extract cleaned points
+
+
+```{r}
+
+# read in points 
+
+bou_pts <- st_read(file.path("clean_data/scott_herd_subset.gpkg")) 
+bou_pts <- st_transform(bou_pts, 3005)
+
+
+# keep only the imporant columns
+bou_pts <- bou_pts %>% 
+  dplyr::select(animal.id, jdate)%>%
+  mutate(pres_abs = 1)
+  
+
+
+```
+
+
+
+```{r}
+# read in the raster stack 
+
+rstack <- readRDS(file.path("clean_data", "covars.RDS"))
+
+atts <- terra::extract(rstack, bou_pts)
+
+# convert to a table
+bou_full_pts <- cbind(bou_pts, atts) %>% 
+  cbind(st_coordinates(.)) %>%
+  st_drop_geometry()
+
+```
+
+
+# build a mask with the "occurance point" (optional) 
+
+
+```{r}
+
+occur_raster <- rasterize(bou_pts, template, field = "pres_abs")
+template_mask <- terra::mask(template, occur_raster, inverse = TRUE)
+
+plot(template_mask)
+
+```
+
+# Generate random points for RSF use areas. 
+
+
+```{r}
+
+avail_points <- st_as_sf(spatSample(template, size = 2906, as.points = TRUE, na.rm = TRUE, method = "random")) 
+
+
+avail_points <- avail_points %>%
+  rename("pres_abs" = lyr.1 )
+
+
+mapview::mapview(avail_points) +
+mapview::mapview(bou_pts, color = "red", cex= 3)
+
+plot(avail_points)
+
+
+# extract the values for "Available points"
+avail_atts <- terra::extract(rstack, avail_points, xy = TRUE)
+
+avail_atts
+
+
+bou_abs_pts <- cbind(avail_points, avail_atts) %>%
+  dplyr::select(-x, -y)%>%
+ cbind(st_coordinates(.)) %>%
+  st_drop_geometry()
+
+
+allpts <- bind_rows(bou_full_pts, bou_abs_pts) %>% 
+  dplyr::select(-ID)
+
+
+# write out as csv 
+
+
+write.csv(allpts, file.path("clean_data", "allpts_att.csv"))
+
+
+
+```
+
