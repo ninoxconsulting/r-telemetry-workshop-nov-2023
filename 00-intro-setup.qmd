@@ -2,29 +2,31 @@
 title: "Introduction and System Setup"
 ---
 
-
-## Workshop Overview
+## Overview
 
 This two-day course will introduce you to the basics of working with telemetry data in R.
 
-### The worksop will include: 
-- The basics of spatial data in R
-- How to read in, clean, and QA your telemetry data
-- How to create useful summaries of your data
-- Data visualization techniques for spatial and telemetry data (graphs and maps)
-- How to use the `bcmaps` and `bcdata` packages to get vector and raster data from
-official BC government sources.
-- How to perform spatial operations to model covariates
+We will providing a data set to use throughout the workshop, but we encourage you to bring along your own data for the hackathon session (Friday AM).
 
-### The workshop will not include: 
-- Methodological detail of telemetry methods ie DOP calculations
-- Advanced modeling techniques
-- We wont be working with individual datasets (until Friday!)
+### The workshop will include:
+
+-   The basics of spatial data in R
+-   How to read in, clean, and QA your telemetry data
+-   How to create useful summaries of your data
+-   Data visualization techniques for spatial and telemetry data (graphs and maps)
+-   How to use the `bcmaps` and `bcdata` packages to get vector and raster data from official BC government sources.
+-   How to perform spatial operations to compile and generate landcape covariates
+-   How to extract spatial information for telemetry and random location points
+
+### The workshop will not include:
+
+-   Methodological details on technical telemetry parameters i.e. DOP estimates
+
+-   Advanced modeling techniques
 
 ## Computing requirements
 
-You will require the following software installed and configured for the workshop.
-Please have this set up and ready to go **before** we start.
+You will require the following software installed and configured for the workshop. Please have this set up and ready to go **before** we start.
 
 You will need:
 
@@ -50,10 +52,9 @@ If you do not have administrator rights, the installer will default to installin
 
 #### Install R Studio
 
-Download and install RStudio Desktop from <https://posit.co/download/rstudio-desktop/>.
-This page should automatically offer you the version suitable for your operating system, but you can scroll down to find versions for all operating systems.
+Download and install RStudio Desktop from <https://posit.co/download/rstudio-desktop/>. This page should automatically offer you the version suitable for your operating system, but you can scroll down to find versions for all operating systems.
 
-##### Windows with no admin rights:
+##### Windows with admin rights:
 
 Download the `.zip` archive for Windows under "Zip/Tarballs". Create a folder called `RStudio` in a location on your `C:/` drive, where you have write access (e.g. `C:/Users/username/AppData/Local/Programs/RStudio`), and extract the zip file into this folder. Find the RStudio program in this folder: it is named `rstudio.exe`, but the file extension will typically be hidden, so look for `rstudio`. Right-click this file to create a shortcut and drag it to your desktop/task bar. Use the shortcut to open RStudio.
 
@@ -64,11 +65,11 @@ In R, install the necessary packages by running:
 ```{r}
 #| eval: false
 install.packages(
-  c("tidyverse", "sf", "terra", "tmap", "mapview", "bcdata", "bcmaps", "readxl")
+  c("tidyverse", "sf", "terra", "tmap", "mapview", "bcdata", "bcmaps", "readxl, ggplot2")
 )
 ```
 
-### QGIS {#qgis}
+### QGIS (optional) {#qgis}
 
 QGIS is a free and open-source geographic information system (GIS) that allows you to create, edit, visualize, analyze and publish geospatial information.
 
