@@ -2,59 +2,110 @@
 title: "Exploring Raster Data"
 ---
 
+## Overview:
+
+In this module we will explore rasters data and the available datasets which can be used through R for analysis We will:
+
+-   prepare our study aoi to use with rasters
+
+-   extract DEM data through the **bcmaps** package
+
+-   generate DEM derived covariates,
+
+-   prepare a raster stack with all spatial layers generated to date.
+
+## Background: Rasters
+
+Raster data is information built on standard grid. These can be characterised by the grid extent (xmin, xmax, ymin, ymax) and can have a coordinate system to orient them in space. Rasters are made up of cells or pixals, based on a resolution or cell size. Each cell contains a single value. The **terra** package contains many function for manipulating and processing rasters.
+
+Note we will be using the BC Albers coordinate reference system (EPSG:3005). The advantages of this are 1) BCAlbers is an equal area projection across BC, 2) extent is marked using meters.
+
+## 1. Create a standard raster template.
+
+For ease of calculations we will create a standard "template" raster which will form the basis for all our data analysis.
 
 ```{r}
+# read in the libraries needed
 
 library(dplyr)
 library(sf)
 library(bcmaps)
 library(terra)
 
+```
+
+Read in our basic aoi and extend it to the nearest 100m. We can then convert this to a raster with a resolution of given size. In this example we will select 25m.
+
+```{r}
+# 
+# # read in the spatial file 
+# 
+# bou <- st_read(file.path("clean_data/scott_herd_subset.gpkg"), crs = 4326)
+# 
+# # check this is not only output as a csv 
 
 
 # read in the spatial file 
+```
 
-bou <- st_read(file.path("clean_data/scott_herd_subset.gpkg"), crs = 4326)
-
-# check this is not only output as a csv 
-
+```{r}
 
 # read in the aoi 
-aoi <- st_read(file.path("clean_data/scott_aoi.gpkg"))
-aoi_3005 <- st_transform(aoi, 3005)
-crs(aoi_3005)
-# check with Andy if this is 3005 or 84?
+aoi_raw <- st_read(file.path("clean_data", "scott_aoi.gpkg"))
 
-# create a snapped AOI to nearest 100
-  bb <- sf::st_bbox(aoi_3005)
+# transform to BC Albers if needed. 
+aoi_3005 <- st_transform(aoi_raw, 3005)
+#crs(aoi_3005)
 
-  ## Generate expanded bbox -- expands to neared 100m
-  xmin <- floor(bb$xmin / 100)*100
-  xmax <- ceiling(bb["xmax"] / 100) * 100
-  ymin <- floor(bb$ymin / 100)*100
-  ymax <- ceiling(bb["ymax"] / 100) * 100
+# extend the aoi to the nearest 100m to provide a buffer 
+bb <- sf::st_bbox(aoi_3005)
 
-  box <- matrix(c(xmin, ymin, xmin, ymax, xmax, ymax, xmax, ymin, xmin, ymin), ncol = 2, byrow = TRUE)
-  box <- sf::st_polygon(list(box))
-  box <- sf::st_sfc(box, crs=sf::st_crs(aoi))
-  box <- sf::st_as_sf(box)
+## Generate expanded bbox -- expands to neared 100m
+xmin <- floor(bb$xmin / 100)*100
+xmax <- ceiling(bb["xmax"] / 100) * 100
+ymin <- floor(bb$ymin / 100)*100
+ymax <- ceiling(bb["ymax"] / 100) * 100
 
-st_write(box, file.path("clean_data/scott_aoi_snap.gpkg"))
-aoi <- box
+box <- matrix(c(xmin, ymin, xmin, ymax, xmax, ymax, xmax, ymin, xmin, ymin), ncol = 2, byrow = TRUE)
 
+# convert to a polygon
+box <- sf::st_polygon(list(box))
+# assign a crs
+box <- sf::st_sfc(box, crs=st_crs(aoi_3005))
 
-# create a template raster 
-template <- terra::rast(aoi , resolution = 20)
-terra::values(template) <- 0
+# convert to a sf object 
+aoi <- sf::st_as_sf(box)
 
-terra::writeRaster(template, file.path("clean_data", "template.tif"), overwrite = TRUE)
+# Optional 
+#st_write(aoi, file.path("clean_data","scott_aoi_snap.gpkg"), append = FALSE)
 
 ```
 
-## Extract base data using the CDED dataset
-
+We can now convert our polygon to a raster object.
 
 ```{r}
+# create a template raster with a resolution of 25m
+template <- terra::rast(aoi , resolution = 25)
+
+# create a column name
+names(template) = "aoi"
+
+# assign all values to zero 
+terra::values(template) <- 0
+
+# export the raster for later processing
+terra::writeRaster(template, file.path("clean_data", "template.tif"), overwrite = TRUE)
+
+
+```
+
+## 2. Extract base data using the CDED dataset
+
+Now we can use the **bcmaps** package to directly download digital elevation data from the [Canadian Digital Elevation Model CDED](https://rdrr.io/github/bcgov/bcmaps/man/cded.html). Within BC, this is laregly equivalent to the TRIM DEM dataset. We will use the **cded_terra** function.
+
+```{r}
+
+# extract DEM raw data - Note this is downloaded in tiles which will be cached to avoid the need to redownload repeatedly 
 
 trim_raw <- bcmaps::cded_terra(aoi)
 
@@ -63,29 +114,46 @@ trim_raw
 res(trim_raw)
 
 # note this is in WGS so we need to convert to 3005
- 
+# reproject to match our raster template crs and extent
+
 trim_3005 <- project(trim_raw, template)
 
-
-# still takes a while to download
-
+# write out the individual raster
 terra::writeRaster(trim_3005, file.path("clean_data", "dem.tif"), overwrite = TRUE) 
+
+```
+
+## 3. Generate DEM derived covariates
+
+Now we can use the terrain functions within the terra package to generate some standard base layers derived from the DEM.
+
+```{r}
 
 # generate slope 
 rslope <- terra::terrain(trim_3005, v = "slope", neighbors = 8, unit = "degrees") 
 
-#terra::writeRaster(rslope, file.path(out_path, "slope.tif"), overwrite = TRUE) 
-
 # generate aspect
 aspect <- terra::terrain(trim_3005, v = "aspect", neighbors = 8,  unit = "degrees") 
 
-
 # generate topographic roughness index
-tri <- terra::terrain(trim_3005, v = "TRI",neighbors = 8)
+tri <- terra::terrain(trim_3005, v = "TRI", neighbors = 8)
 
-
+# create a raster stack
 rstack <- c(trim_3005, rslope, aspect, tri)
 
 plot(rstack)
 
+
+# write our the individual rasters
+
+#terra::writeRaster(rslope, file.path(out_path, "slope.tif"), overwrite = TRUE) 
+#terra::writeRaster(aspect , file.path(out_path, "aspect.tif"), overwrite = TRUE) 
+#terra::writeRaster(tri , file.path(out_path, "tri.tif"), overwrite = TRUE) 
+
 ```
+
+## Bonus Questions.
+
+1.  Explore what other covariates you can generate using the **terra::terrain** function. Hint use **?terrain** to bring up a help file.
+
+2.  Compare outputs of aspect which the neighbours parameter is adjusted. What difference does this make to the output and the time to process?
