@@ -65,7 +65,7 @@ Lets look at the **Peregrine Falcon, High Arctic Institute, northwest Greenland.
 
 This gives us an overview of the study information.
 
-```{r}
+```{r, eval = FALSE}
 
 bird_info <- movebank_download_study_info(study_id = 7249090)
 
@@ -74,7 +74,7 @@ bird_info <- movebank_download_study_info(study_id = 7249090)
 
 Lets download the actual data.
 
-```{r}
+```{r, eval = FALSE}
 
 bird_data <- movebank_download_study(7249090, attributes = NULL)
 
@@ -89,13 +89,13 @@ Lets have a look at the details. Movebank is set up to ensure you read the fine 
 
 NOte once we have done this once we wont need to repeat this process again.
 
-```{r}
+```{r, eval = FALSE}
 bird_data <- movebank_download_study(7249090, attributes = NULL,
 'license-md5'='2f2ef1252f957dce32a3f0f7a52c62ed')
 
 ```
 
-```{r}
+```{r, eval = FALSE}
 
 head(bird_data)
 
@@ -104,7 +104,7 @@ head(bird_data)
 
 If we are only interested in the deployment information we can also download this seperately
 
-```{r}
+```{r, eval = FALSE}
 
 bird_deply <- movebank_download_deployment(7249090)
 
@@ -119,7 +119,6 @@ If you are interested in viewing the entire Caribou dataset you can find it on m
 # download the study info details
 bou <- movebank_download_study_info(study_id = 216040785)
 
-
 # download the data 
 bou_data <- movebank_download_study(216040785, attributes = NULL)
 
@@ -128,4 +127,8 @@ bou_ref_data <- movebank_download_deployment(216040785)
 
 ```
 
-References: - [Movebank](https://www.movebank.org/cms/movebank-main). - [move2 r package vignette - "Downloading data from movebank"](https://cran.r-project.org/web/packages/move2/vignettes/movebank.html)
+References: 
+
+- [Movebank](https://www.movebank.org/cms/movebank-main). 
+
+- [move2 r package vignette - "Downloading data from movebank"](https://cran.r-project.org/web/packages/move2/vignettes/movebank.html)
