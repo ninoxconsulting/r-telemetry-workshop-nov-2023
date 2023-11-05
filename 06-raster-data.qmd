@@ -24,7 +24,7 @@ Note we will be using the BC Albers coordinate reference system (EPSG:3005). The
 
 For ease of calculations we will create a standard "template" raster which will form the basis for all our data analysis.
 
-```{r}
+```{r, eval = FALSE}
 # read in the libraries needed
 
 library(dplyr)
@@ -36,7 +36,7 @@ library(terra)
 
 Read in our basic aoi and extend it to the nearest 100m. We can then convert this to a raster with a resolution of given size. In this example we will select 25m.
 
-```{r}
+```{r, eval = FALSE}
 # 
 # # read in the spatial file 
 # 
@@ -48,7 +48,7 @@ Read in our basic aoi and extend it to the nearest 100m. We can then convert thi
 # read in the spatial file 
 ```
 
-```{r}
+```{r, eval = FALSE}
 
 # read in the aoi 
 aoi_raw <- st_read(file.path("clean_data", "scott_aoi.gpkg"))
@@ -83,7 +83,7 @@ aoi <- sf::st_as_sf(box)
 
 We can now convert our polygon to a raster object.
 
-```{r}
+```{r, eval = FALSE}
 # create a template raster with a resolution of 25m
 template <- terra::rast(aoi , resolution = 25)
 
@@ -103,7 +103,7 @@ terra::writeRaster(template, file.path("clean_data", "template.tif"), overwrite 
 
 Now we can use the **bcmaps** package to directly download digital elevation data from the [Canadian Digital Elevation Model CDED](https://rdrr.io/github/bcgov/bcmaps/man/cded.html). Within BC, this is laregly equivalent to the TRIM DEM dataset. We will use the **cded_terra** function.
 
-```{r}
+```{r, eval = FALSE}
 
 # extract DEM raw data - Note this is downloaded in tiles which will be cached to avoid the need to redownload repeatedly 
 
@@ -127,7 +127,7 @@ terra::writeRaster(trim_3005, file.path("clean_data", "dem.tif"), overwrite = TR
 
 Now we can use the terrain functions within the terra package to generate some standard base layers derived from the DEM.
 
-```{r}
+```{r, eval = FALSE}
 
 # generate slope 
 rslope <- terra::terrain(trim_3005, v = "slope", neighbors = 8, unit = "degrees") 
