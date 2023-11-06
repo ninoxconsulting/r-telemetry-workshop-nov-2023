@@ -32,12 +32,17 @@ bcdc_search("caribou", n = 5)
 
 ## Create an Area of Interest (AOI)
 
-```{r}
-scott <- read_sf("clean_data/caribou.shp") |> 
-  filter(commnts == "Scott")
+We'll read in the caribou data created in the previous module, and create an 
+area of interest (a bounding box) around it, so we can use that to subset the 
+covariate data we will be using.
 
-scott_aoi <- st_bbox(scott) |> 
-  st_as_sfc()
+```{r}
+scott <- read_sf("clean_data/caribou.gpkg") |> 
+  filter(comments == "Scott") |> 
+  st_transform(3005)
+
+scott_bbox <- st_bbox(scott) + c(-1000, -1000, 1000, 1000) # Buffer by 1km
+scott_aoi <- st_as_sfc(scott_bbox)
 ```
 
 ```{r}
