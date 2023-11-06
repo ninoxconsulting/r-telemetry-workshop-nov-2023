@@ -222,7 +222,7 @@ write.csv(fdata, "clean_data/caribou.csv", row.names = F)
 
 ```{r write out , eval = FALSE}
 
-# conver to a sf object 
+# convert to a sf object 
 
 bou <- st_as_sf(fdata, coords = c("location.long", "location.lat"), crs = 4326, remove = FALSE)
 
