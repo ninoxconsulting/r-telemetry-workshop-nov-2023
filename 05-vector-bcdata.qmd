@@ -300,39 +300,14 @@ st_write(scott_aoi, "clean_data/scott_aoi.gpkg", append = FALSE)
 ## roads
 
 
-<!-- get_roads <- function(in_aoi, out_path) { -->
-<!--   # The main road network layer has too many roads in it. Filter it down to only -->
-<!--   # include named roads and combine those with actual mapped FSR's -->
+```{r}
+roads <- bcdc_query_geodata("bb060417-b6e6-4548-b837-f9060d94743e") %>%
+  filter(INTERSECTS(scott_aoi))  %>%
+  select("id", "ROAD_CLASS", "ROAD_SURFACE") %>%
+  collect() %>%
+  select(ROAD_SURFACE, ROAD_CLASS) |> 
+  st_intersection(scott_aoi) |> # clip roads so all inside aoi
+  st_cast("MULTILINESTRING")
 
-<!--   message("\rDownloading Road network") -->
-<!--   roads <- bcdc_query_geodata("bb060417-b6e6-4548-b837-f9060d94743e") %>% -->
-<!--     bcdata::filter(BBOX(local(st_bbox(in_aoi)))) %>% # slightly larger extent -->
-<!--     bcdata::select(id, ROAD_NAME_FULL, ROAD_CLASS, ROAD_SURFACE, FEATURE_LENGTH_M) %>% -->
-<!--     collect() %>% -->
-<!--     dplyr::select(id, ROAD_NAME_FULL,ROAD_SURFACE, ROAD_CLASS,FEATURE_LENGTH_M) %>% -->
-<!--        {if(nrow(.) > 0) { -->
-<!--       st_intersection(., in_aoi) %>% -->
-<!--        st_cast("MULTILINESTRING") -->
-<!--     } else .} -->
-
-<!--   fsr <- bcdc_query_geodata("9e5bfa62-2339-445e-bf67-81657180c682") %>% -->
-<!--     bcdata::filter( -->
-<!--       BBOX(local(st_bbox(in_aoi)))) %>% -->
-<!--     collect() %>% -->
-<!--     dplyr::select(id, FILE_TYPE_DESCRIPTION, FEATURE_LENGTH_M) %>% -->
-<!--     dplyr::rename(ROAD_CLASS = FILE_TYPE_DESCRIPTION) %>% -->
-<!--     dplyr::mutate(ROAD_CLASS = dplyr::case_when( -->
-<!--       ROAD_CLASS == "Forest Service Road" ~ "resource", -->
-<!--       ROAD_CLASS == "Road Permit" ~ "unclassifed")) %>% -->
-<!--     dplyr::mutate(ROAD_SURFACE = dplyr::case_when( -->
-<!--     ROAD_CLASS == "resource" ~ "loose", -->
-<!--     ROAD_CLASS == "unclassifed" ~ "rough")) %>% -->
-<!--     {if(nrow(.) > 0) { -->
-<!--       st_intersection(., in_aoi) %>% -->
-<!--         st_cast("MULTILINESTRING") -->
-<!--     } else .} -->
-
-<!--   road_merge <- dplyr::bind_rows(roads, fsr) -->
-
-<!--   st_write(road_merge, file.path(out_path, "road_network.gpkg"), append = FALSE) -->
-<!-- } -->
+st_write(roads, "clean_data/roads.gpkg", append = FALSE)
+```
