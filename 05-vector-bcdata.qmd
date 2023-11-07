@@ -41,13 +41,20 @@ scott <- read_sf("clean_data/caribou.gpkg") |>
   filter(comments == "Scott") |> 
   st_transform(3005)
 
-scott_bbox <- st_bbox(scott) + c(-1000, -1000, 1000, 1000) # Buffer by 1km
+scott_bbox <- st_bbox(scott)
+
+## Round to nearest 100m outside the box to align with raster grids
+scott_bbox["xmin"] <- floor(scott_bbox["xmin"] / 100) * 100
+scott_bbox["ymin"] <- floor(scott_bbox["ymin"] / 100) * 100
+scott_bbox["xmax"] <- ceiling(scott_bbox["xmax"] / 100) * 100
+scott_bbox["ymax"] <- ceiling(scott_bbox["ymax"] / 100) * 100
+
 scott_aoi <- st_as_sfc(scott_bbox)
 ```
 
 ```{r}
 #| eval: false
-st_write(scott_aoi, "clean_data/scott_aoi.gpkg")
+st_write(scott_aoi, "clean_data/scott_aoi.gpkg", append = FALSE)
 ```
 
 ## Bec: 
