@@ -5,5 +5,5 @@
 /.quarto/
 /_site/
 /docs/
-intro-spatial-data_files
-intro-spatial-data_cache
+02-intro-spatial-data_cache
+05-vector-bcdata_cache
