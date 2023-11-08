@@ -5,5 +5,4 @@
 /.quarto/
 /_site/
 /docs/
-02-intro-spatial-data_cache
-05-vector-bcdata_cache
+*_cache
