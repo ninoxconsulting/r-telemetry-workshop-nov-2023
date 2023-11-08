@@ -1,7 +1,5 @@
 ---
 title: "Processing Base Vector Data"
-execute: 
-  cache: true
 params:
   write: false
 ---
@@ -25,6 +23,7 @@ Often we want to post-process our raw vector data to create more meaningful cova
 
 
 ```{r}
+#| message: false
 # load in the libraries needed
 
 library(bcdata)
@@ -41,7 +40,7 @@ We can assume that the type of road will have a different impact on Caribou avoi
 ```{r}
 
 # read in roads
-roads <- st_read(file.path("clean_data", "roads.gpkg"))
+roads <- read_sf(file.path("clean_data", "roads.gpkg"))
 
 # assign a value to the roads based on estimated speed of travel or use
 
@@ -87,7 +86,7 @@ While density provides a measure of impact we may also be interested in capturin
 ```{r}
 
 # read in water 
-water <- st_read(file.path("clean_data", "water.gpkg"))
+water <- read_sf(file.path("clean_data", "water.gpkg"))
 
 # calculate the distance to water for each pixel in the raster
 # be patient - this might take some time. 
@@ -112,10 +111,10 @@ Note this can also be done at the vector stage, however predictive modelling wil
 
 ```{r}
 
-bec <- st_read(file.path("clean_data","bec.gpkg"))
-vri_cc <- st_read(file.path("clean_data","vri_cc.gpkg"))
-vri_conif <- st_read(file.path("clean_data","vri_conif.gpkg"))
-vri_ageclass <- st_read(file.path("clean_data","vri_ageclass.gpkg"))
+bec <- read_sf(file.path("clean_data","bec.gpkg"))
+vri_cc <- read_sf(file.path("clean_data","vri_cc.gpkg"))
+vri_conif <- read_sf(file.path("clean_data","vri_conif.gpkg"))
+vri_ageclass <- read_sf(file.path("clean_data","vri_ageclass.gpkg"))
 #water
 #roads 
 #cutblocks

@@ -1,9 +1,7 @@
 ---
 title: "Exploring Raster Data"
-execute: 
-  cache: true
 params:
-  write: true
+  write: false
 ---
 
 ## Overview:
@@ -29,6 +27,7 @@ Note we will be using the BC Albers coordinate reference system (EPSG:3005). The
 For ease of calculations we will create a standard "template" raster which will form the basis for all our data analysis.
 
 ```{r}
+#| message: false
 # read in the libraries needed
 
 library(dplyr)
@@ -44,18 +43,13 @@ Read in our AOI that we made and saved previously. We can then convert this to a
 
 # read in the spatial file
 
-bou <- st_read(file.path("clean_data/scott_herd_subset.gpkg"), crs = 4326)
-
-# check this is not only output as a csv
-
-
-# read in the spatial file 
+bou <- read_sf(file.path("clean_data/scott_herd_subset.gpkg"))
 ```
 
 ```{r}
 
 # read in the aoi previously created
-aoi <- st_read(file.path("clean_data", "scott_aoi.gpkg"))
+aoi <- read_sf(file.path("clean_data", "scott_aoi.gpkg"))
 ```
 
 We can now convert our polygon to a raster object.
