@@ -16,7 +16,7 @@ In this module we will explore raster data, and the available datasets which can
 
 ## Background: Rasters
 
-Raster data is information built on standard grid. These can be characterised by the grid extent (xmin, xmax, ymin, ymax) and can have a coordinate system to orient them in space. Rasters are made up of cells or pixals, based on a resolution or cell size. Each cell contains a single value. The **terra** package contains many function for manipulating and processing rasters.
+Raster data is information built on a standard grid. These can be characterised by the grid extent (xmin, xmax, ymin, ymax) and can have a coordinate system to orient them in space. Rasters are made up of cells or pixels, based on a resolution or cell size. Each cell contains a single value. The **terra** package contains many functions for manipulating and processing rasters.
 
 Note we will be using the BC Albers coordinate reference system (EPSG:3005). The advantages of this are 1) BCAlbers is an equal area projection across BC, 2) extent is marked using meters.
 
