@@ -4,7 +4,7 @@ title: "Exploring Raster Data"
 
 ## Overview:
 
-In this module we will explore rasters data and the available datasets which can be used through R for analysis We will:
+In this module we will explore raster data, and the available datasets which can be used in R for analysis. We will:
 
 -   prepare our study aoi to use with rasters
 
