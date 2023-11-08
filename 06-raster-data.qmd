@@ -2,31 +2,131 @@
 title: "Exploring Raster Data"
 ---
 
+## Overview:
 
-<!-- # 7. download DEM via CDED package -->
+In this module we will explore raster data, and the available datasets which can be used in R for analysis. We will:
 
-<!--     get_dem <- function(in_aoi, out_path){ -->
+-   prepare our study aoi to use with rasters
 
-<!--       file_already_exists <- file.exists(file.path(out_path, "dem.tif")) -->
+-   extract DEM data through the **bcmaps** package
 
-<!--       if(overwrite == FALSE & file_already_exists == TRUE) { -->
+-   generate DEM derived covariates,
 
-<!--         message("\r dem already exists, skipping download") -->
+-   prepare a raster stack with all spatial layers generated to date.
 
-<!--       } else { -->
+## Background: Rasters
 
-<!--       trim_raw <- bcmaps::cded_raster(in_aoi) -->
-<!--       trim <- terra::rast(trim_raw) -->
+Raster data is information built on a standard grid. These can be characterised by the grid extent (xmin, xmax, ymin, ymax) and can have a coordinate system to orient them in space. Rasters are made up of cells or pixels, based on a resolution or cell size. Each cell contains a single value. The **terra** package contains many functions for manipulating and processing rasters.
 
-<!--       #write out dem # in case -->
-<!--       terra::writeRaster(trim, file.path(out_path, "dem.tif"), overwrite = TRUE) -->
+Note we will be using the BC Albers coordinate reference system (EPSG:3005). The advantages of this are 1) BCAlbers is an equal area projection across BC, 2) extent is marked using meters.
 
-<!--       # generate slope -->
-<!--       rslope <- terra::terrain(trim, v = "slope", neighbors = 8, unit = "degrees") -->
+## 1. Create a standard raster template.
 
-<!--       #write out dem # in case -->
-<!--       terra::writeRaster(rslope, file.path(out_path, "slope.tif"), overwrite = TRUE) -->
+For ease of calculations we will create a standard "template" raster which will form the basis for all our data analysis.
 
-<!--       } -->
-<!--       return(TRUE) -->
-<!--     } -->
+```{r, eval = FALSE}
+# read in the libraries needed
+
+library(dplyr)
+library(sf)
+library(bcmaps)
+library(terra)
+
+```
+
+Read in our AOI that we made and saved previously. We can then convert this to a raster with a resolution of given size. In this example we will select 25m.
+
+```{r, eval = FALSE}
+# 
+# # read in the spatial file 
+# 
+# bou <- st_read(file.path("clean_data/scott_herd_subset.gpkg"), crs = 4326)
+# 
+# # check this is not only output as a csv 
+
+
+# read in the spatial file 
+```
+
+```{r, eval = FALSE}
+
+# read in the aoi previously created
+aoi <- st_read(file.path("clean_data", "scott_aoi.gpkg"))
+```
+
+We can now convert our polygon to a raster object.
+
+```{r, eval = FALSE}
+# create a template raster with a resolution of 25m
+template <- terra::rast(aoi , resolution = 25)
+
+# create a column name
+names(template) = "aoi"
+
+# assign all values to zero 
+terra::values(template) <- 0
+
+# export the raster for later processing
+terra::writeRaster(template, file.path("clean_data", "template.tif"), overwrite = TRUE)
+
+
+```
+
+## 2. Extract base data using the CDED dataset
+
+Now we can use the **bcmaps** package to directly download digital elevation data from the [Canadian Digital Elevation Model CDED](https://rdrr.io/github/bcgov/bcmaps/man/cded.html). Within BC, this is laregly equivalent to the TRIM DEM dataset. We will use the **cded_terra** function.
+
+```{r, eval = FALSE}
+
+# extract DEM raw data - Note this is downloaded in tiles which will be cached to avoid the need to redownload repeatedly 
+
+trim_raw <- bcmaps::cded_terra(aoi)
+
+# lets look at the raster
+trim_raw
+res(trim_raw)
+
+# note this is in WGS so we need to convert to 3005
+# reproject to match our raster template crs and extent
+
+trim_3005 <- project(trim_raw, template)
+
+# write out the individual raster
+terra::writeRaster(trim_3005, file.path("clean_data", "dem.tif"), overwrite = TRUE) 
+
+```
+
+## 3. Generate DEM derived covariates
+
+Now we can use the terrain functions within the terra package to generate some standard base layers derived from the DEM.
+
+```{r, eval = FALSE}
+
+# generate slope 
+rslope <- terra::terrain(trim_3005, v = "slope", neighbors = 8, unit = "degrees") 
+
+# generate aspect
+aspect <- terra::terrain(trim_3005, v = "aspect", neighbors = 8,  unit = "degrees") 
+
+# generate topographic roughness index
+tri <- terra::terrain(trim_3005, v = "TRI", neighbors = 8)
+
+# create a raster stack
+rstack <- c(trim_3005, rslope, aspect, tri)
+
+plot(rstack)
+
+
+# write our the individual rasters
+
+#terra::writeRaster(rslope, file.path(out_path, "slope.tif"), overwrite = TRUE) 
+#terra::writeRaster(aspect , file.path(out_path, "aspect.tif"), overwrite = TRUE) 
+#terra::writeRaster(tri , file.path(out_path, "tri.tif"), overwrite = TRUE) 
+
+```
+
+## Bonus Questions.
+
+1.  Explore what other covariates you can generate using the **terra::terrain** function. Hint use **?terrain** to bring up a help file.
+
+2.  Compare outputs of aspect which the neighbours parameter is adjusted. What difference does this make to the output and the time to process?
