@@ -164,3 +164,4 @@ plot(all_stack)
 ## or we can write this out to a very small R object 
 
 saveRDS(all_stack, file.path("clean_data", "covars.RDS")) # much faster
+```
