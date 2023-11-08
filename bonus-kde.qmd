@@ -12,7 +12,6 @@ In this module we will use caribou data to create home range estimates using ker
 
 ```{r}
 library(sf)
-
 install.packages("ks")
 library(ks)
 library(mapview)
