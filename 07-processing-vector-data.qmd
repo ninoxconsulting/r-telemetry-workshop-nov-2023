@@ -87,11 +87,11 @@ While density provides a measure of impact we may also be interested in capturin
 ```{r}
 
 # read in water 
-water <- st_read(file.path("clean_data", "roads.gpkg"))
+water <- st_read(file.path("clean_data", "water.gpkg"))
 
 # calculate the distance to water for each pixel in the raster
 # be patient - this might take some time. 
-water_dis <- distance(template, water, unit="km")
+water_dis <- distance(template, water, unit = "km")
 
 plot(water_dis)
 
