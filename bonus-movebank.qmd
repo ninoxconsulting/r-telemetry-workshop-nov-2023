@@ -1,3 +1,134 @@
 ---
 title: "Downloading telemetry data from Movebank"
 ---
+
+## Overview
+
+In this module we will introduce the move2 r package and demonstrate how you can download telemetry data directly from the movebank web repository via an API.
+
+
+## Background
+
+[Movebank](https://www.movebank.org/cms/movebank-main) is a free, online database of animal movement data hosted by the Max Planck Institute for Ornithology. Data owners can manage their data and have the option to share it with colleagues or the public. If the public or a registered user has permission to see a study, the study can be downloaded as a .csv file and imported directly into R using the [move2 package](https://cran.r-project.org/web/packages/move2/index.html)
+
+Note move2 this is an updated version of the [move package](https://cran.r-project.org/web/packages/move/vignettes/move.html)
+
+```{r, eval = FALSE}
+
+#install.packages("move2")
+library("move2")
+
+library(dplyr, quietly = TRUE)
+
+```
+
+1.  You will need to create a log in on the movebank platform to be able to download and view data. This can be done at [Movebank](https://www.movebank.org/cms/movebank-main).
+
+2.  Set up your credentials within the move2 package. To access any data through R you will also need to supply the credentials you used to create your movebank account to the move2 package. This package uses the keyring package to safely store your credentials. You only need to run the following code once, after which the credentials will be remembered for following R sessions.
+
+**NOTE** : make sure to keep your credential safe, and do not committ these to a common code platform such as github.
+
+```{r}
+
+movebank_store_credentials("myUserName", "myPassword")
+
+
+#movebank_store_credentials("gcperkins", "*****")
+
+# to delete your credentials run this line
+#movebank_remove_credentials()
+
+# you can check by running this 
+keyring::key_list()
+
+
+```
+
+# 3. Access and download data
+
+Depending on the license type determined by the data custodian, different methods are needed to access the data. For data created under [creative common 0 license](https://creativecommons.org/public-domain/cc0/), there are no restrictions on use.
+
+We can use the **movebank_retrieve** function to review data that is stored under a CC_0 or creative common "no rights reserved" license.
+
+```{r , eval = FALSE}
+
+mdata <- movebank_retrieve(entity_type = "study", license_type = "CC_0") %>%
+  dplyr::select(id, name, number_of_deployed_locations) %>%
+  filter(!is.na(number_of_deployed_locations)) 
+
+
+```
+
+We can get a full list of datasets available for download. We can use the id number to extract data directly from the movebank repository through the move2 API link.
+
+Lets look at the **Peregrine Falcon, High Arctic Institute, northwest Greenland..** study, where the id = 7249090.
+
+This gives us an overview of the study information.
+
+```{r, eval = FALSE}
+
+bird_info <- movebank_download_study_info(study_id = 7249090)
+
+
+```
+
+Lets download the actual data.
+
+```{r, eval = FALSE}
+
+bird_data <- movebank_download_study(7249090, attributes = NULL)
+
+```
+
+Wow that is lots of text!
+
+Lets have a look at the details. Movebank is set up to ensure you read the fine print, i.e. accept the terms and conditions on each study that you download. To do this, we have two options:
+
+-   1: we can access the data for the particular study via the website. This only needs to be done once.
+-   2: we add the license key to our request.
+
+NOte once we have done this once we wont need to repeat this process again.
+
+```{r, eval = FALSE}
+bird_data <- movebank_download_study(7249090, attributes = NULL,
+'license-md5'='2f2ef1252f957dce32a3f0f7a52c62ed')
+
+```
+
+```{r, eval = FALSE}
+
+head(bird_data)
+
+
+```
+
+If we are only interested in the deployment information we can also download this seperately
+
+```{r, eval = FALSE}
+
+bird_deply <- movebank_download_deployment(7249090)
+
+```
+
+## Extra challenge!
+
+If you are interested in viewing the entire Caribou dataset you can find it on movebank (study_id = 216040785)
+
+```{r, eval = FALSE}
+
+# download the study info details
+bou <- movebank_download_study_info(study_id = 216040785)
+
+# download the data 
+bou_data <- movebank_download_study(216040785, attributes = NULL)
+
+# download deployment data 
+bou_ref_data <- movebank_download_deployment(216040785)
+
+```
+
+References: 
+
+- [Movebank](https://www.movebank.org/cms/movebank-main). 
+
+- [move2 r package vignette - "Downloading data from movebank"](https://cran.r-project.org/web/packages/move2/vignettes/movebank.html)
