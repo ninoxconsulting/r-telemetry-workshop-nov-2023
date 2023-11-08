@@ -104,6 +104,15 @@ bcdc_get_record("f358a53b-ffde-4830-a325-a5a03ff672c3")
 
 ## BEC
 
+`bcdc_query_geodata()` by itself *does not download the data* - it retrieves the 
+first few records and shows them to us, as well as some helpful information 
+about the data:
+
+```{r bec-query}
+bcdc_query_geodata("f358a53b-ffde-4830-a325-a5a03ff672c3")
+```
+
+
 ```{r bec-1}
 bec <- bcdc_query_geodata("f358a53b-ffde-4830-a325-a5a03ff672c3") |>
     filter(INTERSECTS(scott_aoi)) |> 
