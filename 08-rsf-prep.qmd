@@ -126,8 +126,8 @@ atts <- terra::extract(rstack, allpts)
 
 
 # remove unused columns 
-
-bou_full_pts <- cbind( allpts, atts) %>%
+# Could show how to use st_write() and explain the cbind(st_coordinates()) bit
+bou_full_pts <- cbind(allpts, atts) %>%
   select(-ID)
 
 
