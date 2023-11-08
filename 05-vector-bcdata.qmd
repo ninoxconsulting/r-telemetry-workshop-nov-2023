@@ -1,5 +1,5 @@
 ---
-title: "Exploring the BC Data Catalogue with R"
+title: "Getting B.C. Open Data with R"
 execute: 
   cache: true
 knitr:
@@ -8,15 +8,47 @@ knitr:
     warning: false
 ---
 
-## Vector
+The B.C. Government makes a huge amount of open data available, both spatial and 
+non-spatial, and documents it in the [B.C. Data Catalogue](https://catalogue.data.gov.bc.ca).
 
-Basic list, not exclusive. bu fine for demo purpose
+The `{bcdata}` package allows you to interact with the catalogue, and download data,
+directly from within R.
 
-1) VRI  - gen to fiddle with this a little. 
-2) Roads
-3) water lakes/wetlands
-4) water stream
-5) disturbance - cutblocks < 30yrs 
+:::: { .columns }
+
+::: { .column width=60% }
+
+- **`bcdc_browse()`**
+  - Open the catalogue in your default browser
+- **`bcdc_search()`**
+  - Search records in the catalogue
+- **`bcdc_get_record()`**
+  - Print a catalogue record
+- **`bcdc_get_data()`**
+  - Get catalogue data
+- **`bcdc_describe_feature()`**
+  - Describe the structure (columns and types) of a dataset
+- **`bcdc_query_geodata()`**
+  - Get & query catalogue geospatial data available through a [Web Service](https://www2.gov.bc.ca/gov/content?id=95D78D544B244F34B89223EF06DF74E)
+]
+
+:::
+
+::: { .column width=40%}
+![](images/bcdata.png){width="200"}
+
+
+:::
+::::
+
+We are going to use `{bcdata}` to get some data for our telemetry analysis:
+
+1. BEC
+2. VRI
+3. Forest Cutblocks
+4. Lakes and wetlands
+5. Streams
+6. Roads
 
 ```{r}
 #| message: false
@@ -24,6 +56,7 @@ Basic list, not exclusive. bu fine for demo purpose
 library(bcdata)
 library(sf)
 library(dplyr)
+library(mapview)
 ```
 
 ## Create an Area of Interest (AOI)
@@ -55,14 +88,25 @@ write_sf(scott_aoi, file.path("clean_data", "scott_aoi.gpkg"), append = FALSE)
 
 ## BEC
 
-```{r}
+```{r bec-1}
 bec <- bcdc_query_geodata("f358a53b-ffde-4830-a325-a5a03ff672c3") |>
     filter(INTERSECTS(scott_aoi)) |> 
     collect() |> 
     select(MAP_LABEL)
 
-plot(bec)
+mapview(bec) + mapview(st_as_sf(scott_aoi))
 ```
+
+You can see that filtering using the `INTERSECTS()` function does a good job of 
+only downloading the features that intersect the AOI, but it doesn't actually
+clip them to the AOI. We can do that with `sf::st_intersection()`:
+
+```{r bec-clipped}
+bec <- st_intersection(bec, scott_aoi)
+
+mapview(bec)
+```
+
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "bec.gpkg"))'
