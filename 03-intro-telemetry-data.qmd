@@ -1,5 +1,7 @@
 ---
 title: "Introduction to Telemetry Data"
+execute: 
+  eval: false
 ---
 
 ## How to QA and summarise your Telemetry Data
@@ -10,25 +12,24 @@ In this course we will be using Telemetry data from Mountain Caribou (*Rangifer 
 
 Our first step is to see what our data looks like. In this course we will be providing two csv files (Mountain caribou in British Columbia-reference-data.csv and Mountain caribou.csv).
 
-```{r read in raw data}
+```{r read-in-raw-data}
 # Read in our data files.
 
+library(readr)
 library(sf)
 library(readxl)
 library(dplyr)
 library(lubridate)
 library(ggplot2)
 
-ref_raw <- readr::read_csv("raw_data/Mountain caribou in British Columbia-reference-data.csv")
+ref_raw <- read_csv("raw_data/Mountain caribou in British Columbia-reference-data.csv")
 
 loc_raw <- read_xlsx("raw_data/Mountain caribou.xlsx")
-
-
 ```
 
 Lets take a look....
 
-```{r review raw data}
+```{r review-raw-data}
 
 head(ref_raw)
 
@@ -47,7 +48,7 @@ head(loc_raw)
 
 We can combine these two dataset and keep only the columns which are of interest
 
-```{r filter raw fields}
+```{r filter-raw-fields}
 
 all_data <- left_join(loc_raw, ref_raw, by = c('tag.local.identifier'= 'tag-id') )
 
@@ -65,7 +66,7 @@ all_data <- all_data %>%
 
 Now we have a single data set we can QA the data and provide more useful columns for further analysis.
 
-```{r remove NA values}
+```{r remove-NA-values}
 
 head(all_data)
 
@@ -104,7 +105,7 @@ tdata <- tdata %>%
 
 Now lets covert the timestamp into a usable format
 
-```{r convert time stamp}
+```{r convert-time-stamp}
 
 # calculate time differences
 tdata <- tdata  %>%
@@ -145,7 +146,7 @@ tdata  <- tdata  %>%
 
 Now we have fixed our data entry problems we also want to review the spatial accuracy. We have two metrics: DOP (Dilution of Precision), and a Fix Type.
 
-```{r clean lat longs}
+```{r clean-lat-longs}
 
 # review the lat / longs 
 
@@ -210,7 +211,7 @@ fdata <- fdata %>%
 
 We can output out cleaned data as a table
 
-```{r write csv, eval = FALSE}
+```{r write-csv, eval = FALSE}
 
 write.csv(fdata, "clean_data/caribou.csv", row.names = F)
 
@@ -220,7 +221,7 @@ write.csv(fdata, "clean_data/caribou.csv", row.names = F)
 
 ## Convert to spatial file and export 
 
-```{r write out , eval = FALSE}
+```{r write-out, eval = FALSE}
 
 # convert to a sf object 
 
@@ -241,7 +242,7 @@ st_write(bou, "clean_data/caribou.shp", append=FALSE)
 
 Now we have clean data to work with we can get to the fun data exploration part! 
 
-```{r read in geopackage}
+```{r read-in-geopackage}
 
 #bou = read.csv("clean_data/caribou.csv")
 
@@ -264,7 +265,7 @@ Many questions we can ask here:
 - what is the sex ratio of collared animals?
 - what is the duration of each collar? Start and end years?
 
-```{r summarise clean data}
+```{r summarise-clean-data}
 
 no_herds = unique(bou$herd)
 
@@ -287,7 +288,7 @@ collar_type <- bou %>%
 ```
 There is alot of data here. For the next section of this course we will just concentrate on the Scott Herd. 
 
-```{rsummarise scott herd, eval = FALSE}
+```{r summarise-scott-herd, eval = FALSE}
 
 # Filter to keep the Scott herd only 
 sbou <- bou %>% 
@@ -474,7 +475,7 @@ Next we format the date variable so we can filter by months and years. We can al
 *	Winter (December to March)
 
 
-```{r add seasons, eval = FALSE}
+```{r add-seasons, eval = FALSE}
 
 sbou <- sbou_sub %>% 
   mutate(season = case_when(
