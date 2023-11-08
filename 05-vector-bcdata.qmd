@@ -50,7 +50,7 @@ We are going to use `{bcdata}` to get some data for our telemetry analysis:
 5. Streams
 6. Roads
 
-```{r}
+```{r packages}
 #| message: false
 
 library(bcdata)
@@ -65,7 +65,7 @@ We'll read in the caribou data created in the previous module, and create an
 area of interest (a bounding box) around it, so we can use that to spatially 
 subset the covariate data we will be using.
 
-```{r}
+```{r aoi}
 scott <- read_sf("clean_data/caribou.gpkg") |> 
   filter(comments == "Scott") |> 
   st_transform(3005)
@@ -81,20 +81,26 @@ scott_bbox["ymax"] <- ceiling(scott_bbox["ymax"] / 100) * 100
 scott_aoi <- st_as_sfc(scott_bbox)
 ```
 
-```{r}
+```{r write-aoi}
 #| eval: !expr '!file.exists(file.path("clean_data", "scott_aoi.gpkg"))'
 write_sf(scott_aoi, file.path("clean_data", "scott_aoi.gpkg"), append = FALSE)
 ```
 
 First, let's open the B.C. Data Catalogue in our browser:
 
-```{r}
+```{r browse}
 #| eval: false
 bcdc_browse()
 ```
 
 If you search for "BEC", one of the first hits should be the [BEC Map](https://catalogue.data.gov.bc.ca/dataset/f358a53b-ffde-4830-a325-a5a03ff672c3) record. If you click on the "Share" ( {{< fa share-nodes >}} ) button you well get 
 a url: `https://catalogue.data.gov.bc.ca/dataset/f358a53b-ffde-4830-a325-a5a03ff672c3`. The last bit of the url (`f358a53b-ffde-4830-a325-a5a03ff672c3`) is the unique identifier for the record, and we can use that ID to query the dataset with `{bcdata}`.
+
+Let's find out about the record:
+
+```{r get-record}
+bcdc_get_record("f358a53b-ffde-4830-a325-a5a03ff672c3")
+```
 
 ## BEC
 
@@ -118,7 +124,7 @@ mapview(bec)
 ```
 
 
-```{r}
+```{r write-bec}
 #| eval: !expr '!file.exists(file.path("clean_data", "bec.gpkg"))'
 write_sf(bec, file.path("clean_data", "bec.gpkg"))
 ```
@@ -127,7 +133,7 @@ write_sf(bec, file.path("clean_data", "bec.gpkg"))
 
 See a list of [VRI codes](https://www2.gov.bc.ca/assets/gov/farming-natural-resources-and-industry/forestry/stewardship/forest-analysis-inventory/data-management/standards/vegcomp_poly_rank1_data_dictionaryv5_2019.pdf).
 
-```{r}
+```{r vri-1}
 vri <- bcdc_query_geodata("2ebb35d8-c82f-4a17-9c96-612ac3532d55") |> 
   filter(INTERSECTS(scott_aoi)) |> 
   select(PROJ_AGE_CLASS_CD_1,BCLCS_LEVEL_4,CROWN_CLOSURE_CLASS_CD) |>  
@@ -141,7 +147,7 @@ We want to split this into separate files for different variables:
 - Stands with age greater than 40 yrs (age class >=3)
 - Crown closure
 
-```{r}
+```{r vri-conif}
 
 # Tree coniferous leading - select coniferous leading vri plots
 vri_conif <- vri |>  
@@ -152,12 +158,12 @@ vri_conif <- vri |>
 #plot(vri_conif$BCLCS_LEVEL_4)
 ```
 
-```{r}
+```{r write-vri-conif}
 #| eval: !expr '!file.exists(file.path("clean_data","vri_conif.gpkg"))'
 write_sf(vri_conif, file.path("clean_data","vri_conif.gpkg") , append = FALSE)
 ```
 
-```{r}
+```{r vri-ageclass}
 # Age class greater than 40 years
 vri_ageclass <- vri |> 
     mutate(age_class = as.numeric(PROJ_AGE_CLASS_CD_1)) |> 
@@ -165,26 +171,26 @@ vri_ageclass <- vri |>
     select(age_class)
 ```
 
-```{r}
+```{r write-vri-ageclass}
 #| eval: !expr '!file.exists(file.path("clean_data", "vri_ageclass.gpkg"))'
 write_sf(vri_ageclass, file.path("clean_data", "vri_ageclass.gpkg"), append = FALSE)
 ```
 
-```{r}
+```{r vri-cc}
 # Crown closure class 
 vri_cc <- vri |> 
     mutate(cc_class = as.numeric(CROWN_CLOSURE_CLASS_CD)) |> 
     select(cc_class)
 ```
 
-```{r}
+```{r write-vri-cc}
 #| eval: !expr '!file.exists(file.path("clean_data", "vri_cc.gpkg"))'
 write_sf(vri_cc, file.path("clean_data", "vri_cc.gpkg"), append = FALSE)
 ```
  
 ## Cutblocks
 
-```{r}
+```{r cutblocks}
 cutblocks <- bcdc_query_geodata("b1b647a6-f271-42e0-9cd0-89ec24bce9f7") |>
   filter(
     INTERSECTS(scott_aoi), 
@@ -193,7 +199,7 @@ cutblocks <- bcdc_query_geodata("b1b647a6-f271-42e0-9cd0-89ec24bce9f7") |>
   collect()
 ```
 
-```{r}
+```{r write-cutblocks}
 #| eval: !expr '!file.exists(file.path("clean_data", "cutblocks.gpkg"))'
 write_sf(cutblocks, file.path("clean_data", "cutblocks.gpkg"), append = FALSE)
 ```
@@ -205,11 +211,11 @@ write_sf(cutblocks, file.path("clean_data", "cutblocks.gpkg"), append = FALSE)
 We can search the catalogue for data using keywords, with `bcdc_search()`. Control
 the number of results returned with `n`.
 
-```{r}
+```{r search-water}
 bcdc_search("freshwater atlas", n = 20)
 ```
 
-```{r}
+```{r waterbodies}
 
 ## LAKES ##
 
@@ -234,7 +240,7 @@ wetlands <- bcdc_query_geodata("93b413d8-1840-4770-9629-641d74bd1cc6") |>
 water <- bind_rows(lakes, wetlands)
 ```
 
-```{r}
+```{r write-waterbodies}
 #| eval: !expr '!file.exists(file.path("clean_data", "water.gpkg"))'
 write_sf(wetlands, file.path("clean_data", "water.gpkg"), append = FALSE)
 ```
@@ -243,7 +249,7 @@ write_sf(wetlands, file.path("clean_data", "water.gpkg"), append = FALSE)
 
 We can get the columns in a given dataset with `bcdc_describe_feature()`:
 
-```{r}
+```{r describe-streams}
 streams_cols <- bcdc_describe_feature("92344413-8035-4c08-b996-65a9b3f62fca")
 print(streams_cols, n = 20)
 ```
@@ -251,7 +257,7 @@ print(streams_cols, n = 20)
 Let's use the `STREAM_ORDER` column to just get streams of order 3 and 4
 and still intersect with our AOI.
 
-```{r}
+```{r streams}
 streams <- bcdc_query_geodata("92344413-8035-4c08-b996-65a9b3f62fca") |>
   filter(
     INTERSECTS(scott_aoi), 
@@ -263,24 +269,24 @@ streams <- bcdc_query_geodata("92344413-8035-4c08-b996-65a9b3f62fca") |>
   st_zm()
 ```
 
-```{r}
+```{r write-streams}
 #| eval: !expr '!file.exists(file.path("clean_data", "streams.gpkg"))'
 write_sf(streams, file.path("clean_data", "streams.gpkg"), append = FALSE)
 ```
 
 ## roads
 
-```{r}
+```{r roads}
 roads <- bcdc_query_geodata("bb060417-b6e6-4548-b837-f9060d94743e") |> 
   filter(INTERSECTS(scott_aoi))  |> 
-  select("id", "ROAD_CLASS", "ROAD_SURFACE") |> 
+  select(id, ROAD_CLASS, ROAD_SURFACE) |> 
   collect() |> 
   select(ROAD_SURFACE, ROAD_CLASS) |> 
   st_intersection(scott_aoi) |> # clip roads so all inside aoi
   st_cast("MULTILINESTRING")
 ```
 
-```{r}
+```{r write-roads}
 #| eval: !expr '!file.exists(file.path("clean_data", "roads.gpkg"))'
 write_sf(roads, file.path("clean_data", "roads.gpkg"), append = FALSE)
 ```
