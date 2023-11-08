@@ -1,7 +1,9 @@
 ---
 title: "Introduction to Telemetry Data"
 execute: 
-  eval: false
+  cache: true
+params:
+  write: true
 ---
 
 ## How to QA and summarise your Telemetry Data
@@ -13,6 +15,7 @@ In this course we will be using Telemetry data from Mountain Caribou (*Rangifer 
 Our first step is to see what our data looks like. In this course we will be providing two csv files (Mountain caribou in British Columbia-reference-data.csv and Mountain caribou.csv).
 
 ```{r read-in-raw-data}
+#| message: false
 # Read in our data files.
 
 library(readr)
@@ -22,7 +25,8 @@ library(dplyr)
 library(lubridate)
 library(ggplot2)
 
-ref_raw <- read_csv("raw_data/Mountain caribou in British Columbia-reference-data.csv")
+ref_raw <- read_csv("raw_data/Mountain caribou in British Columbia-reference-data.csv", 
+                    name_repair = "universal")
 
 loc_raw <- read_xlsx("raw_data/Mountain caribou.xlsx")
 ```
@@ -30,32 +34,27 @@ loc_raw <- read_xlsx("raw_data/Mountain caribou.xlsx")
 Lets take a look....
 
 ```{r review-raw-data}
-
 head(ref_raw)
 
 names(ref_raw)
 
-
 ref_short <- ref_raw %>%
-  dplyr::select("tag-id","animal-id", "deploy-on-date", "animal-sex", "animal-reproductive-condition",
-                "deployment-end-type","tag-model", "tag-manufacturer-name", "tag-serial-no")
-
+  select(tag.id, animal.id, deploy.on.date, animal.sex, animal.reproductive.condition,
+         deployment.end.type,tag.model, tag.manufacturer.name, tag.serial.no)
 
 head(loc_raw)
-
-
 ```
 
 We can combine these two dataset and keep only the columns which are of interest
 
 ```{r filter-raw-fields}
 
-all_data <- left_join(loc_raw, ref_raw, by = c('tag.local.identifier'= 'tag-id') )
+all_data <- left_join(loc_raw, ref_raw, by = c('tag.local.identifier' = 'tag.id') )
 
 all_data <- all_data %>% 
-  dplyr::select(event.id, location.long, location.lat, DOP, FixType, herd ,
-                study.specific.measurement , sensor.type, tag.local.identifier, date, `animal-id`,
-                `animal-sex`, `animal-reproductive-condition`, `tag-manufacturer-name`, `tag-model` )
+  select(event.id, location.long, location.lat, DOP, FixType, herd,
+         study.specific.measurement, sensor.type, tag.local.identifier, date, animal.id,
+         animal.sex, animal.reproductive.condition, tag.manufacturer.name, tag.model )
 
 
 ```
@@ -91,8 +90,8 @@ unique(tdata$herd)
 
 tdata <- tdata %>% 
   mutate(herd = case_when(
-    `animal-id` == "BP_car043" ~ "Burnt Pine", 
-    `animal-id` == "SC_car170" ~ "Scott",
+    animal.id == "BP_car043" ~ "Burnt Pine", 
+    animal.id == "SC_car170" ~ "Scott",
     .default = herd
   ))
 
@@ -201,7 +200,7 @@ unique(fdata$sensor.type)
 
 # remove the columns that we dont need
 fdata <- fdata %>% 
-  select(-FixType, -DOP, -date, -study.specific.measurement , -sensor.type, -event.id)
+  select(-FixType, -DOP, -date, -study.specific.measurement, -sensor.type, -event.id)
 
 
 
@@ -211,27 +210,35 @@ fdata <- fdata %>%
 
 We can output out cleaned data as a table
 
-```{r write-csv, eval = FALSE}
-
-write.csv(fdata, "clean_data/caribou.csv", row.names = F)
-
-
+```{r write-csv}
+#| eval: !expr '!file.exists(file.path("clean_data", "caribou.csv")) || isTRUE(params$write)'
+write_csv(fdata, file.path("clean_data", "caribou.csv"))
 ```
 
 
 ## Convert to spatial file and export 
 
-```{r write-out, eval = FALSE}
+```{r write-out}
 
-# convert to a sf object 
+# convert to a sf object and transform to BC Albers
 
-bou <- st_as_sf(fdata, coords = c("location.long", "location.lat"), crs = 3005, remove = FALSE)
+bou <- st_as_sf(fdata, coords = c("location.long", "location.lat"), 
+                crs = 4326, remove = FALSE) |> 
+  st_transform(3005)
+```
 
+export as .gpkg
 
-# export as .gpkg
-st_write(bou, "clean_data/caribou.gpkg", append = FALSE)
+```{r}
+#| eval: !expr '!file.exists(file.path("clean_data", "caribou.gpkg")) || isTRUE(params$write)'
+write_sf(bou, file.path("clean_data", "caribou.gpkg"))
+```
 
-st_write(bou, "clean_data/caribou.shp", append=FALSE)
+We can also export to a .shp file
+
+```{r}
+#| eval: false
+write_sf(bou, file.path("clean_data", "caribou.shp"))
 
 # note warning on names for shapefile
 
@@ -244,13 +251,13 @@ Now we have clean data to work with we can get to the fun data exploration part!
 
 ```{r read-in-geopackage}
 
-#bou = read.csv("clean_data/caribou.csv")
+#bou = read.csv(file.path("clean_data", "caribou.csv")
 
 # or 
 
-bou_sf = read_sf("clean_data/caribou.gpkg")
+bou_sf = read_sf(file.path("clean_data", "caribou.gpkg"))
 
-bou <- bou_sf %>% st_drop_geometry(bou_sf)
+bou <- st_drop_geometry(bou_sf)
 
 
 head(bou)
@@ -270,68 +277,69 @@ Many questions we can ask here:
 no_herds = unique(bou$herd)
 
 no_records <- bou %>% 
-  group_by(herd)%>% 
+  group_by(herd) %>% 
   summarise(count = n())
 
 no_animals_id <- bou %>% 
-  group_by(herd, `animal-id`)%>% 
+  group_by(herd, animal.id) %>% 
   summarise(count = n())
 
 no_animals_sex <- bou %>% 
-  group_by(herd, `animal-sex`)%>% 
+  group_by(herd, animal.sex) %>% 
   summarise(count = n())
 
 collar_type <- bou %>% 
-  group_by(herd, `tag-manufacturer-name` , `tag-model`)%>% 
+  group_by(herd, tag.manufacturer.name, tag.model) %>% 
   summarise(count = n())
 
 ```
 There is alot of data here. For the next section of this course we will just concentrate on the Scott Herd. 
 
-```{r summarise-scott-herd, eval = FALSE}
+```{r summarise-scott-herd}
 
 # Filter to keep the Scott herd only 
 sbou <- bou %>% 
-  dplyr::filter(herd == "Scott")
+  filter(herd == "Scott")
 
 # tidy the data by removing columns that are redundant
-sbou <- sbou %>% dplyr::select(-herd, -tag.local.identifier, -`tag-manufacturer-name` , -`tag-model`)
+sbou <- sbou %>% select(-herd, -tag.local.identifier, -tag.manufacturer.name, -tag.model)
 
 
 # how many animals?
-no_animals <- unique(sbou$`animal-id`)
+no_animals <- unique(sbou$animal.id)
 
 
 # lets look at the time period: 
-p1 <- ggplot(sbou, aes(year, fill = `animal-id`))+
+p1 <- ggplot(sbou, aes(year, fill = animal.id)) +
     geom_bar(position = "dodge")
 
 
 # duration of the collars within the Scott herd. 
 
 table_max <- sbou %>% 
-  dplyr::select(`animal-id`, date_time) %>%
-  slice_max(date_time, by = `animal-id`) 
-colnames(table_max)<- c("animal-id","max")
+  select(animal.id, date_time) %>%
+  slice_max(date_time, by = animal.id) 
+colnames(table_max)<- c("animal.id","max")
 
 table_min <- sbou %>% 
-  dplyr::select(`animal-id`, date_time) %>%
-  slice_min(date_time, by = `animal-id`) 
-colnames(table_min)<- c("animal-id","min")
+  select(animal.id, date_time) %>%
+  slice_min(date_time, by = animal.id) 
 
-dur <- left_join(table_max, table_min, by = join_by(`animal-id`)) %>%
+colnames(table_min)<- c("animal.id","min")
+
+dur <- left_join(table_max, table_min, by = join_by(animal.id)) %>%
   distinct() %>%
-  dplyr::mutate(duration = max - min) %>%
-  mutate(dur_days = round( duration,1))%>%
+  mutate(duration = max - min) %>%
+  mutate(dur_days = round( duration,1)) %>%
   mutate(dur_hrs = round(as.numeric(dur_days)*24,1)) %>%
- #mutate(dur_days = round( dur_hrs/24,1))%>%
+ #mutate(dur_days = round( dur_hrs/24,1)) %>%
   mutate(year_start = year(min), 
          year_end = year(max))
 
 
 
-dur_plot <- ggplot(dur, aes(y=factor(`animal-id`))) +
-  geom_segment(aes(x=min, xend=max, y=factor(`animal-id`), yend=factor(`animal-id`)), linewidth = 3)+
+dur_plot <- ggplot(dur, aes(y=factor(animal.id))) +
+  geom_segment(aes(x=min, xend=max, y=factor(animal.id), yend=factor(animal.id)), linewidth = 3)+
   xlab("Date") + ylab("Tag") 
 
 dur_plot
@@ -341,10 +349,10 @@ dur_plot
 p_duration <- ggplot(sbou, aes(factor(month), fill = factor(year)))+
   geom_bar(position = "dodge") +
   #xlim(1,12)+
-  facet_wrap(~`animal-id`)+
+  facet_wrap(~animal.id)+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
-
+p_duration
 ```
 
 #### Lets check the number of fixes per month per individual 
@@ -361,33 +369,34 @@ Larger spikes in Oct 2015 and Feb 2016
 head(sbou)
 
 sbou <- sbou %>% 
-  arrange(`animal-id`, date_time)
+  arrange(animal.id, date_time)
 
 sbou_dur <- sbou %>%
     mutate(time = as.POSIXct(date_time, format = "%y/%d/%m %H:%M:%S")) %>%
-    group_by(`animal-id`) %>%
-    mutate(diff = difftime(time, lag(time),  units = c("hours")))
+    group_by(animal.id) %>%
+    mutate(diff = difftime(time, lag(time),  units = c("hours")), 
+           diff = as.numeric(diff))
 
 
 # we can see a big range in the time intervals for the fixes
 
-range(as.numeric(sbou_dur$diff), na.rm = TRUE)
+range(sbou_dur$diff, na.rm = TRUE)
 
 # most fall in the less than than 10 
-hist(as.numeric(sbou_dur$diff))
+hist(sbou_dur$diff)
 
 
 # lets look at the individual animals
 
-ggplot(sbou_dur, aes(as.numeric(diff))) + 
+ggplot(sbou_dur, aes(diff)) + 
   geom_histogram(bins=30) +
-  facet_grid(.~`animal-id`)
+  facet_grid(.~animal.id)
 
 # much of the problem is with the SC_car171 individual 
 
-ggplot(sbou_dur, aes(y = as.numeric(diff), x = date_time)) + 
+ggplot(sbou_dur, aes(y = diff, x = date_time)) + 
   geom_point() +
-  facet_wrap(.~`animal-id`, scales = "free")
+  facet_wrap(.~animal.id, scales = "free")
 
 
 # suspect that these are a mortality signal from ? 
@@ -405,59 +414,71 @@ To create a standardized fix per day, lets take the first fix per day. This coul
 # we can subset base on a Julian date
 
 sbou_dur <- sbou_dur %>%
-  mutate(date2=as.Date(date_time, format = '%Y-%m-%d')) %>%
-  mutate(jdate=julian(date2))
+  mutate(
+    date2=as.Date(date_time, format = '%Y-%m-%d'),
+    jdate=julian(date2)
+  )
 
 # Check the multiple counts of anaimals per day 
 counts.per.day.jdate <- sbou_dur %>% 
-  group_by(`animal-id` , jdate, year) %>% 
+  group_by(animal.id, jdate, year) %>% 
   summarise(total = n(), unique = unique(jdate)) %>% 
-  group_by(`animal-id`, total, year) %>% 
+  group_by(animal.id, total, year) %>% 
   summarise(total.j = n()) 
 
 
 ggplot(counts.per.day.jdate, aes(x = total, y = total.j)) + 
   geom_point() +
   geom_vline(xintercept = 1, color = "red")+
-  facet_wrap(.~`animal-id` + year)
+  facet_wrap(.~animal.id + year)
 
 
 sbou_sub <- sbou_dur %>%
-    group_by(`animal-id`, jdate) %>%
+    group_by(animal.id, jdate) %>%
     slice_sample( n = 1) 
 
 
 # repeat this
 
 # Check the multiple counts of anaimals per day 
-counts.per.day.jdate <- sbou_sub %>% group_by(`animal-id` , jdate, year) %>% 
+counts.per.day.jdate <- sbou_sub %>% group_by(animal.id, jdate, year) %>% 
   summarise(total = n(), unique = unique(jdate)) %>% 
-  group_by(`animal-id`, total, year) %>% 
+  group_by(animal.id, total, year) %>% 
   summarise(total.j = n()) 
 
 
 ggplot(counts.per.day.jdate, aes(x = total, y = total.j)) + 
   geom_point() +
-  geom_vline(xintercept = 1, color = "red")+
-  facet_wrap(.~`animal-id` + year)
+  geom_vline(xintercept = 1, color = "red") +
+  facet_wrap(.~animal.id + year)
 
 
 length(sbou_sub$location.long)
+```
 
-
-
+```{r}
+#| eval: !expr '!file.exists(file.path("clean_data", "scott_herd_subset.csv")) || isTRUE(params$write)'
 # lets write this out as .csv and .Gpkg
 
-write.csv(sbou_sub, "clean_data/scott_herd_subset.csv", row.names = F)
+write_csv(sbou_sub, file.path("clean_data", "scott_herd_subset.csv"))
+```
 
 
-# convert to a sf object 
-# 
-sbou_sub_sf <- st_as_sf(sbou_sub, coords = c("location.long", "location.lat"), crs = 4326, remove = FALSE)
-# 
+convert to a sf object 
+
+```{r}
+sbou_sub_sf <- st_as_sf(sbou_sub, coords = c("location.long", "location.lat"), 
+                        crs = 4326, remove = FALSE) |> 
+  st_transform(3005)
+```
+
+Then write to a gpkg:
+
+```{r}
+#| eval: !expr '!file.exists(file.path("clean_data", "scott_herd_subset.gpkg")) || isTRUE(params$write)'
+#| cache: false
 # # export as .gpkg
-st_write(sbou_sub_sf, "clean_data/scott_herd_subset.gpkg", append = FALSE)
-
+write_sf(sbou_sub_sf, file.path("clean_data", "scott_herd_subset.gpkg"))
 
 ```
 
@@ -475,7 +496,7 @@ Next we format the date variable so we can filter by months and years. We can al
 *	Winter (December to March)
 
 
-```{r add-seasons, eval = FALSE}
+```{r add-seasons}
 
 sbou <- sbou_sub %>% 
   mutate(season = case_when(
@@ -487,25 +508,28 @@ sbou <- sbou_sub %>%
   
 # check data spread
 counts.per.season = sbou %>%
-  group_by(season, `animal-id`) %>%
+  group_by(season, animal.id) %>%
   summarise(count = n())
 
 ggplot(counts.per.season, aes(x = season, y = count)) + 
   geom_bar(stat = "identity") + 
-  facet_wrap(~`animal-id`) +
+  facet_wrap(~animal.id) +
   labs(x = "season", y = "no.of.fixes", title = "Scott Herd")
+```
 
-# export plot 
+Then we can save our plot
 
+```{r}
+#| eval: false
 ggsave("caribou_fixes_per_id.jpeg", width = 10, height = 10, units = "cm")
+```
 
 
-
-
+```{r}
 # we know that all the collared animals are female, but which are with calf or not 
 
 with_calf <- sbou %>% 
-  dplyr::select(`animal-id`, `animal-reproductive-condition`, season) %>% 
+  select(animal.id, animal.reproductive.condition, season) %>% 
   unique()
 
 # we know only one individual was seen with a calf... SC_car171 

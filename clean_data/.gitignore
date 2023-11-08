@@ -10,3 +10,10 @@ caribou.dbf
 caribou.prj
 caribou.shp
 caribou.shx
+template.tif
+dem.tif
+aspect.tif
+slope.tif
+tri.tif
+road_density.tif
+covars.RDS

@@ -5,5 +5,10 @@
 /.quarto/
 /_site/
 /docs/
-02-intro-spatial-data_cache
-05-vector-bcdata_cache
+*_cache
+# images in the root directory
+/*.jpg
+/*.jpeg
+03-intro-telemetry-data_files
+06-raster-data_files
+07-processing-vector-data_files

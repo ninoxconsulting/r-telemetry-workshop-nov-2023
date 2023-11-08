@@ -1,5 +1,7 @@
 ---
 title: "Exploring Raster Data"
+params:
+  write: false
 ---
 
 ## Overview:
@@ -24,7 +26,8 @@ Note we will be using the BC Albers coordinate reference system (EPSG:3005). The
 
 For ease of calculations we will create a standard "template" raster which will form the basis for all our data analysis.
 
-```{r, eval = FALSE}
+```{r}
+#| message: false
 # read in the libraries needed
 
 library(dplyr)
@@ -36,47 +39,45 @@ library(terra)
 
 Read in our AOI that we made and saved previously. We can then convert this to a raster with a resolution of given size. In this example we will select 25m.
 
-```{r, eval = FALSE}
-# 
-# # read in the spatial file 
-# 
-# bou <- st_read(file.path("clean_data/scott_herd_subset.gpkg"), crs = 4326)
-# 
-# # check this is not only output as a csv 
+```{r}
 
+# read in the spatial file
 
-# read in the spatial file 
+bou <- read_sf(file.path("clean_data/scott_herd_subset.gpkg"))
 ```
 
-```{r, eval = FALSE}
+```{r}
 
 # read in the aoi previously created
-aoi <- st_read(file.path("clean_data", "scott_aoi.gpkg"))
+aoi <- read_sf(file.path("clean_data", "scott_aoi.gpkg"))
 ```
 
 We can now convert our polygon to a raster object.
 
-```{r, eval = FALSE}
+```{r}
 # create a template raster with a resolution of 25m
-template <- terra::rast(aoi , resolution = 25)
+template <- rast(aoi , resolution = 25)
 
 # create a column name
 names(template) = "aoi"
 
 # assign all values to zero 
-terra::values(template) <- 0
-
-# export the raster for later processing
-terra::writeRaster(template, file.path("clean_data", "template.tif"), overwrite = TRUE)
+values(template) <- 0
+```
 
 
+export the raster template for later processing
+
+```{r}
+#| eval: !expr '!file.exists(file.path("clean_data", "template.tif")) || isTRUE(params$write)'
+writeRaster(template, file.path("clean_data", "template.tif"), overwrite = TRUE)
 ```
 
 ## 2. Extract base data using the CDED dataset
 
 Now we can use the **bcmaps** package to directly download digital elevation data from the [Canadian Digital Elevation Model CDED](https://rdrr.io/github/bcgov/bcmaps/man/cded.html). Within BC, this is laregly equivalent to the TRIM DEM dataset. We will use the **cded_terra** function.
 
-```{r, eval = FALSE}
+```{r}
 
 # extract DEM raw data - Note this is downloaded in tiles which will be cached to avoid the need to redownload repeatedly 
 
@@ -90,9 +91,12 @@ res(trim_raw)
 # reproject to match our raster template crs and extent
 
 trim_3005 <- project(trim_raw, template)
+```
 
+```{r}
+#| eval: !expr '!file.exists(file.path("clean_data", "dem.tif")) || isTRUE(params$write)'
 # write out the individual raster
-terra::writeRaster(trim_3005, file.path("clean_data", "dem.tif"), overwrite = TRUE) 
+writeRaster(trim_3005, file.path("clean_data", "dem.tif"), overwrite = TRUE) 
 
 ```
 
@@ -100,29 +104,38 @@ terra::writeRaster(trim_3005, file.path("clean_data", "dem.tif"), overwrite = TR
 
 Now we can use the terrain functions within the terra package to generate some standard base layers derived from the DEM.
 
-```{r, eval = FALSE}
+```{r}
 
 # generate slope 
-rslope <- terra::terrain(trim_3005, v = "slope", neighbors = 8, unit = "degrees") 
+rslope <- terrain(trim_3005, v = "slope", neighbors = 8, unit = "degrees") 
 
 # generate aspect
-aspect <- terra::terrain(trim_3005, v = "aspect", neighbors = 8,  unit = "degrees") 
+aspect <- terrain(trim_3005, v = "aspect", neighbors = 8,  unit = "degrees") 
 
 # generate topographic roughness index
-tri <- terra::terrain(trim_3005, v = "TRI", neighbors = 8)
+tri <- terrain(trim_3005, v = "TRI", neighbors = 8)
 
 # create a raster stack
 rstack <- c(trim_3005, rslope, aspect, tri)
 
 plot(rstack)
+```
 
+write our the individual rasters
 
-# write our the individual rasters
+```{r}
+#| eval: !expr '!file.exists(file.path("clean_data", "slope.tif")) || isTRUE(params$write)'
+writeRaster(rslope, file.path("clean_data", "slope.tif"), overwrite = TRUE) 
+```
 
-#terra::writeRaster(rslope, file.path(out_path, "slope.tif"), overwrite = TRUE) 
-#terra::writeRaster(aspect , file.path(out_path, "aspect.tif"), overwrite = TRUE) 
-#terra::writeRaster(tri , file.path(out_path, "tri.tif"), overwrite = TRUE) 
+```{r}
+#| eval: !expr '!file.exists(file.path("clean_data", "aspect.tif")) || isTRUE(params$write)'
+writeRaster(aspect , file.path("clean_data", "aspect.tif"), overwrite = TRUE) 
+```
 
+```{r}
+#| eval: !expr '!file.exists(file.path("clean_data", "tri.tif")) || isTRUE(params$write)'
+writeRaster(tri , file.path("clean_data", "tri.tif"), overwrite = TRUE) 
 ```
 
 ## Bonus Questions.

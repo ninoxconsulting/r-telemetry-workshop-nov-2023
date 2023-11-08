@@ -6,6 +6,8 @@ knitr:
   opts_chunk:
     message: false
     warning: false
+params:
+  write: true
 ---
 
 The B.C. Government makes a huge amount of open data available, both spatial and 
@@ -66,9 +68,7 @@ area of interest (a bounding box) around it, so we can use that to spatially
 subset the covariate data we will be using.
 
 ```{r aoi}
-scott <- read_sf("clean_data/caribou.gpkg") |> 
-  filter(comments == "Scott") |> 
-  st_transform(3005)
+scott <- read_sf("clean_data/scott_herd_subset.gpkg")
 
 scott_bbox <- st_bbox(scott)
 
@@ -82,7 +82,7 @@ scott_aoi <- st_as_sfc(scott_bbox)
 ```
 
 ```{r write-aoi}
-#| eval: !expr '!file.exists(file.path("clean_data", "scott_aoi.gpkg"))'
+#| eval: !expr '!file.exists(file.path("clean_data", "scott_aoi.gpkg")) || isTRUE(params$write)'
 write_sf(scott_aoi, file.path("clean_data", "scott_aoi.gpkg"))
 ```
 
@@ -145,7 +145,7 @@ mapview(bec)
 And now we can write our BEC data to a file to use later in the analysis.
 
 ```{r write-bec}
-#| eval: !expr '!file.exists(file.path("clean_data", "bec.gpkg"))'
+#| eval: !expr '!file.exists(file.path("clean_data", "bec.gpkg")) || isTRUE(params$write)'
 write_sf(bec, file.path("clean_data", "bec.gpkg"))
 ```
  
@@ -177,7 +177,7 @@ vri_conif <- vri |>
 ```
 
 ```{r write-vri-conif}
-#| eval: !expr '!file.exists(file.path("clean_data","vri_conif.gpkg"))'
+#| eval: !expr '!file.exists(file.path("clean_data","vri_conif.gpkg")) || isTRUE(params$write)'
 write_sf(vri_conif, file.path("clean_data","vri_conif.gpkg"))
 ```
 
@@ -190,7 +190,7 @@ vri_ageclass <- vri |>
 ```
 
 ```{r write-vri-ageclass}
-#| eval: !expr '!file.exists(file.path("clean_data", "vri_ageclass.gpkg"))'
+#| eval: !expr '!file.exists(file.path("clean_data", "vri_ageclass.gpkg")) || isTRUE(params$write)'
 write_sf(vri_ageclass, file.path("clean_data", "vri_ageclass.gpkg"))
 ```
 
@@ -202,7 +202,7 @@ vri_cc <- vri |>
 ```
 
 ```{r write-vri-cc}
-#| eval: !expr '!file.exists(file.path("clean_data", "vri_cc.gpkg"))'
+#| eval: !expr '!file.exists(file.path("clean_data", "vri_cc.gpkg")) || isTRUE(params$write)'
 write_sf(vri_cc, file.path("clean_data", "vri_cc.gpkg"))
 ```
  
@@ -228,7 +228,7 @@ mapview(cutblocks, zcol = "HARVEST_YEAR")
 ```
 
 ```{r write-cutblocks}
-#| eval: !expr '!file.exists(file.path("clean_data", "cutblocks.gpkg"))'
+#| eval: !expr '!file.exists(file.path("clean_data", "cutblocks.gpkg")) || isTRUE(params$write)'
 write_sf(cutblocks, file.path("clean_data", "cutblocks.gpkg"))
 ```
 
@@ -263,7 +263,7 @@ water <- bind_rows(lakes, wetlands) |>
 ```
 
 ```{r write-waterbodies}
-#| eval: !expr '!file.exists(file.path("clean_data", "water.gpkg"))'
+#| eval: !expr '!file.exists(file.path("clean_data", "water.gpkg")) || isTRUE(params$write)'
 write_sf(wetlands, file.path("clean_data", "water.gpkg"))
 ```
 
@@ -293,7 +293,7 @@ mapview(streams)
 ```
 
 ```{r write-streams}
-#| eval: !expr '!file.exists(file.path("clean_data", "streams.gpkg"))'
+#| eval: !expr '!file.exists(file.path("clean_data", "streams.gpkg")) || isTRUE(params$write)'
 write_sf(streams, file.path("clean_data", "streams.gpkg"))
 ```
 
