@@ -86,6 +86,16 @@ scott_aoi <- st_as_sfc(scott_bbox)
 write_sf(scott_aoi, file.path("clean_data", "scott_aoi.gpkg"), append = FALSE)
 ```
 
+First, let's open the B.C. Data Catalogue in our browser:
+
+```{r}
+#| eval: false
+bcdc_browse()
+```
+
+If you search for "BEC", one of the first hits should be the [BEC Map](https://catalogue.data.gov.bc.ca/dataset/f358a53b-ffde-4830-a325-a5a03ff672c3) record. If you click on the "Share" ( {{< fa share-nodes >}} ) button you well get 
+a url: `https://catalogue.data.gov.bc.ca/dataset/f358a53b-ffde-4830-a325-a5a03ff672c3`. The last bit of the url (`f358a53b-ffde-4830-a325-a5a03ff672c3`) is the unique identifier for the record, and we can use that ID to query the dataset with `{bcdata}`.
+
 ## BEC
 
 ```{r bec-1}
