@@ -83,7 +83,7 @@ scott_aoi <- st_as_sfc(scott_bbox)
 
 ```{r write-aoi}
 #| eval: !expr '!file.exists(file.path("clean_data", "scott_aoi.gpkg"))'
-write_sf(scott_aoi, file.path("clean_data", "scott_aoi.gpkg"), append = FALSE)
+write_sf(scott_aoi, file.path("clean_data", "scott_aoi.gpkg"))
 ```
 
 First, let's open the B.C. Data Catalogue in our browser:
@@ -93,7 +93,7 @@ First, let's open the B.C. Data Catalogue in our browser:
 bcdc_browse()
 ```
 
-If you search for "BEC", one of the first hits should be the [BEC Map](https://catalogue.data.gov.bc.ca/dataset/f358a53b-ffde-4830-a325-a5a03ff672c3) record. If you click on the "Share" ( {{< fa share-nodes >}} ) button you well get 
+If you search for "BEC", one of the first hits should be the [BEC Map](https://catalogue.data.gov.bc.ca/dataset/f358a53b-ffde-4830-a325-a5a03ff672c3) record. If you click on the "Share" ( {{< fa share-nodes >}} ) button you will get 
 a url: `https://catalogue.data.gov.bc.ca/dataset/f358a53b-ffde-4830-a325-a5a03ff672c3`. The last bit of the url (`f358a53b-ffde-4830-a325-a5a03ff672c3`) is the unique identifier for the record, and we can use that ID to query the dataset with `{bcdata}`.
 
 Let's find out about the record:
@@ -112,26 +112,37 @@ about the data:
 bcdc_query_geodata("f358a53b-ffde-4830-a325-a5a03ff672c3")
 ```
 
+You can use `dplyr` verbs `filter()` and `select()` to cut down the amount of 
+data you need to download from the web service. `filter()` can take logical 
+predicates such as `==`, `>`, `%in%` etc., as well as geometry predicates such as `INTERSECTS()`, `OVERLAPS()`, `WITHIN()` etc. See [this vignette](https://bcgov.github.io/bcdata/articles/efficiently-query-spatial-data-in-the-bc-data-catalogue.html) for details.
+
+Once your query is complete you call `collect()` to tell the server to 
+execute the query and send you the data:
 
 ```{r bec-1}
 bec <- bcdc_query_geodata("f358a53b-ffde-4830-a325-a5a03ff672c3") |>
     filter(INTERSECTS(scott_aoi)) |> 
-    collect() |> 
-    select(MAP_LABEL)
+    select(MAP_LABEL) |> 
+    collect()
 
-mapview(bec) + mapview(st_as_sf(scott_aoi))
+mapview(bec, zcol = "MAP_LABEL") + mapview(st_as_sf(scott_aoi))
 ```
 
 You can see that filtering using the `INTERSECTS()` function does a good job of 
 only downloading the features that intersect the AOI, but it doesn't actually
-clip them to the AOI. We can do that with `sf::st_intersection()`:
+clip them to the AOI. We can do that with `sf::st_intersection()`. Also, there
+are some columns that are "sticky" - even if you don't select them in a `select()`
+statement before you call collect, they come along anyway. We can do a final 
+`select()` once the data is downloaded:
 
 ```{r bec-clipped}
-bec <- st_intersection(bec, scott_aoi)
+bec <- st_intersection(bec, scott_aoi) |> 
+  select(MAP_LABEL)
 
 mapview(bec)
 ```
 
+And now we can write our BEC data to a file to use later in the analysis.
 
 ```{r write-bec}
 #| eval: !expr '!file.exists(file.path("clean_data", "bec.gpkg"))'
@@ -145,7 +156,7 @@ See a list of [VRI codes](https://www2.gov.bc.ca/assets/gov/farming-natural-reso
 ```{r vri-1}
 vri <- bcdc_query_geodata("2ebb35d8-c82f-4a17-9c96-612ac3532d55") |> 
   filter(INTERSECTS(scott_aoi)) |> 
-  select(PROJ_AGE_CLASS_CD_1,BCLCS_LEVEL_4,CROWN_CLOSURE_CLASS_CD) |>  
+  select(PROJ_AGE_CLASS_CD_1, BCLCS_LEVEL_4, CROWN_CLOSURE_CLASS_CD) |>  
   collect() |> 
   st_intersection(scott_aoi)
 ```
@@ -163,13 +174,11 @@ vri_conif <- vri |>
     mutate(conif = BCLCS_LEVEL_4) |> 
     filter(conif == "TC") |> 
     select(conif)
-
-#plot(vri_conif$BCLCS_LEVEL_4)
 ```
 
 ```{r write-vri-conif}
 #| eval: !expr '!file.exists(file.path("clean_data","vri_conif.gpkg"))'
-write_sf(vri_conif, file.path("clean_data","vri_conif.gpkg") , append = FALSE)
+write_sf(vri_conif, file.path("clean_data","vri_conif.gpkg"))
 ```
 
 ```{r vri-ageclass}
@@ -182,7 +191,7 @@ vri_ageclass <- vri |>
 
 ```{r write-vri-ageclass}
 #| eval: !expr '!file.exists(file.path("clean_data", "vri_ageclass.gpkg"))'
-write_sf(vri_ageclass, file.path("clean_data", "vri_ageclass.gpkg"), append = FALSE)
+write_sf(vri_ageclass, file.path("clean_data", "vri_ageclass.gpkg"))
 ```
 
 ```{r vri-cc}
@@ -194,28 +203,38 @@ vri_cc <- vri |>
 
 ```{r write-vri-cc}
 #| eval: !expr '!file.exists(file.path("clean_data", "vri_cc.gpkg"))'
-write_sf(vri_cc, file.path("clean_data", "vri_cc.gpkg"), append = FALSE)
+write_sf(vri_cc, file.path("clean_data", "vri_cc.gpkg"))
 ```
  
 ## Cutblocks
 
+To get the cutblocks, we filter to our AOI, and also choose those blocks that
+have a harvest year in the last 30 years.
+
+We can get information about the columns in a given dataset with `bcdc_describe_feature()`:
+
 ```{r cutblocks}
+bcdc_describe_feature("b1b647a6-f271-42e0-9cd0-89ec24bce9f7")
+
 cutblocks <- bcdc_query_geodata("b1b647a6-f271-42e0-9cd0-89ec24bce9f7") |>
   filter(
     INTERSECTS(scott_aoi), 
     HARVEST_YEAR >= 1993) |>
   select(HARVEST_YEAR) |>
-  collect()
+  collect() |> 
+  st_intersection(scott_aoi)
+
+mapview(cutblocks, zcol = "HARVEST_YEAR")
 ```
 
 ```{r write-cutblocks}
 #| eval: !expr '!file.exists(file.path("clean_data", "cutblocks.gpkg"))'
-write_sf(cutblocks, file.path("clean_data", "cutblocks.gpkg"), append = FALSE)
+write_sf(cutblocks, file.path("clean_data", "cutblocks.gpkg"))
 ```
 
 ## Water bodies
 
-### Searching the catologue for the BC Freshwater Atlas
+### Searching the catalogue for the BC Freshwater Atlas
 
 We can search the catalogue for data using keywords, with `bcdc_search()`. Control
 the number of results returned with `n`.
@@ -226,37 +245,29 @@ bcdc_search("freshwater atlas", n = 20)
 
 ```{r waterbodies}
 
-## LAKES ##
-
-# 1 Square Kilometer = 100.00 Hectare
-
-# Uses date filter which filters lakes
 lakes <- bcdc_query_geodata("cb1e3aba-d3fe-4de1-a2d4-b8b6650fb1f6") |>
   filter(INTERSECTS(scott_aoi)) |>
   select(id, WATERBODY_TYPE, AREA_HA) |>
-  collect() |> 
-  select(id, WATERBODY_TYPE, AREA_HA)
-
-# download wetlands
+  collect()
 
 wetlands <- bcdc_query_geodata("93b413d8-1840-4770-9629-641d74bd1cc6") |>
   filter(INTERSECTS(scott_aoi)) |>
   select(id, WATERBODY_TYPE, AREA_HA) |>
-  filter(AREA_HA < 100) |>
-  collect() |> 
-  select(id, WATERBODY_TYPE, AREA_HA)
+  collect()
 
-water <- bind_rows(lakes, wetlands)
+# Combine the datasets into one, select only the columns we want, and 
+# clip to aoi
+water <- bind_rows(lakes, wetlands) |> 
+  select(id, WATERBODY_TYPE, AREA_HA) |> 
+  st_intersection(scott_aoi)
 ```
 
 ```{r write-waterbodies}
 #| eval: !expr '!file.exists(file.path("clean_data", "water.gpkg"))'
-write_sf(wetlands, file.path("clean_data", "water.gpkg"), append = FALSE)
+write_sf(wetlands, file.path("clean_data", "water.gpkg"))
 ```
 
-## stream index
-
-We can get the columns in a given dataset with `bcdc_describe_feature()`:
+## Stream Index
 
 ```{r describe-streams}
 streams_cols <- bcdc_describe_feature("92344413-8035-4c08-b996-65a9b3f62fca")
@@ -275,15 +286,18 @@ streams <- bcdc_query_geodata("92344413-8035-4c08-b996-65a9b3f62fca") |>
   select(id, STREAM_ORDER) |>
   collect() |> 
   select(id, STREAM_ORDER) |>
-  st_zm()
+  st_zm() |> 
+  st_intersection(scott_aoi)
+
+mapview(streams)
 ```
 
 ```{r write-streams}
 #| eval: !expr '!file.exists(file.path("clean_data", "streams.gpkg"))'
-write_sf(streams, file.path("clean_data", "streams.gpkg"), append = FALSE)
+write_sf(streams, file.path("clean_data", "streams.gpkg"))
 ```
 
-## roads
+## Roads
 
 ```{r roads}
 roads <- bcdc_query_geodata("bb060417-b6e6-4548-b837-f9060d94743e") |> 
@@ -297,5 +311,5 @@ roads <- bcdc_query_geodata("bb060417-b6e6-4548-b837-f9060d94743e") |>
 
 ```{r write-roads}
 #| eval: !expr '!file.exists(file.path("clean_data", "roads.gpkg"))'
-write_sf(roads, file.path("clean_data", "roads.gpkg"), append = FALSE)
+write_sf(roads, file.path("clean_data", "roads.gpkg"))
 ```
