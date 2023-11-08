@@ -15,3 +15,5 @@ dem.tif
 aspect.tif
 slope.tif
 tri.tif
+road_density.tif
+covars.RDS
