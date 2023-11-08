@@ -476,7 +476,6 @@ Then write to a gpkg:
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "scott_herd_subset.gpkg")) || isTRUE(params$write)'
-#| cache: false
 # # export as .gpkg
 write_sf(sbou_sub_sf, file.path("clean_data", "scott_herd_subset.gpkg"))
 
