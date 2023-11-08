@@ -216,7 +216,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./05-vector-bcdata.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Exploring the BC Data Catalogue with R</span></a>
+ <span class="menu-text">Getting B.C. Open Data with R</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -278,16 +278,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#workshop-overview" id="toc-workshop-overview" class="nav-link active" data-scroll-target="#workshop-overview">Workshop Overview</a>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a>
   <ul class="collapse">
-  <li><a href="#the-worksop-will-include" id="toc-the-worksop-will-include" class="nav-link" data-scroll-target="#the-worksop-will-include">The worksop will include:</a></li>
+  <li><a href="#the-workshop-will-include" id="toc-the-workshop-will-include" class="nav-link" data-scroll-target="#the-workshop-will-include">The workshop will include:</a></li>
   <li><a href="#the-workshop-will-not-include" id="toc-the-workshop-will-not-include" class="nav-link" data-scroll-target="#the-workshop-will-not-include">The workshop will not include:</a></li>
   </ul></li>
   <li><a href="#computing-requirements" id="toc-computing-requirements" class="nav-link" data-scroll-target="#computing-requirements">Computing requirements</a>
   <ul class="collapse">
   <li><a href="#install-r-and-rstudio" id="toc-install-r-and-rstudio" class="nav-link" data-scroll-target="#install-r-and-rstudio">Install R and RStudio</a></li>
   <li><a href="#packages" id="toc-packages" class="nav-link" data-scroll-target="#packages">Install packages</a></li>
-  <li><a href="#qgis" id="toc-qgis" class="nav-link" data-scroll-target="#qgis">QGIS</a></li>
+  <li><a href="#qgis" id="toc-qgis" class="nav-link" data-scroll-target="#qgis">QGIS (optional)</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/00-intro-setup.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
@@ -312,26 +312,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<section id="workshop-overview" class="level2">
-<h2 class="anchored" data-anchor-id="workshop-overview">Workshop Overview</h2>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
 <p>This two-day course will introduce you to the basics of working with telemetry data in R.</p>
-<section id="the-worksop-will-include" class="level3">
-<h3 class="anchored" data-anchor-id="the-worksop-will-include">The worksop will include:</h3>
+<p>We will providing a data set to use throughout the workshop, but we encourage you to bring along your own data for the hackathon session (Friday AM).</p>
+<section id="the-workshop-will-include" class="level3">
+<h3 class="anchored" data-anchor-id="the-workshop-will-include">The workshop will include:</h3>
 <ul>
 <li>The basics of spatial data in R</li>
 <li>How to read in, clean, and QA your telemetry data</li>
 <li>How to create useful summaries of your data</li>
 <li>Data visualization techniques for spatial and telemetry data (graphs and maps)</li>
 <li>How to use the <code>bcmaps</code> and <code>bcdata</code> packages to get vector and raster data from official BC government sources.</li>
-<li>How to perform spatial operations to model covariates</li>
+<li>How to perform spatial operations to compile and generate landcape covariates</li>
+<li>How to extract spatial information for telemetry and random location points</li>
 </ul>
 </section>
 <section id="the-workshop-will-not-include" class="level3">
 <h3 class="anchored" data-anchor-id="the-workshop-will-not-include">The workshop will not include:</h3>
 <ul>
-<li>Methodological detail of telemetry methods ie DOP calculations</li>
-<li>Advanced modeling techniques</li>
-<li>We wont be working with individual datasets (until Friday!)</li>
+<li><p>Methodological details on technical telemetry parameters i.e.&nbsp;DOP estimates</p></li>
+<li><p>Advanced modeling techniques</p></li>
 </ul>
 </section>
 </section>
@@ -363,8 +364,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="install-r-studio" class="level4">
 <h4 class="anchored" data-anchor-id="install-r-studio">Install R Studio</h4>
 <p>Download and install RStudio Desktop from <a href="https://posit.co/download/rstudio-desktop/" class="uri">https://posit.co/download/rstudio-desktop/</a>. This page should automatically offer you the version suitable for your operating system, but you can scroll down to find versions for all operating systems.</p>
-<section id="windows-with-no-admin-rights-1" class="level5">
-<h5 class="anchored" data-anchor-id="windows-with-no-admin-rights-1">Windows with no admin rights:</h5>
+<section id="windows-with-admin-rights" class="level5">
+<h5 class="anchored" data-anchor-id="windows-with-admin-rights">Windows with admin rights:</h5>
 <p>Download the <code>.zip</code> archive for Windows under “Zip/Tarballs”. Create a folder called <code>RStudio</code> in a location on your <code>C:/</code> drive, where you have write access (e.g.&nbsp;<code>C:/Users/username/AppData/Local/Programs/RStudio</code>), and extract the zip file into this folder. Find the RStudio program in this folder: it is named <code>rstudio.exe</code>, but the file extension will typically be hidden, so look for <code>rstudio</code>. Right-click this file to create a shortcut and drag it to your desktop/task bar. Use the shortcut to open RStudio.</p>
 </section>
 </section>
@@ -374,12 +375,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>In R, install the necessary packages by running:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">"tidyverse"</span>, <span class="st">"sf"</span>, <span class="st">"terra"</span>, <span class="st">"tmap"</span>, <span class="st">"mapview"</span>, <span class="st">"bcdata"</span>, <span class="st">"bcmaps"</span>, <span class="st">"readxl"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">"tidyverse"</span>, <span class="st">"sf"</span>, <span class="st">"terra"</span>, <span class="st">"mapview"</span>, <span class="st">"bcdata"</span>, <span class="st">"bcmaps"</span>, <span class="st">"readxl, ggplot2"</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="qgis" class="level3">
-<h3 class="anchored" data-anchor-id="qgis">QGIS</h3>
+<h3 class="anchored" data-anchor-id="qgis">QGIS (optional)</h3>
 <p>QGIS is a free and open-source geographic information system (GIS) that allows you to create, edit, visualize, analyze and publish geospatial information.</p>
 <p>Download and install from the <a href="https://qgis.org/en/site/forusers/download.html">QGIS website</a>.</p>
 

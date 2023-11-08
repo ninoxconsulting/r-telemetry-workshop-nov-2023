@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -182,7 +216,7 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./05-vector-bcdata.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Exploring the BC Data Catalogue with R</span></a>
+ <span class="menu-text">Getting B.C. Open Data with R</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -240,7 +274,18 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#background" id="toc-background" class="nav-link" data-scroll-target="#background">Background</a></li>
+  <li><a href="#access-and-download-data" id="toc-access-and-download-data" class="nav-link" data-scroll-target="#access-and-download-data">3. Access and download data</a>
+  <ul class="collapse">
+  <li><a href="#extra-challenge" id="toc-extra-challenge" class="nav-link" data-scroll-target="#extra-challenge">Extra challenge!</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/bonus-movebank.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -262,8 +307,97 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>In this module we will introduce the move2 r package and demonstrate how you can download telemetry data directly from the movebank web repository via an API.</p>
+</section>
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p><a href="https://www.movebank.org/cms/movebank-main">Movebank</a> is a free, online database of animal movement data hosted by the Max Planck Institute for Ornithology. Data owners can manage their data and have the option to share it with colleagues or the public. If the public or a registered user has permission to see a study, the study can be downloaded as a .csv file and imported directly into R using the <a href="https://cran.r-project.org/web/packages/move2/index.html">move2 package</a></p>
+<p>Note move2 this is an updated version of the <a href="https://cran.r-project.org/web/packages/move/vignettes/move.html">move package</a></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages("move2")</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"move2"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ol type="1">
+<li><p>You will need to create a log in on the movebank platform to be able to download and view data. This can be done at <a href="https://www.movebank.org/cms/movebank-main">Movebank</a>.</p></li>
+<li><p>Set up your credentials within the move2 package. To access any data through R you will also need to supply the credentials you used to create your movebank account to the move2 package. This package uses the keyring package to safely store your credentials. You only need to run the following code once, after which the credentials will be remembered for following R sessions.</p></li>
+</ol>
+<p><strong>NOTE</strong> : make sure to keep your credential safe, and do not committ these to a common code platform such as github.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">movebank_store_credentials</span>(<span class="st">"myUserName"</span>, <span class="st">"myPassword"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#movebank_store_credentials("gcperkins", "*****")</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># to delete your credentials run this line</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#movebank_remove_credentials()</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># you can check by running this </span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>keyring<span class="sc">::</span><span class="fu">key_list</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="access-and-download-data" class="level1">
+<h1>3. Access and download data</h1>
+<p>Depending on the license type determined by the data custodian, different methods are needed to access the data. For data created under <a href="https://creativecommons.org/public-domain/cc0/">creative common 0 license</a>, there are no restrictions on use.</p>
+<p>We can use the <strong>movebank_retrieve</strong> function to review data that is stored under a CC_0 or creative common “no rights reserved” license.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mdata <span class="ot">&lt;-</span> <span class="fu">movebank_retrieve</span>(<span class="at">entity_type =</span> <span class="st">"study"</span>, <span class="at">license_type =</span> <span class="st">"CC_0"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(id, name, number_of_deployed_locations) <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(number_of_deployed_locations)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can get a full list of datasets available for download. We can use the id number to extract data directly from the movebank repository through the move2 API link.</p>
+<p>Lets look at the <strong>Peregrine Falcon, High Arctic Institute, northwest Greenland..</strong> study, where the id = 7249090.</p>
+<p>This gives us an overview of the study information.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>bird_info <span class="ot">&lt;-</span> <span class="fu">movebank_download_study_info</span>(<span class="at">study_id =</span> <span class="dv">7249090</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Lets download the actual data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>bird_data <span class="ot">&lt;-</span> <span class="fu">movebank_download_study</span>(<span class="dv">7249090</span>, <span class="at">attributes =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Wow that is lots of text!</p>
+<p>Lets have a look at the details. Movebank is set up to ensure you read the fine print, i.e.&nbsp;accept the terms and conditions on each study that you download. To do this, we have two options:</p>
+<ul>
+<li>1: we can access the data for the particular study via the website. This only needs to be done once.</li>
+<li>2: we add the license key to our request.</li>
+</ul>
+<p>NOte once we have done this once we wont need to repeat this process again.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>bird_data <span class="ot">&lt;-</span> <span class="fu">movebank_download_study</span>(<span class="dv">7249090</span>, <span class="at">attributes =</span> <span class="cn">NULL</span>,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="st">'license-md5'</span><span class="ot">=</span><span class="st">'2f2ef1252f957dce32a3f0f7a52c62ed'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bird_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>If we are only interested in the deployment information we can also download this seperately</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>bird_deply <span class="ot">&lt;-</span> <span class="fu">movebank_download_deployment</span>(<span class="dv">7249090</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="extra-challenge" class="level2">
+<h2 class="anchored" data-anchor-id="extra-challenge">Extra challenge!</h2>
+<p>If you are interested in viewing the entire Caribou dataset you can find it on movebank (study_id = 216040785)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># download the study info details</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>bou <span class="ot">&lt;-</span> <span class="fu">movebank_download_study_info</span>(<span class="at">study_id =</span> <span class="dv">216040785</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># download the data </span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>bou_data <span class="ot">&lt;-</span> <span class="fu">movebank_download_study</span>(<span class="dv">216040785</span>, <span class="at">attributes =</span> <span class="cn">NULL</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># download deployment data </span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>bou_ref_data <span class="ot">&lt;-</span> <span class="fu">movebank_download_deployment</span>(<span class="dv">216040785</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>References:</p>
+<ul>
+<li><p><a href="https://www.movebank.org/cms/movebank-main">Movebank</a>.</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/move2/vignettes/movebank.html">move2 r package vignette - “Downloading data from movebank”</a></p></li>
+</ul>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -618,4 +752,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/bonus-movebank.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></div></div></footer></body></html>
+</body></html>

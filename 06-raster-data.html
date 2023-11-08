@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -182,7 +216,7 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./05-vector-bcdata.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Exploring the BC Data Catalogue with R</span></a>
+ <span class="menu-text">Getting B.C. Open Data with R</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -240,7 +274,18 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview:</a></li>
+  <li><a href="#background-rasters" id="toc-background-rasters" class="nav-link" data-scroll-target="#background-rasters">Background: Rasters</a></li>
+  <li><a href="#create-a-standard-raster-template." id="toc-create-a-standard-raster-template." class="nav-link" data-scroll-target="#create-a-standard-raster-template.">1. Create a standard raster template.</a></li>
+  <li><a href="#extract-base-data-using-the-cded-dataset" id="toc-extract-base-data-using-the-cded-dataset" class="nav-link" data-scroll-target="#extract-base-data-using-the-cded-dataset">2. Extract base data using the CDED dataset</a></li>
+  <li><a href="#generate-dem-derived-covariates" id="toc-generate-dem-derived-covariates" class="nav-link" data-scroll-target="#generate-dem-derived-covariates">3. Generate DEM derived covariates</a></li>
+  <li><a href="#bonus-questions." id="toc-bonus-questions." class="nav-link" data-scroll-target="#bonus-questions.">Bonus Questions.</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/06-raster-data.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -262,25 +307,119 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<!-- # 7. download DEM via CDED package -->
-<!--     get_dem <- function(in_aoi, out_path){ -->
-<!--       file_already_exists <- file.exists(file.path(out_path, "dem.tif")) -->
-<!--       if(overwrite == FALSE & file_already_exists == TRUE) { -->
-<!--         message("\r dem already exists, skipping download") -->
-<!--       } else { -->
-<!--       trim_raw <- bcmaps::cded_raster(in_aoi) -->
-<!--       trim <- terra::rast(trim_raw) -->
-<!--       #write out dem # in case -->
-<!--       terra::writeRaster(trim, file.path(out_path, "dem.tif"), overwrite = TRUE) -->
-<!--       # generate slope -->
-<!--       rslope <- terra::terrain(trim, v = "slope", neighbors = 8, unit = "degrees") -->
-<!--       #write out dem # in case -->
-<!--       terra::writeRaster(rslope, file.path(out_path, "slope.tif"), overwrite = TRUE) -->
-<!--       } -->
-<!--       return(TRUE) -->
-<!--     } -->
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview:</h2>
+<p>In this module we will explore raster data, and the available datasets which can be used in R for analysis. We will:</p>
+<ul>
+<li><p>prepare our study aoi to use with rasters</p></li>
+<li><p>extract DEM data through the <strong>bcmaps</strong> package</p></li>
+<li><p>generate DEM derived covariates,</p></li>
+<li><p>prepare a raster stack with all spatial layers generated to date.</p></li>
+</ul>
+</section>
+<section id="background-rasters" class="level2">
+<h2 class="anchored" data-anchor-id="background-rasters">Background: Rasters</h2>
+<p>Raster data is information built on a standard grid. These can be characterised by the grid extent (xmin, xmax, ymin, ymax) and can have a coordinate system to orient them in space. Rasters are made up of cells or pixels, based on a resolution or cell size. Each cell contains a single value. The <strong>terra</strong> package contains many functions for manipulating and processing rasters.</p>
+<p>Note we will be using the BC Albers coordinate reference system (EPSG:3005). The advantages of this are 1) BCAlbers is an equal area projection across BC, 2) extent is marked using meters.</p>
+</section>
+<section id="create-a-standard-raster-template." class="level2">
+<h2 class="anchored" data-anchor-id="create-a-standard-raster-template.">1. Create a standard raster template.</h2>
+<p>For ease of calculations we will create a standard “template” raster which will form the basis for all our data analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in the libraries needed</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bcmaps)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Read in our AOI that we made and saved previously. We can then convert this to a raster with a resolution of given size. In this example we will select 25m.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # read in the spatial file </span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># bou &lt;- st_read(file.path("clean_data/scott_herd_subset.gpkg"), crs = 4326)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># # check this is not only output as a csv </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># read in the spatial file </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in the aoi previously created</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>aoi <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="fu">file.path</span>(<span class="st">"clean_data"</span>, <span class="st">"scott_aoi.gpkg"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can now convert our polygon to a raster object.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create a template raster with a resolution of 25m</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>template <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">rast</span>(aoi , <span class="at">resolution =</span> <span class="dv">25</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create a column name</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(template) <span class="ot">=</span> <span class="st">"aoi"</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># assign all values to zero </span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>terra<span class="sc">::</span><span class="fu">values</span>(template) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># export the raster for later processing</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>terra<span class="sc">::</span><span class="fu">writeRaster</span>(template, <span class="fu">file.path</span>(<span class="st">"clean_data"</span>, <span class="st">"template.tif"</span>), <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="extract-base-data-using-the-cded-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="extract-base-data-using-the-cded-dataset">2. Extract base data using the CDED dataset</h2>
+<p>Now we can use the <strong>bcmaps</strong> package to directly download digital elevation data from the <a href="https://rdrr.io/github/bcgov/bcmaps/man/cded.html">Canadian Digital Elevation Model CDED</a>. Within BC, this is laregly equivalent to the TRIM DEM dataset. We will use the <strong>cded_terra</strong> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract DEM raw data - Note this is downloaded in tiles which will be cached to avoid the need to redownload repeatedly </span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>trim_raw <span class="ot">&lt;-</span> bcmaps<span class="sc">::</span><span class="fu">cded_terra</span>(aoi)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># lets look at the raster</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>trim_raw</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">res</span>(trim_raw)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># note this is in WGS so we need to convert to 3005</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># reproject to match our raster template crs and extent</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>trim_3005 <span class="ot">&lt;-</span> <span class="fu">project</span>(trim_raw, template)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># write out the individual raster</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>terra<span class="sc">::</span><span class="fu">writeRaster</span>(trim_3005, <span class="fu">file.path</span>(<span class="st">"clean_data"</span>, <span class="st">"dem.tif"</span>), <span class="at">overwrite =</span> <span class="cn">TRUE</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="generate-dem-derived-covariates" class="level2">
+<h2 class="anchored" data-anchor-id="generate-dem-derived-covariates">3. Generate DEM derived covariates</h2>
+<p>Now we can use the terrain functions within the terra package to generate some standard base layers derived from the DEM.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># generate slope </span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>rslope <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">terrain</span>(trim_3005, <span class="at">v =</span> <span class="st">"slope"</span>, <span class="at">neighbors =</span> <span class="dv">8</span>, <span class="at">unit =</span> <span class="st">"degrees"</span>) </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># generate aspect</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>aspect <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">terrain</span>(trim_3005, <span class="at">v =</span> <span class="st">"aspect"</span>, <span class="at">neighbors =</span> <span class="dv">8</span>,  <span class="at">unit =</span> <span class="st">"degrees"</span>) </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># generate topographic roughness index</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>tri <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">terrain</span>(trim_3005, <span class="at">v =</span> <span class="st">"TRI"</span>, <span class="at">neighbors =</span> <span class="dv">8</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># create a raster stack</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>rstack <span class="ot">&lt;-</span> <span class="fu">c</span>(trim_3005, rslope, aspect, tri)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(rstack)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># write our the individual rasters</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#terra::writeRaster(rslope, file.path(out_path, "slope.tif"), overwrite = TRUE) </span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#terra::writeRaster(aspect , file.path(out_path, "aspect.tif"), overwrite = TRUE) </span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#terra::writeRaster(tri , file.path(out_path, "tri.tif"), overwrite = TRUE) </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="bonus-questions." class="level2">
+<h2 class="anchored" data-anchor-id="bonus-questions.">Bonus Questions.</h2>
+<ol type="1">
+<li><p>Explore what other covariates you can generate using the <strong>terra::terrain</strong> function. Hint use <strong>?terrain</strong> to bring up a help file.</p></li>
+<li><p>Compare outputs of aspect which the neighbours parameter is adjusted. What difference does this make to the output and the time to process?</p></li>
+</ol>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -635,4 +774,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/06-raster-data.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></div></div></footer></body></html>
+</body></html>
