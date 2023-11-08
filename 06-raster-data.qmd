@@ -34,7 +34,7 @@ library(terra)
 
 ```
 
-Read in our basic aoi and extend it to the nearest 100m. We can then convert this to a raster with a resolution of given size. In this example we will select 25m.
+Read in our AOI that we made and saved previously. We can then convert this to a raster with a resolution of given size. In this example we will select 25m.
 
 ```{r, eval = FALSE}
 # 
