@@ -6,3 +6,7 @@
 /_site/
 /docs/
 *_cache
+# images in the root directory
+/*.jpg
+/*.jpeg
+03-intro-telemetry-data_files
