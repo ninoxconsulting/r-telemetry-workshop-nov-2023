@@ -65,7 +65,7 @@ In R, install the necessary packages by running:
 ```{r}
 #| eval: false
 install.packages(
-  c("tidyverse", "sf", "terra", "tmap", "mapview", "bcdata", "bcmaps", "readxl, ggplot2")
+  c("tidyverse", "sf", "terra", "mapview", "bcdata", "bcmaps", "readxl, ggplot2")
 )
 ```
 

@@ -55,6 +55,4 @@ format:
         - darkly
         - style-dark.scss
     toc: true
-
-
-
+    code-link: true

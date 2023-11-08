@@ -30,22 +30,6 @@ library(dplyr)
 
 # read in raster template
 template <- rast(file.path("clean_data", "template.tif"))
-
-
-# ## THIS WILL ALREADY BE INCLUDED IN ANDYS SECTION 
-# 
-# roads <- bcdc_query_geodata("bb060417-b6e6-4548-b837-f9060d94743e") %>% 
-#   bcdata::filter(bcdata::INTERSECTS(aoi))  %>%
-#   bcdata::select("id", "ROAD_CLASS", "ROAD_SURFACE") %>% 
-#   collect() %>%
-#   dplyr::select(ROAD_SURFACE, ROAD_CLASS) %>% 
-#         {if(nrow(.) > 0) { 
-#   st_intersection(., aoi) %>% 
-#       st_cast("MULTILINESTRING") 
-#     } else .} 
-#   
-# st_write(roads, "clean_data/roads.gpkg")
-
 ```
 
 We can assume that the type of road will have a different impact on Caribou avoidance or predator use. We can assign a value based on the road type. In this case we will assign a higher value to roads used more frequently.
@@ -99,7 +83,7 @@ While density provides a measure of impact we may also be interested in capturin
 # read in water 
 water <- st_read(file.path("clean_data", "roads.gpkg"))
 
-# calculate the distance to water for each pixal in the raster
+# calculate the distance to water for each pixel in the raster
 # be patient - this might take some time. 
 water_dis <- terra::distance(template, water, unit="km")
 
@@ -119,54 +103,6 @@ We can also convert each vector layer we extracted into a raster.
 
 
 Note this can also be done at the vector stage, however predictive modelling will normally require a stacked covariate list so that you can predict from the built model 
-
-
-```{r, eval = FALSE}
-
-# move this section to Andy; bc data section. 
-
-
-
-vri <- bcdata::bcdc_query_geodata("2ebb35d8-c82f-4a17-9c96-612ac3532d55") %>%
-      bcdata::filter(bcdata::INTERSECTS(aoi)) %>%
-      bcdata::select(c("PROJ_AGE_CLASS_CD_1","BCLCS_LEVEL_4","CROWN_CLOSURE_CLASS_CD")) %>% 
-      bcdata::collect()
-
-#(vri codes)[https://www2.gov.bc.ca/assets/gov/farming-natural-resources-and-industry/forestry/stewardship/forest-analysis-inventory/data-management/standards/vegcomp_poly_rank1_data_dictionaryv5_2019.pdf]
-
-
-# Tree coniferous leading - select coniferous leading vri plots
-vri_conif <- vri %>% 
-    dplyr::mutate(conif = BCLCS_LEVEL_4) %>%
-    dplyr::filter(conif == "TC") %>%
-    dplyr::select(conif )
-
-#plot(vri_conif$BCLCS_LEVEL_4)
-
-st_write(vri_conif, file.path("clean_data","vri_conif.gpkg") , append = FALSE)
-
-
-# Age class greater than 40 years
-vri_ageclass <- vri %>%
-    dplyr::mutate(age_class = as.numeric(PROJ_AGE_CLASS_CD_1)) %>%
-    dplyr::filter(age_class >= 3) %>%
-    dplyr::select(age_class)
-
-st_write(vri_ageclass, file.path("clean_data", "vri_ageclass.gpkg"), append = FALSE)
- 
-
-# Crown closure class 
-vri_cc <- vri %>%
-    dplyr::mutate(cc_class = as.numeric(CROWN_CLOSURE_CLASS_CD)) %>%
-    dplyr::select(cc_class)
-st_write(vri_cc, file.path("clean_data", "vri_cc.gpkg"), append = FALSE)
- 
-
-```
-
-
-
-
 
 ```{r, eval = FALSE}
 
@@ -228,3 +164,4 @@ plot(all_stack)
 ## or we can write this out to a very small R object 
 
 saveRDS(all_stack, file.path("clean_data", "covars.RDS")) # much faster
+```
