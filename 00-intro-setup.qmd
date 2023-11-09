@@ -24,6 +24,30 @@ We will providing a data set to use throughout the workshop, but we encourage yo
 
 -   Advanced modeling techniques
 
+### Agenda
+
+#### Day 1
+
+- Setup and troubleshooting (8:30 - 9:00)
+- Working with spatial data in R (9:00 - 10:30)
+- **BREAK** (10:30 - 11:00)
+- Telemetry data in R; clean, QA, and prepare data (Part I; 11:00 - 12:30)
+- **LUNCH** (12:30 - 1:30)
+- Telemetry data in R; clean, QA, and prepare data (Part II; 1:30 - 3:00)
+- **BREAK** (3:00 - 3:30)
+- Visualizing spatial data in R (3:30 - 4:30)
+
+#### Day 2
+
+- Setup and troubleshooting (8:30 - 9:00)
+- Retrieving spatial data from the B.C. Data Catalogue (9:00 - 10:30)
+- **BREAK** (10:30 - 11:00)
+- Getting and working with raster data (Part I; 11:00 - 12:30)
+- **LUNCH** (12:30 - 1:30)
+- Preparing  base data for telemetry analysis (Part II; 1:30 - 3:00)
+- **BREAK** (3:00 - 3:30)
+- Preparing data for Resource Selection Function (RSF) analysis (3:30 - 4:30)
+
 ## Computing requirements
 
 You will require the following software installed and configured for the workshop. Please have this set up and ready to go **before** we start.

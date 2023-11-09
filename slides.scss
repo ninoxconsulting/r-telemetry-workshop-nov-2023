@@ -1,4 +1,5 @@
 /*-- scss:defaults --*/
+
 $body-bg-inverse: #383D3D;
 $body-bg: #f0f1eb;
 $code-block-bg: lighten($body-bg, 5%);
@@ -37,4 +38,12 @@ $code-block-border-color: darken($body-bg, 20%);
 .reveal .inverse {
   background-color: $body-bg-inverse;
   color: $body-bg;
+}
+
+.larger {
+  font-size: 1.5em;
+}
+
+.smaller {
+  font-size: 0.75em;
 }
