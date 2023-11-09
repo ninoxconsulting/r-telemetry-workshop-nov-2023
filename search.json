@@ -410,14 +410,14 @@
     "href": "00-intro-setup.html",
     "title": "Introduction and System Setup",
     "section": "",
-    "text": "This two-day course will introduce you to the basics of working with telemetry data in R.\nWe will providing a data set to use throughout the workshop, but we encourage you to bring along your own data for the hackathon session (Friday AM).\n\n\n\nThe basics of spatial data in R\nHow to read in, clean, and QA your telemetry data\nHow to create useful summaries of your data\nData visualization techniques for spatial and telemetry data (graphs and maps)\nHow to use the bcmaps and bcdata packages to get vector and raster data from official BC government sources.\nHow to perform spatial operations to compile and generate landcape covariates\nHow to extract spatial information for telemetry and random location points\n\n\n\n\n\nMethodological details on technical telemetry parameters i.e. DOP estimates\nAdvanced modeling techniques"
+    "text": "This two-day course will introduce you to the basics of working with telemetry data in R.\nWe will providing a data set to use throughout the workshop, but we encourage you to bring along your own data for the hackathon session (Friday AM).\n\n\n\nThe basics of spatial data in R\nHow to read in, clean, and QA your telemetry data\nHow to create useful summaries of your data\nData visualization techniques for spatial and telemetry data (graphs and maps)\nHow to use the bcmaps and bcdata packages to get vector and raster data from official BC government sources.\nHow to perform spatial operations to compile and generate landcape covariates\nHow to extract spatial information for telemetry and random location points\n\n\n\n\n\nMethodological details on technical telemetry parameters i.e. DOP estimates\nAdvanced modeling techniques\n\n\n\n\n\n\n\nSetup and troubleshooting (8:30 - 9:00)\nWorking with spatial data in R (9:00 - 10:30)\nBREAK (10:30 - 11:00)\nTelemetry data in R; clean, QA, and prepare data (Part I; 11:00 - 12:30)\nLUNCH (12:30 - 1:30)\nTelemetry data in R; clean, QA, and prepare data (Part II; 1:30 - 3:00)\nBREAK (3:00 - 3:30)\nVisualizing spatial data in R (3:30 - 4:30)\n\n\n\n\n\nSetup and troubleshooting (8:30 - 9:00)\nRetrieving spatial data from the B.C. Data Catalogue (9:00 - 10:30)\nBREAK (10:30 - 11:00)\nGetting and working with raster data (Part I; 11:00 - 12:30)\nLUNCH (12:30 - 1:30)\nPreparing base data for telemetry analysis (Part II; 1:30 - 3:00)\nBREAK (3:00 - 3:30)\nPreparing data for Resource Selection Function (RSF) analysis (3:30 - 4:30)"
   },
   {
     "objectID": "00-intro-setup.html#overview",
     "href": "00-intro-setup.html#overview",
     "title": "Introduction and System Setup",
     "section": "",
-    "text": "This two-day course will introduce you to the basics of working with telemetry data in R.\nWe will providing a data set to use throughout the workshop, but we encourage you to bring along your own data for the hackathon session (Friday AM).\n\n\n\nThe basics of spatial data in R\nHow to read in, clean, and QA your telemetry data\nHow to create useful summaries of your data\nData visualization techniques for spatial and telemetry data (graphs and maps)\nHow to use the bcmaps and bcdata packages to get vector and raster data from official BC government sources.\nHow to perform spatial operations to compile and generate landcape covariates\nHow to extract spatial information for telemetry and random location points\n\n\n\n\n\nMethodological details on technical telemetry parameters i.e. DOP estimates\nAdvanced modeling techniques"
+    "text": "This two-day course will introduce you to the basics of working with telemetry data in R.\nWe will providing a data set to use throughout the workshop, but we encourage you to bring along your own data for the hackathon session (Friday AM).\n\n\n\nThe basics of spatial data in R\nHow to read in, clean, and QA your telemetry data\nHow to create useful summaries of your data\nData visualization techniques for spatial and telemetry data (graphs and maps)\nHow to use the bcmaps and bcdata packages to get vector and raster data from official BC government sources.\nHow to perform spatial operations to compile and generate landcape covariates\nHow to extract spatial information for telemetry and random location points\n\n\n\n\n\nMethodological details on technical telemetry parameters i.e. DOP estimates\nAdvanced modeling techniques\n\n\n\n\n\n\n\nSetup and troubleshooting (8:30 - 9:00)\nWorking with spatial data in R (9:00 - 10:30)\nBREAK (10:30 - 11:00)\nTelemetry data in R; clean, QA, and prepare data (Part I; 11:00 - 12:30)\nLUNCH (12:30 - 1:30)\nTelemetry data in R; clean, QA, and prepare data (Part II; 1:30 - 3:00)\nBREAK (3:00 - 3:30)\nVisualizing spatial data in R (3:30 - 4:30)\n\n\n\n\n\nSetup and troubleshooting (8:30 - 9:00)\nRetrieving spatial data from the B.C. Data Catalogue (9:00 - 10:30)\nBREAK (10:30 - 11:00)\nGetting and working with raster data (Part I; 11:00 - 12:30)\nLUNCH (12:30 - 1:30)\nPreparing base data for telemetry analysis (Part II; 1:30 - 3:00)\nBREAK (3:00 - 3:30)\nPreparing data for Resource Selection Function (RSF) analysis (3:30 - 4:30)"
   },
   {
     "objectID": "00-intro-setup.html#computing-requirements",
@@ -567,6 +567,20 @@
     "text": "Welcome"
   },
   {
+    "objectID": "01-intro-motivation.html#agenda---day-1",
+    "href": "01-intro-motivation.html#agenda---day-1",
+    "title": "Introduction and Motivation",
+    "section": "Agenda - Day 1",
+    "text": "Agenda - Day 1\n\n\nSetup and troubleshooting (8:30 - 9:00)\nWorking with spatial data in R (9:00 - 10:30)\nBREAK (10:30 - 11:00)\nTelemetry data in R; clean, QA, and prepare data (Part I; 11:00 - 12:30)\nLUNCH (12:30 - 1:30)\nTelemetry data in R; clean, QA, and prepare data (Part II; 1:30 - 3:00)\nBREAK (3:00 - 3:30)\nVisualizing spatial data in R (3:30 - 4:30)"
+  },
+  {
+    "objectID": "01-intro-motivation.html#agenda---day-2",
+    "href": "01-intro-motivation.html#agenda---day-2",
+    "title": "Introduction and Motivation",
+    "section": "Agenda - Day 2",
+    "text": "Agenda - Day 2\n\n\nSetup and troubleshooting (8:30 - 9:00)\nRetrieving spatial data from the B.C. Data Catalogue (9:00 - 10:30)\nBREAK (10:30 - 11:00)\nGetting and working with raster data (Part I; 11:00 - 12:30)\nLUNCH (12:30 - 1:30)\nPreparing base data for telemetry analysis (Part II; 1:30 - 3:00)\nBREAK (3:00 - 3:30)\nPreparing data for Resource Selection Function (RSF) analysis (3:30 - 4:30)"
+  },
+  {
     "objectID": "01-intro-motivation.html#code-of-conduct",
     "href": "01-intro-motivation.html#code-of-conduct",
     "title": "Introduction and Motivation",
@@ -578,21 +592,7 @@
     "href": "01-intro-motivation.html#housekeeping",
     "title": "Introduction and Motivation",
     "section": "Housekeeping",
-    "text": "Housekeeping"
-  },
-  {
-    "objectID": "01-intro-motivation.html#sticky-notes",
-    "href": "01-intro-motivation.html#sticky-notes",
-    "title": "Introduction and Motivation",
-    "section": "Sticky Notes",
-    "text": "Sticky Notes"
-  },
-  {
-    "objectID": "01-intro-motivation.html#agenda",
-    "href": "01-intro-motivation.html#agenda",
-    "title": "Introduction and Motivation",
-    "section": "Agenda",
-    "text": "Agenda"
+    "text": "Housekeeping\nWiFi:\nWashrooms:\nEtherpad: https://etherpad.andyteucher.ca/p/r-telemetry-pg"
   },
   {
     "objectID": "01-intro-motivation.html#motivation",
@@ -606,13 +606,13 @@
     "href": "01-intro-motivation.html#motivation-1",
     "title": "Introduction and Motivation",
     "section": "Motivation",
-    "text": "Motivation"
+    "text": "Motivation\nSpatial Data Science with a GUI"
   },
   {
     "objectID": "01-intro-motivation.html#motivation-2",
     "href": "01-intro-motivation.html#motivation-2",
     "title": "Introduction and Motivation",
     "section": "Motivation",
-    "text": "Motivation\n\n\n\nWorkshop Home"
+    "text": "Motivation\nSpatial Data Science with R\n\n\n\nWorkshop Home"
   }
 ]
