@@ -35,6 +35,15 @@ library(bcmaps)
 - Use `mapview` and `sf` to preview spatial data
 - How to do basic operations with spatial data using `sf`
 
+## Before we start
+
+Get the course materials (if you haven't already):
+
+```{r}
+#| eval: false
+usethis::use_course("https://tinyurl.com/3dmxtxaz")
+```
+
 ---
 
 ![](images/vector-raster.png){fig-alt="Vector-Raster" fig-align="center"}
@@ -257,7 +266,7 @@ st_crs(3005)
 ## Your turn {.inverse}
 <br>
 
-### Read in the electoral districts data in the `data` folder:
+### Read in the electoral districts data in the `raw_data` folder:
 
 - What type of geometry is it?
 - What is the CRS?

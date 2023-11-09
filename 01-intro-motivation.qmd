@@ -1,3 +1,80 @@
 ---
 title: "Introduction and Motivation"
+format: 
+  revealjs:
+    theme: [serif, slides.scss]
+    code-copy: false
+footer: "[Workshop Home](https://ninoxconsulting.github.io/r-telemetry-workshop-nov-2023)"
 ---
+
+## Welcome
+
+## Agenda - Day 1
+
+::: { .smaller }
+
+- Setup and troubleshooting (8:30 - 9:00)
+- Working with spatial data in R (9:00 - 10:30)
+- **BREAK** (10:30 - 11:00)
+- Telemetry data in R; clean, QA, and prepare data (Part I; 11:00 - 12:30)
+- **LUNCH** (12:30 - 1:30)
+- Telemetry data in R; clean, QA, and prepare data (Part II; 1:30 - 3:00)
+- **BREAK** (3:00 - 3:30)
+- Visualizing spatial data in R (3:30 - 4:30)
+
+:::
+
+## Agenda - Day 2
+
+::: { .smaller }
+
+- Setup and troubleshooting (8:30 - 9:00)
+- Retrieving spatial data from the B.C. Data Catalogue (9:00 - 10:30)
+- **BREAK** (10:30 - 11:00)
+- Getting and working with raster data (Part I; 11:00 - 12:30)
+- **LUNCH** (12:30 - 1:30)
+- Preparing  base data for telemetry analysis (Part II; 1:30 - 3:00)
+- **BREAK** (3:00 - 3:30)
+- Preparing data for Resource Selection Function (RSF) analysis (3:30 - 4:30)
+
+:::
+
+## Code of Conduct
+
+
+
+## Housekeeping
+
+**WiFi:**
+
+**Washrooms:**
+
+**Etherpad:** https://etherpad.andyteucher.ca/p/r-telemetry-pg
+
+---
+
+[Sticky Notes]{.larger .absolute top=100 left=50}
+
+![](images/sticky-notes.png){.absolute top=0 left=450 width="600"}
+
+![](images/computer-sticky-1.png){.absolute bottom=0 left=0 width="300"}
+
+![](images/computer-sticky-2.png){.absolute bottom=0 left=350 width="450"}
+
+## Motivation
+
+The Data Science Workflow
+
+![](images/data-science-cycle.png){.middle}
+
+## Motivation
+
+Spatial Data Science with a GUI
+
+![](images/full-cycle.png){fig-align=center}
+
+## Motivation
+
+Spatial Data Science with R
+
+![](images/R-flow.png){fig-align=center}

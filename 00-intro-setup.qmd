@@ -2,29 +2,55 @@
 title: "Introduction and System Setup"
 ---
 
-
-## Workshop Overview
+## Overview
 
 This two-day course will introduce you to the basics of working with telemetry data in R.
 
-### The worksop will include: 
-- The basics of spatial data in R
-- How to read in, clean, and QA your telemetry data
-- How to create useful summaries of your data
-- Data visualization techniques for spatial and telemetry data (graphs and maps)
-- How to use the `bcmaps` and `bcdata` packages to get vector and raster data from
-official BC government sources.
-- How to perform spatial operations to model covariates
+We will providing a data set to use throughout the workshop, but we encourage you to bring along your own data for the hackathon session (Friday AM).
 
-### The workshop will not include: 
-- Methodological detail of telemetry methods ie DOP calculations
-- Advanced modeling techniques
-- We wont be working with individual datasets (until Friday!)
+### The workshop will include:
+
+-   The basics of spatial data in R
+-   How to read in, clean, and QA your telemetry data
+-   How to create useful summaries of your data
+-   Data visualization techniques for spatial and telemetry data (graphs and maps)
+-   How to use the `bcmaps` and `bcdata` packages to get vector and raster data from official BC government sources.
+-   How to perform spatial operations to compile and generate landcape covariates
+-   How to extract spatial information for telemetry and random location points
+
+### The workshop will not include:
+
+-   Methodological details on technical telemetry parameters i.e. DOP estimates
+
+-   Advanced modeling techniques
+
+### Agenda
+
+#### Day 1
+
+- Setup and troubleshooting (8:30 - 9:00)
+- Working with spatial data in R (9:00 - 10:30)
+- **BREAK** (10:30 - 11:00)
+- Telemetry data in R; clean, QA, and prepare data (Part I; 11:00 - 12:30)
+- **LUNCH** (12:30 - 1:30)
+- Telemetry data in R; clean, QA, and prepare data (Part II; 1:30 - 3:00)
+- **BREAK** (3:00 - 3:30)
+- Visualizing spatial data in R (3:30 - 4:30)
+
+#### Day 2
+
+- Setup and troubleshooting (8:30 - 9:00)
+- Retrieving spatial data from the B.C. Data Catalogue (9:00 - 10:30)
+- **BREAK** (10:30 - 11:00)
+- Getting and working with raster data (Part I; 11:00 - 12:30)
+- **LUNCH** (12:30 - 1:30)
+- Preparing  base data for telemetry analysis (Part II; 1:30 - 3:00)
+- **BREAK** (3:00 - 3:30)
+- Preparing data for Resource Selection Function (RSF) analysis (3:30 - 4:30)
 
 ## Computing requirements
 
-You will require the following software installed and configured for the workshop.
-Please have this set up and ready to go **before** we start.
+You will require the following software installed and configured for the workshop. Please have this set up and ready to go **before** we start.
 
 You will need:
 
@@ -50,10 +76,9 @@ If you do not have administrator rights, the installer will default to installin
 
 #### Install R Studio
 
-Download and install RStudio Desktop from <https://posit.co/download/rstudio-desktop/>.
-This page should automatically offer you the version suitable for your operating system, but you can scroll down to find versions for all operating systems.
+Download and install RStudio Desktop from <https://posit.co/download/rstudio-desktop/>. This page should automatically offer you the version suitable for your operating system, but you can scroll down to find versions for all operating systems.
 
-##### Windows with no admin rights:
+##### Windows with admin rights:
 
 Download the `.zip` archive for Windows under "Zip/Tarballs". Create a folder called `RStudio` in a location on your `C:/` drive, where you have write access (e.g. `C:/Users/username/AppData/Local/Programs/RStudio`), and extract the zip file into this folder. Find the RStudio program in this folder: it is named `rstudio.exe`, but the file extension will typically be hidden, so look for `rstudio`. Right-click this file to create a shortcut and drag it to your desktop/task bar. Use the shortcut to open RStudio.
 
@@ -64,12 +89,29 @@ In R, install the necessary packages by running:
 ```{r}
 #| eval: false
 install.packages(
-  c("tidyverse", "sf", "terra", "tmap", "mapview", "bcdata", "bcmaps", "readxl")
+  c("tidyverse", "sf", "terra", "mapview", "bcdata", "bcmaps", "readxl", "ggplot2", "usethis")
 )
 ```
 
-### QGIS {#qgis}
+### QGIS (optional) {#qgis}
 
 QGIS is a free and open-source geographic information system (GIS) that allows you to create, edit, visualize, analyze and publish geospatial information.
 
 Download and install from the [QGIS website](https://qgis.org/en/site/forusers/download.html).
+
+## Course materials and data
+
+We have created an empty RStudio project containing the course data.
+
+The easiest way to get started to run:
+
+```{r}
+#| eval: false
+usethis::use_course("https://tinyurl.com/3dmxtxaz")
+```
+
+This will download the course materials, save them in a logical spot on your computer, 
+and open the project in a new RStudio session.
+
+Alternatively, you can download the zip file from [here](https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/raw/main/r-telemetry-workshop.zip), decompress the zip file somewhere convenient on your C:/ drive. Then, navigate to the newly created folder (called `r-telemetry-workshop`), 
+and double click on the `r-telemetry-workshop.Rproj` file to open the project in RStudio.

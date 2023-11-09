@@ -1,3 +1,97 @@
 ---
 title: "Generating Kernel Density Estimates"
 ---
+
+
+
+## Overview
+
+In this module we will use caribou data to create home range estimates using kernal density and minimum convex polygons. 
+
+
+
+```{r}
+library(sf)
+#install.packages("ks")
+library(ks)
+library(mapview)
+
+
+scott <- st_read("clean_data/caribou.gpkg") %>% 
+  st_transform(3005)
+
+spt <- scott %>% 
+  st_coordinates(scott)
+  
+x <- spt
+
+
+
+st_boundary(scott) 
+
+# minimujm convex polygons
+
+
+pts1 <- st_as_sf(x = scott, coords = c('location.long', 'location.lat'))
+my_hull <- st_convex_hull(st_union(pts1))
+plot(my_hull)
+plot(pts1[1], cex=2, col="blue", add = T)
+
+
+# 
+# 
+# set.seed(8192) 
+# samp<-200 
+# mus<-rbind(c(-2,2),c(0,0),c(2,-2)) 
+# Sigmas<-rbind(diag(2),matrix(c(0.8,-0.72,-0.72,0.8),nrow=2),diag(2)) 
+# cwt<-3/11 
+# props<-c((1-cwt)/2,cwt,(1-cwt)/2) 
+# x<-rmvnorm.mixt(n=samp,mus=mus,Sigmas=Sigmas,props=props)
+
+
+# Kernal density 
+
+# using = h ref 
+
+Hpi1 <- Hpi(x=x)
+Hpi2 <- Hpi.diag(x = x)
+
+
+fhat.pi1 <-kde(x=x,H=Hpi1) 
+fhat.pi2 <-kde(x=x,H=Hpi2)
+
+
+plot(fhat.pi1)
+plot(fhat.pi1)
+
+
+```
+
+# unconstrained Smoothed Cross Validation 
+
+```{r}
+
+
+Hscv1 <-Hscv(x=x)
+Hscv2 <-Hscv.diag(x=x)
+
+
+
+fhat.pi11<-kde(x=x,H=Hscv1) 
+fhat.pi22<-kde(x=x,H=Hscv2)
+
+plot(fhat.pi11)
+plot(fhat.pi22)
+
+```
+
+
+
+
+
+
+
+
+
+
+

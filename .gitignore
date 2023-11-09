@@ -5,5 +5,11 @@
 /.quarto/
 /_site/
 /docs/
-intro-spatial-data_files
-intro-spatial-data_cache
+*_cache
+# images in the root directory
+/*.jpg
+/*.jpeg
+02-intro-spatial-data_files
+03-intro-telemetry-data_files
+06-raster-data_files
+07-processing-vector-data_files

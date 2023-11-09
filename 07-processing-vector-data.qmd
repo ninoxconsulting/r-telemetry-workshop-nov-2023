@@ -1,9 +1,173 @@
 ---
 title: "Processing Base Vector Data"
+params:
+  write: false
 ---
 
+## Overview:
+
+In this module we will post-process the vector data we prepared earlier to generate some additional covariates using the **terra** package. We will also prepare all data for the analysis. This includes  
+
+-   generating a road density layer
+
+-   calculating distance to water metrics
+
+-   converting our prepared vector to raster
+
+-   building a raster stack with all covariate data
 
 
-## Calculating distance to roads/water
+## 1. Calculate density of road network. 
+
+Often we want to post-process our raw vector data to create more meaningful covariates in our analysis. In this case we are interested in the density of roads and how this might impact our caribou habitat choice. 
 
 
+```{r}
+#| message: false
+# load in the libraries needed
+
+library(bcdata)
+library(sf)
+library(dplyr)
+library(terra)
+
+# read in raster template
+template <- rast(file.path("clean_data", "template.tif"))
+```
+
+We can assume that the type of road will have a different impact on Caribou avoidance or predator use. We can assign a value based on the road type. In this case we will assign a higher value to roads used more frequently.
+
+```{r}
+
+# read in roads
+roads <- read_sf(file.path("clean_data", "roads.gpkg"))
+
+# assign a value to the roads based on estimated speed of travel or use
+
+roads <- roads %>% 
+  mutate(rd_value = case_when(
+            ROAD_SURFACE == "loose" ~ 25,
+            ROAD_SURFACE == "overgrown" ~ 5,
+            ROAD_SURFACE == "rough" ~ 10,
+            ROAD_SURFACE == "unknown" ~ 7.5)) 
+
+
+```
+
+Now we can convert this to a raster using the template we created already
+
+```{r}
+# convert roads to a raster 
+rroads <- rasterize(roads, template, field = "rd_value" )
+
+plot(rroads)
+```
+As the impact of the roads is likely to impact a wider influence than a single pixal we can use a moving window analysis to expand the influence of roads for a given value. 
+
+```{r}
+# create a moving window 
+rrdens <- focal(rroads, w=9, fun="sum", na.rm=TRUE)
+
+plot(rrdens)
+```
+
+```{r}
+#| eval: !expr '!file.exists(file.path("clean_data", "road_density.tif")) || isTRUE(params$write)'
+
+writeRaster(rrdens, file.path("clean_data", "road_density.tif"), overwrite = TRUE) 
+```
+
+
+
+## 2. Calculate distance from water
+
+While density provides a measure of impact we may also be interested in capturing the distance of fixes to caribou points. In this case we will explore the distance to water bodies within the study areas. 
+
+```{r}
+
+# read in water 
+water <- read_sf(file.path("clean_data", "water.gpkg"))
+
+# calculate the distance to water for each pixel in the raster
+# be patient - this might take some time. 
+water_dis <- distance(template, water, unit = "km")
+
+plot(water_dis)
+
+# what sort of values are we seeing?
+range(water_dis)
+sort(unique(values(water_dis)))
+range(unique(values(water_dis)))
+
+```
+
+
+## 3. Convert base vector data to rasters 
+
+We can also convert each vector layer we extracted into a raster. 
+
+
+Note this can also be done at the vector stage, however predictive modelling will normally require a stacked covariate list so that you can predict from the built model 
+
+```{r}
+
+bec <- read_sf(file.path("clean_data","bec.gpkg"))
+vri_cc <- read_sf(file.path("clean_data","vri_cc.gpkg"))
+vri_conif <- read_sf(file.path("clean_data","vri_conif.gpkg"))
+vri_ageclass <- read_sf(file.path("clean_data","vri_ageclass.gpkg"))
+#water
+#roads 
+#cutblocks
+
+
+
+
+# convert to rasters
+vri_cc <- rasterize(vri_cc, template, field = "cc_class" )
+vri_conif <- rasterize(vri_conif, template, field = "conif" )
+vri_ageclass <- rasterize(vri_ageclass, template, field = "age_class" )
+
+
+# stack into a set of rasters
+vect_stack <- c(vri_cc, vri_conif, vri_ageclass, water_dis, rrdens)
+
+
+```
+
+## Lets combine our already created rasters 
+
+```{r}
+
+rslope <- rast(file.path("clean_data","slope.tif"))
+aspect <- rast(file.path("clean_data","aspect.tif"))
+tri  <- rast(file.path("clean_data","tri.tif"))
+trim_3005 <- rast(file.path("clean_data","dem.tif"))
+
+
+
+# create a raster stack
+rast_stack <- c(trim_3005, rslope, aspect, tri)
+
+
+```
+
+
+## 4. Combine raster layers into a stack 
+
+```{r}
+
+# lets combine both the raster stack and the vector stack 
+
+all_stack <- c(vect_stack, rast_stack)
+
+plot(all_stack)
+
+# we can write this out as a tif (raster object) 
+#writeRaster(all_stack, file.path("clean_data", "rstack.tif"), overwrite = T)
+```
+
+Or we can write this out to a very small R object 
+```{r}
+#| eval: !expr '!file.exists(file.path("clean_data", "covars.RDS")) || isTRUE(params$write)'
+saveRDS(all_stack, file.path("clean_data", "covars.RDS")) # much faster
+```
