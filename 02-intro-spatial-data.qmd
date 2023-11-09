@@ -257,7 +257,7 @@ st_crs(3005)
 ## Your turn {.inverse}
 <br>
 
-### Read in the electoral districts data in the `data` folder:
+### Read in the electoral districts data in the `raw_data` folder:
 
 - What type of geometry is it?
 - What is the CRS?
