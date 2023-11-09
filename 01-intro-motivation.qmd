@@ -1,5 +1,34 @@
 ---
 title: "Introduction and Motivation"
+format: 
+  revealjs:
+    theme: [serif, slides.scss]
+    code-copy: false
+footer: "[Workshop Home](https://ninoxconsulting.github.io/r-telemetry-workshop-nov-2023)"
 ---
 
-## Agenda? 
+## Welcome
+
+## Code of Conduct
+
+## Housekeeping
+
+## Sticky Notes
+
+![](images/sticky-notes.png)
+
+## Agenda
+
+## Motivation
+
+### The Data Science Workflow
+
+![](images/data-science-cycle.png)
+
+## Motivation
+
+![](images/full-cycle.png)
+
+## Motivation
+
+![](images/R-flow.png)
