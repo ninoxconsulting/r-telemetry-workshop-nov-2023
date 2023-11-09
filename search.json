@@ -28,6 +28,13 @@
     "text": "Learning objectives\n\nThe “simple features” representation of vector data\nUse and understand sf objects in R\nBasic understanding of Coordinate Reference Systems (CRS)\nUse mapview and sf to preview spatial data\nHow to do basic operations with spatial data using sf"
   },
   {
+    "objectID": "02-intro-spatial-data.html#before-we-start",
+    "href": "02-intro-spatial-data.html#before-we-start",
+    "title": "Introduction to Spatial Data with R",
+    "section": "Before we start",
+    "text": "Before we start\nGet the course materials (if you haven’t already):\n\nusethis::use_course(\"https://tinyurl.com/3dmxtxaz\")"
+  },
+  {
     "objectID": "02-intro-spatial-data.html#vector-simple-features",
     "href": "02-intro-spatial-data.html#vector-simple-features",
     "title": "Introduction to Spatial Data with R",
@@ -95,7 +102,7 @@
     "href": "02-intro-spatial-data.html#your-turn",
     "title": "Introduction to Spatial Data with R",
     "section": "Your turn",
-    "text": "Your turn\n\nRead in the electoral districts data in the data folder:\n\nWhat type of geometry is it?\nWhat is the CRS?\nWhat is the EPSG code?"
+    "text": "Your turn\n\nRead in the electoral districts data in the raw_data folder:\n\nWhat type of geometry is it?\nWhat is the CRS?\nWhat is the EPSG code?"
   },
   {
     "objectID": "02-intro-spatial-data.html#solution",
