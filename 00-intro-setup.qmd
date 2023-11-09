@@ -65,7 +65,7 @@ In R, install the necessary packages by running:
 ```{r}
 #| eval: false
 install.packages(
-  c("tidyverse", "sf", "terra", "mapview", "bcdata", "bcmaps", "readxl, ggplot2")
+  c("tidyverse", "sf", "terra", "mapview", "bcdata", "bcmaps", "readxl, ggplot2", "usethis")
 )
 ```
 
@@ -74,3 +74,20 @@ install.packages(
 QGIS is a free and open-source geographic information system (GIS) that allows you to create, edit, visualize, analyze and publish geospatial information.
 
 Download and install from the [QGIS website](https://qgis.org/en/site/forusers/download.html).
+
+## Course materials and data
+
+We have created an empty RStudio project containing the course data.
+
+The easiest way to get started to run:
+
+```{r}
+#| eval: false
+usethis::use_course("https://tinyurl.com/3dmxtxaz")
+```
+
+This will download the course materials, save them in a logical spot on your computer, 
+and open the project in a new RStudio session.
+
+Alternatively, you can download the zip file from [here](https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/raw/main/r-telemetry-workshop.zip), decompress the zip file somewhere convenient on your C:/ drive. Then, navigate to the newly created folder (called `r-telemetry-workshop`), 
+and double click on the `r-telemetry-workshop.Rproj` file to open the project in RStudio.
