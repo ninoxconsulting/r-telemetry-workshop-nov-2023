@@ -7,7 +7,8 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-7840-692X"))
   )
 Description: A workshop for biologists on using R for spatial data and
-    analysis of wildife telemetry data.
+    analysis of wildife telemetry data. This file lists the packages needed
+    to render on GitHub Actions, not all the packages required to build the site.
 License: MIT + file LICENSE
 URL: https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023
 BugReports: 
