@@ -1,7 +1,7 @@
 ---
 title: "Processing Base Vector Data"
 params:
-  write: false
+  write: true
 ---
 
 ## Overview:
