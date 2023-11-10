@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
-
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.3.450">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
 <title>Using R for Wildlife Telemetry Data Analysis - Generating Kernel Density Estimates</title>
 <style>
 code{white-space: pre-wrap;}
@@ -56,7 +53,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }
 </style>
 
-
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
@@ -74,8 +70,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<script id="quarto-search-options" type="application/json">{
+<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -95,16 +90,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-
-
 </head>
-
 <body class="nav-sidebar docked nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
-      <div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">Using R for Wildlife Telemetry Data Analysis</span>
@@ -116,7 +106,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
+<li class="nav-item">
     <a class="nav-link" href="./index.html" rel="" target="">
  <span class="menu-text">Home</span></a>
   </li>  
@@ -125,21 +115,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Setup instructions</span></a>
   </li>  
 </ul>
-            <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+<ul class="navbar-nav navbar-nav-scroll ms-auto">
+<li class="nav-item compact">
     <a class="nav-link" href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023" rel="" target=""><i class="bi bi-github" role="img" aria-label="GitHub">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools">
+<div class="quarto-navbar-tools">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
-    </nav>
-  <nav class="quarto-secondary-nav">
-    <div class="container-fluid d-flex">
+    </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
@@ -150,20 +138,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <i class="bi bi-search"></i>
       </button>
     </div>
-  </nav>
-</header>
-<!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto">
-        <div class="mt-2 flex-shrink-0 align-items-center">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto"><div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
         <div id="quarto-search" class="" title="Search"></div>
         </div>
         </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
-        <li class="sidebar-item sidebar-item-section">
+<li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
  <span class="menu-text">Intro to Telemetry Data and Visualization</span></a>
@@ -171,8 +155,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./00-intro-setup.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Introduction and System Setup</span></a>
@@ -203,7 +187,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
 </li>
       </ul>
-  </li>
+</li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
@@ -212,8 +196,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./05-vector-bcdata.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Getting B.C. Open Data with R</span></a>
@@ -238,7 +222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
 </li>
       </ul>
-  </li>
+</li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
@@ -247,8 +231,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./bonus-kde.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Generating Kernel Density Estimates</span></a>
@@ -267,27 +251,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
 </li>
       </ul>
-  </li>
+</li>
     </ul>
-    </div>
-</nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+</div>
+</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+<li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
   <li><a href="#unconstrained-smoothed-cross-validation" id="toc-unconstrained-smoothed-cross-validation" class="nav-link" data-scroll-target="#unconstrained-smoothed-cross-validation">unconstrained Smoothed Cross Validation</a></li>
-  </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/bonus-kde.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+  </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/bonus-kde.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
 <h1 class="title">Generating Kernel Density Estimates</h1>
 </div>
 
@@ -301,23 +279,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   
 
-</header>
-
-<section id="overview" class="level2">
-<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+</header><section id="overview" class="level2"><h2 class="anchored" data-anchor-id="overview">Overview</h2>
 <p>In this module we will use caribou data to create home range estimates using kernal density and minimum convex polygons.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/">sf</a></span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Linking to GEOS 3.11.0, GDAL 3.5.3, PROJ 9.1.0; sf_use_s2() is TRUE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages("ks")</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ks)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mapview)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>scott <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"clean_data/caribou.gpkg"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">3005</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co">#install.packages("ks")</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://www.mvstat.net/mvksa/">ks</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/r-spatial/mapview">mapview</a></span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="va">scott</span> <span class="op">&lt;-</span> <span class="fu">st_read</span><span class="op">(</span><span class="st">"clean_data/caribou.gpkg"</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">st_transform</span><span class="op">(</span><span class="fl">3005</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `caribou' from data source 
   `/Users/andy/dev/r-telemetry-workshop-nov-2023/clean_data/caribou.gpkg' 
@@ -328,14 +303,14 @@ Dimension:     XY
 Bounding box:  xmin: 1145290 ymin: 1143000 xmax: 1247842 ymax: 1227464
 Projected CRS: NAD83 / BC Albers</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>spt <span class="ot">&lt;-</span> scott <span class="sc">%&gt;%</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_coordinates</span>(scott)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> spt</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">st_boundary</span>(scott) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">spt</span> <span class="op">&lt;-</span> <span class="va">scott</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">st_coordinates</span><span class="op">(</span><span class="va">scott</span><span class="op">)</span></span>
+<span>  </span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">spt</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="fu">st_boundary</span><span class="op">(</span><span class="va">scott</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Simple feature collection with 17092 features and 15 fields (with 17092 geometries empty)
 Geometry type: GEOMETRYCOLLECTION
@@ -377,32 +352,32 @@ First 10 features:
 9  2014-07-08 11:01:00 2014     7   8   18      1 GEOMETRYCOLLECTION EMPTY
 10 2013-11-23 18:01:00 2013    11  24    2      1 GEOMETRYCOLLECTION EMPTY</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># minimujm convex polygons</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>pts1 <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(<span class="at">x =</span> scott, <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">'location.long'</span>, <span class="st">'location.lat'</span>))</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>my_hull <span class="ot">&lt;-</span> <span class="fu">st_convex_hull</span>(<span class="fu">st_union</span>(pts1))</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_hull)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pts1[<span class="dv">1</span>], <span class="at">cex=</span><span class="dv">2</span>, <span class="at">col=</span><span class="st">"blue"</span>, <span class="at">add =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># minimujm convex polygons</span></span>
+<span></span>
+<span></span>
+<span><span class="va">pts1</span> <span class="op">&lt;-</span> <span class="fu">st_as_sf</span><span class="op">(</span>x <span class="op">=</span> <span class="va">scott</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'location.long'</span>, <span class="st">'location.lat'</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">my_hull</span> <span class="op">&lt;-</span> <span class="fu">st_convex_hull</span><span class="op">(</span><span class="fu">st_union</span><span class="op">(</span><span class="va">pts1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">my_hull</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">pts1</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, cex<span class="op">=</span><span class="fl">2</span>, col<span class="op">=</span><span class="st">"blue"</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="bonus-kde_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># set.seed(8192) </span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># samp&lt;-200 </span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># mus&lt;-rbind(c(-2,2),c(0,0),c(2,-2)) </span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Sigmas&lt;-rbind(diag(2),matrix(c(0.8,-0.72,-0.72,0.8),nrow=2),diag(2)) </span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># cwt&lt;-3/11 </span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># props&lt;-c((1-cwt)/2,cwt,(1-cwt)/2) </span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># x&lt;-rmvnorm.mixt(n=samp,mus=mus,Sigmas=Sigmas,props=props)</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Kernal density </span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co"># using = h ref </span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>Hpi1 <span class="ot">&lt;-</span> <span class="fu">Hpi</span>(<span class="at">x=</span>x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># </span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># set.seed(8192) </span></span>
+<span><span class="co"># samp&lt;-200 </span></span>
+<span><span class="co"># mus&lt;-rbind(c(-2,2),c(0,0),c(2,-2)) </span></span>
+<span><span class="co"># Sigmas&lt;-rbind(diag(2),matrix(c(0.8,-0.72,-0.72,0.8),nrow=2),diag(2)) </span></span>
+<span><span class="co"># cwt&lt;-3/11 </span></span>
+<span><span class="co"># props&lt;-c((1-cwt)/2,cwt,(1-cwt)/2) </span></span>
+<span><span class="co"># x&lt;-rmvnorm.mixt(n=samp,mus=mus,Sigmas=Sigmas,props=props)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Kernal density </span></span>
+<span></span>
+<span><span class="co"># using = h ref </span></span>
+<span></span>
+<span><span class="va">Hpi1</span> <span class="op">&lt;-</span> <span class="fu">Hpi</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
 match of 'length' to 'length.out'
@@ -428,7 +403,7 @@ match of 'length' to 'length.out'
 Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
 match of 'length' to 'length.out'</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Hpi2 <span class="ot">&lt;-</span> <span class="fu">Hpi.diag</span>(<span class="at">x =</span> x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">Hpi2</span> <span class="op">&lt;-</span> <span class="fu">Hpi.diag</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
 match of 'length' to 'length.out'
@@ -448,32 +423,32 @@ match of 'length' to 'length.out'
 Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
 match of 'length' to 'length.out'</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fhat.pi1 <span class="ot">&lt;-</span><span class="fu">kde</span>(<span class="at">x=</span>x,<span class="at">H=</span>Hpi1) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">fhat.pi1</span> <span class="op">&lt;-</span><span class="fu">kde</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,H<span class="op">=</span><span class="va">Hpi1</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
 match of 'length' to 'length.out'
 
 Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in quantile.default(dobs, prob = (100 - cont)/100): partial argument
-match of 'prob' to 'probs'</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fhat.pi2 <span class="ot">&lt;-</span><span class="fu">kde</span>(<span class="at">x=</span>x,<span class="at">H=</span>Hpi2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
 match of 'length' to 'length.out'</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in quantile.default(dobs, prob = (100 - cont)/100): partial argument
 match of 'prob' to 'probs'</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fhat.pi1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">fhat.pi2</span> <span class="op">&lt;-</span><span class="fu">kde</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,H<span class="op">=</span><span class="va">Hpi2</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
+match of 'length' to 'length.out'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
+match of 'length' to 'length.out'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in quantile.default(dobs, prob = (100 - cont)/100): partial argument
+match of 'prob' to 'probs'</code></pre>
+</div>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fhat.pi1</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
 partial argument match of 'level' to 'levels'</code></pre>
@@ -498,7 +473,7 @@ partial argument match of 'level' to 'levels'</code></pre>
 <pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
 partial argument match of 'label' to 'labels'</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fhat.pi1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fhat.pi1</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
 partial argument match of 'level' to 'levels'</code></pre>
@@ -527,11 +502,9 @@ partial argument match of 'label' to 'labels'</code></pre>
 <p><img src="bonus-kde_files/figure-html/unnamed-chunk-1-2.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-</section>
-<section id="unconstrained-smoothed-cross-validation" class="level1">
-<h1>unconstrained Smoothed Cross Validation</h1>
+</section><section id="unconstrained-smoothed-cross-validation" class="level1"><h1>unconstrained Smoothed Cross Validation</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>Hscv1 <span class="ot">&lt;-</span><span class="fu">Hscv</span>(<span class="at">x=</span>x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">Hscv1</span> <span class="op">&lt;-</span><span class="fu">Hscv</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
 match of 'length' to 'length.out'
@@ -563,7 +536,7 @@ match of 'length' to 'length.out'
 Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
 match of 'length' to 'length.out'</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>Hscv2 <span class="ot">&lt;-</span><span class="fu">Hscv.diag</span>(<span class="at">x=</span>x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">Hscv2</span> <span class="op">&lt;-</span><span class="fu">Hscv.diag</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
 match of 'length' to 'length.out'
@@ -595,32 +568,32 @@ match of 'length' to 'length.out'
 Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
 match of 'length' to 'length.out'</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>fhat.pi11<span class="ot">&lt;-</span><span class="fu">kde</span>(<span class="at">x=</span>x,<span class="at">H=</span>Hscv1) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">fhat.pi11</span><span class="op">&lt;-</span><span class="fu">kde</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,H<span class="op">=</span><span class="va">Hscv1</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
 match of 'length' to 'length.out'
 
 Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in quantile.default(dobs, prob = (100 - cont)/100): partial argument
-match of 'prob' to 'probs'</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>fhat.pi22<span class="ot">&lt;-</span><span class="fu">kde</span>(<span class="at">x=</span>x,<span class="at">H=</span>Hscv2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
 match of 'length' to 'length.out'</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in quantile.default(dobs, prob = (100 - cont)/100): partial argument
 match of 'prob' to 'probs'</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fhat.pi11)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">fhat.pi22</span><span class="op">&lt;-</span><span class="fu">kde</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,H<span class="op">=</span><span class="va">Hscv2</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
+match of 'length' to 'length.out'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
+match of 'length' to 'length.out'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in quantile.default(dobs, prob = (100 - cont)/100): partial argument
+match of 'prob' to 'probs'</code></pre>
+</div>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fhat.pi11</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
 partial argument match of 'level' to 'levels'</code></pre>
@@ -648,7 +621,7 @@ partial argument match of 'label' to 'labels'</code></pre>
 <div class="cell-output-display">
 <p><img src="bonus-kde_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fhat.pi22)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fhat.pi22</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
 partial argument match of 'level' to 'levels'</code></pre>
@@ -679,10 +652,7 @@ partial argument match of 'label' to 'labels'</code></pre>
 </div>
 
 
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
