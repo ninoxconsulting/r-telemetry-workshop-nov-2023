@@ -15,6 +15,7 @@ BugReports:
 Depends: 
     bcdata,
     bcmaps,
+    ggdensity,
     ggplot2,
     mapview,
     readxl,

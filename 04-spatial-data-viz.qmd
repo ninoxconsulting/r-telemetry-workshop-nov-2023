@@ -38,7 +38,7 @@ Or, plot just one variable of interest:
 ```{r}
 #| warning: false
 caribou |> 
-  select(comments) |> # select just the herd column (called comments)
+  select(herd) |> # select just the herd column (called herd)
   plot(key.pos = 1)
 ```
 
@@ -57,7 +57,7 @@ st_geometry(nr) |>
 
 caribou |> 
   st_transform(st_crs(nr)) |> # transform so in the same crs as nr
-  select(comments) |> # select just the herd column (called comments)
+  select(herd) |> # select just the herd column (called herd)
   plot(add = TRUE)
 
 ```
@@ -74,7 +74,7 @@ We start with the data, then add the graphical marks (points, lines, bars, etc. 
 to represent the data, and specify "aesthetics" for how to map variables in our data to
 visual representations on the plot.
 
-let's start with a simple histogram of fixes over time:
+Let's start with a simple histogram of fixes over time:
 
 ```{r}
 library(ggplot2)
@@ -99,7 +99,7 @@ ggplot(data = caribou) + # start with data
   geom_histogram( # specify the geom
     aes( # specify aesthetics - how to map variables to visual representations
       x = date_time,
-      fill = comments
+      fill = herd
     ), 
     position = "dodge" # make the bars side by side instead of stacked
   )
@@ -115,7 +115,7 @@ ggplot(data = caribou) +
 ```{r}
 ggplot(data = caribou) +
   geom_sf(
-    aes(colour = comments, shape = animal.sex)
+    aes(colour = herd, shape = animal.sex)
   )
 ```
 
@@ -127,7 +127,7 @@ obscured. We can fix this in several ways:
 ```{r}
 ggplot(data = caribou) +
   geom_sf(
-    aes(colour = comments), 
+    aes(colour = herd), 
     alpha = 0.2
   ) + 
   scale_colour_viridis_d() + 
@@ -154,9 +154,23 @@ ggplot(data = caribou) +
   geom_hex(aes(x = X, y = Y)) + 
   scale_fill_viridis_c() + 
   coord_sf() +
-  facet_wrap(vars(comments)) +
+  facet_wrap(vars(herd)) +
   theme_bw()
 ```
+
+If we want to add multiple layers together, we simply add multiple geoms, and
+add the name of the layer to the `data` argument in each:
+
+```{r}
+ggplot() +
+  geom_sf(data = nr) + 
+  geom_hex(aes(x = X, y = Y), data = caribou) + 
+  scale_fill_viridis_c() + 
+  facet_wrap(vars(herd)) +
+  theme_bw()
+```
+
+We can zoom in be specifying the limits in `coord_sf()`
 
 ```{r}
 ggplot() +
@@ -164,11 +178,23 @@ ggplot() +
   geom_hex(aes(x = X, y = Y), data = caribou) + 
   scale_fill_viridis_c() + 
   coord_sf(
-    xlim = st_bbox(caribou)[c(1,3)] + c(-20000, 20000), 
-    ylim = st_bbox(caribou)[c(2,4)] + c(-20000, 20000)
+    xlim = st_bbox(caribou)[c("xmin","xmax")] + c(-20000, 20000), 
+    ylim = st_bbox(caribou)[c("ymin","ymax")] + c(-20000, 20000)
   ) +
-  facet_wrap(vars(comments)) +
+  facet_wrap(vars(herd)) +
   theme_bw()
 ```
 
+We can also visualize the probability density of fixes, using the `{ggdensity}` package:
+
+```{r}
+#| warning: false
+library(ggdensity)
+
+ggplot(data = caribou) +
+  geom_hdr(aes(x = X, y = Y, fill = herd)) + 
+  scale_alpha_discrete(guide = "none") +
+  coord_sf() + 
+  theme_bw()
+```
 
