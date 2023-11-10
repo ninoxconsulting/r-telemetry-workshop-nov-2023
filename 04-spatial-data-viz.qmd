@@ -124,20 +124,34 @@ obscured. We can fix this in several ways:
 
 ### Transparency
 
+We can see the density of points better by making them partially transparent. 
+We do this by setting the `alpha` aesthetic to a value between 0 and 1 
+(0 is fully transparent, 1 is fully opaque).
+
 ```{r}
 ggplot(data = caribou) +
   geom_sf(
     aes(colour = herd), 
-    alpha = 0.2
+    alpha = 0.1
   ) + 
   scale_colour_viridis_d() + 
+  theme_bw()
+```
+
+```{r}
+ggplot(data = caribou) +
+  geom_sf(
+    aes(colour = herd), 
+    alpha = 0.1
+  ) + 
+  scale_colour_viridis_d() + 
+  facet_wrap(vars(month)) +
   theme_bw()
 ```
 
 ### Binning
 
 ```{r}
-# TODO: Gen will update the gpkg to keep the coordinates as columns
 caribou <- cbind(st_coordinates(caribou), caribou)
 
 ggplot(data = caribou) +
@@ -185,6 +199,8 @@ ggplot() +
   theme_bw()
 ```
 
+## Density
+
 We can also visualize the probability density of fixes, using the `{ggdensity}` package:
 
 ```{r}
@@ -193,8 +209,84 @@ library(ggdensity)
 
 ggplot(data = caribou) +
   geom_hdr(aes(x = X, y = Y, fill = herd)) + 
-  scale_alpha_discrete(guide = "none") +
+  scale_fill_viridis_d(option = "turbo") +
   coord_sf() + 
   theme_bw()
 ```
+
+```{r}
+#| warning: false
+#| fig-width: 10
+
+month_labels <- setNames(month.name, 1:12)
+
+ggplot(data = caribou) +
+  geom_hdr(aes(x = X, y = Y, fill = herd)) + 
+  scale_fill_viridis_d(option = "turbo") + 
+  scale_alpha_discrete(guide = "none") +
+  coord_sf() + 
+  facet_wrap(
+    vars(month),
+    labeller = as_labeller(month_labels)
+    ) +
+  theme_bw() + 
+  labs(
+    title = "Probability density of caribou locations, by month", 
+    x = element_blank(), 
+    y = element_blank(), 
+    fill = "Herd"
+  )
+```
+
+## Add a base map, north arrow, & scale
+
+We can use functions from the `{ggspatial}` package to add some nice 
+touches to our map to make it pretty.
+
+We can also customize the labels, legend, and theme elements
+
+```{r}
+#| warning: false
+#| fig-width: 10
+#| fig-height: 8
+# install.packages(c("ggspatial", "prettymapr"))
+library(ggspatial)
+
+ggplot(caribou) +
+  # add background map
+  annotation_map_tile(zoom = 9) + 
+  # add points
+  geom_sf(aes(colour = herd), alpha = 0.1) + 
+  # set colour palette and increase legend alpha so you can see it
+  scale_colour_viridis_d(
+    option = "turbo", 
+    guide = guide_legend(override.aes = list(alpha = 0.5))) + 
+  # Add a North arrow and scale bar
+  annotation_north_arrow(style = north_arrow_nautical()) + 
+  annotation_scale(location = "tr") + 
+    coord_sf() + 
+  # Facet by month, custom label the facets
+  facet_wrap(
+    vars(month),
+    labeller = as_labeller(month_labels)
+    ) +
+  # Add a title, remove X and Y labels
+  labs(
+    title = "Probability density of caribou locations, by month", 
+    x = element_blank(), 
+    y = element_blank(), 
+    colour = "Herd"
+  ) + 
+  # Set background of facet labels and legend to white, 
+  # put legend on the bottom
+  theme(
+    strip.background = element_rect(fill = "white"),
+    legend.key = element_rect(fill = "white"),
+    legend.position = "bottom"
+  )
+```
+
+
+
+
 
