@@ -1,7 +1,7 @@
 ---
 title: "Exploring Raster Data"
 params:
-  write: false
+  write: true
 ---
 
 ## Overview:
@@ -43,26 +43,20 @@ Read in our AOI that we made and saved previously. We can then convert this to a
 
 # read in the spatial file
 
-bou <- read_sf(file.path("clean_data/scott_herd_subset.gpkg"))
+bou <- read_sf("clean_data/scott_herd_subset.gpkg")
 ```
 
 ```{r}
 
 # read in the aoi previously created
-aoi <- read_sf(file.path("clean_data", "scott_aoi.gpkg"))
+aoi <- read_sf("clean_data/scott_aoi.gpkg")
 ```
 
 We can now convert our polygon to a raster object.
 
 ```{r}
 # create a template raster with a resolution of 25m
-template <- rast(aoi , resolution = 25)
-
-# create a column name
-names(template) = "aoi"
-
-# assign all values to zero 
-values(template) <- 0
+template <- rast(aoi, resolution = 25, names = "aoi", vals = 0)
 ```
 
 
@@ -70,7 +64,7 @@ export the raster template for later processing
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "template.tif")) || isTRUE(params$write)'
-writeRaster(template, file.path("clean_data", "template.tif"), overwrite = TRUE)
+writeRaster(template, "clean_data/template.tif", overwrite = TRUE)
 ```
 
 ## 2. Extract base data using the CDED dataset
@@ -96,7 +90,7 @@ trim_3005 <- project(trim_raw, template)
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "dem.tif")) || isTRUE(params$write)'
 # write out the individual raster
-writeRaster(trim_3005, file.path("clean_data", "dem.tif"), overwrite = TRUE) 
+writeRaster(trim_3005, "clean_data/dem.tif", overwrite = TRUE) 
 
 ```
 
@@ -125,17 +119,17 @@ write our the individual rasters
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "slope.tif")) || isTRUE(params$write)'
-writeRaster(rslope, file.path("clean_data", "slope.tif"), overwrite = TRUE) 
+writeRaster(rslope, "clean_data/slope.tif", overwrite = TRUE) 
 ```
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "aspect.tif")) || isTRUE(params$write)'
-writeRaster(aspect , file.path("clean_data", "aspect.tif"), overwrite = TRUE) 
+writeRaster(aspect, "clean_data/aspect.tif", overwrite = TRUE) 
 ```
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "tri.tif")) || isTRUE(params$write)'
-writeRaster(tri , file.path("clean_data", "tri.tif"), overwrite = TRUE) 
+writeRaster(tri, "clean_data/tri.tif", overwrite = TRUE) 
 ```
 
 ## Bonus Questions.
