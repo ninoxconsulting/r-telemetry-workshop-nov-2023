@@ -465,8 +465,6 @@ ggplot(sbou, aes(factor(month), fill = factor(year)))+
 
 Another data processing method we might need to consider is having a standard density or fix rate for all animals. This may not be required, depending on the research question being asked, but it is useful to assess measures of density.
 
-The number of fixes are relatively steady throughout the years for all individuals except SC_car171? something looks strange here as there are large spikes in October 2015 and February 2016.
-
 ```{r check-fix-per-day}
 
 sbou <- sbou |> 
@@ -500,21 +498,19 @@ ggplot(sbou_dur, aes(y = diff, x = date_time)) +
   geom_point() +
   facet_wrap(.~animal.id, scales = "free")
 
-
-# suspect that these are a mortality signal from ? 
-# some collars have a higher fix rate (SC_car168 consistent less than 10 hr difference)
-
 ```
 
-To create a standardized fix per day, lets take the first fix per day. This could be based on a number of factors, depending on our research question we want to ask.
+The number of fixes are relatively steady throughout the years for all individuals except SC_car171? Something looks strange here as there are large spikes in October 2015 and February 2016. Potential mortality signals?
+
+
+To create a standardized fix per day, lets take the first fix per day. This could be based on a number of factors, depending on our research question we want to ask. We can use Julian date to filter all fixes. 
 
 ```{r}
 # we can subset base on a Julian date
-
 sbou_dur <- sbou_dur |> 
   mutate(
-    date2=as.Date(date_time, format = '%Y-%m-%d'),
-    jdate=julian(date2)
+    date2=as.Date(date_time, format = '%Y-%m-%d'), # convert to date type
+    jdate=julian(date2)               # create new column and calculate Julian date 
   )
 
 
@@ -551,7 +547,7 @@ write_csv(sbou_sub, "clean_data/scott_herd_subset.csv")
 
 ```
 
-We can again convert to a sf object and export. Note this is required as we previously remove the spatial components to undertake the summaries above.
+Alternatively we can convert to a sf object and export. Note this is required as we previously remove the spatial components to undertake the summaries above.
 
 ```{r write-standard-subset-gpk}
 sbou_sub_sf <- read_sf(sbou_sub, coords = c("location.long", "location.lat"), 
@@ -560,7 +556,7 @@ sbou_sub_sf <- read_sf(sbou_sub, coords = c("location.long", "location.lat"),
 
 ```
 
-Now we can export as .gpkg
+Export as .gpkg
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "scott_herd_subset.gpkg")) || isTRUE(params$write)'
@@ -568,6 +564,10 @@ Now we can export as .gpkg
 write_sf(sbou_sub_sf, file.path("clean_data", "scott_herd_subset.gpkg"))
 
 ```
+
+
+
+### Add Questions: STILL TO DO: 
 
 ::: {.callout-tip collapse="true" appearance="minimal"}
 ## Your Turn
@@ -580,9 +580,6 @@ The answer is:
 :::
 
 ```{r}
-
-
-# Other questions???
 
 
 # plot months of the year. 
