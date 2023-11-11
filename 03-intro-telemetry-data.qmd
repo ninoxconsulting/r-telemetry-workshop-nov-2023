@@ -546,8 +546,7 @@ Alternatively we can convert to a sf object and export. Note this is required as
 
 ```{r write-standard-subset-gpk}
 
-sbou_sub_sf <- st_as_sf(sbou_sub, coords = c("location.long", "location.lat"), 
-                        crs = 4326, remove = FALSE) |> 
+sbou_sub_sf <- st_as_sf(sbou_sub, coords = c("location.long", "location.lat"), crs = 4326, remove = FALSE) |> 
   st_transform(3005)
 
 ```
