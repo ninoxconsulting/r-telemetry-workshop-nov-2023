@@ -2,12 +2,11 @@
 title: "Generate random sample points for RSF"
 ---
 
-
 ## Overview:
 
-In this module we use our prepared spatial data to generate the input data files to conduct a resource selection function analysis. This includes: 
+In this module we use our prepared spatial data to generate the input data files to conduct a resource selection function analysis. This includes:
 
--   generate a set of "available" or "background points" from our study area.
+-   generate a set of "background points" from our study area.
 
 -   extract spatial information for presence and background point locations
 
@@ -15,19 +14,15 @@ In this module we use our prepared spatial data to generate the input data files
 
 -   generate summary statistics
 
-
-
 ## Background: Resource Selection Functions
 
 Now that we have a cleaned and standardized data set for the Scott Herd Caribou's we can prepare the data for further analysis.
 
-Resource Selection Functions are a common method used to assess what are the driving patterns of animal habitat preference. This process uses information or covariates (i.e. landscape attribute features) for locations where animals are present and compares them to all possible locations. In this way we can gather information on what conditions (i.e. landscape, aspect, distance from road, etc) characterize higher habitat use and selection for. 
+Resource Selection Functions are a common method used to assess what are the driving patterns of animal habitat preference. This process uses information or covariates (i.e. landscape attribute features) for locations where animals are present and compares them to all possible locations. In this way we can gather information on what conditions (i.e. landscape, aspect, distance from road, etc) characterize higher habitat use and selection for.
 
-In addition to preparing data for future analysis, understanding the association with telemetry point locations and landscape information can provide meaningful summary statistics, i.e. proportion of locations within a specific BEC zone. 
+In addition to preparing data for future analysis, understanding the association with telemetry point locations and landscape information can provide meaningful summary statistics, i.e. proportion of locations within a specific BEC zone.
 
-
-
-## 1. Generate available location points.
+## 1. Generate background location points.
 
 We will generate a simple set of "background points" based on the geographic distribution of the study area. Note you can limit the area in which these points are drawn from using more sophisticated methods, such as restricting points within a kernal density or home range estimate.
 
@@ -43,7 +38,7 @@ library(ggplot2)
 
 ```
 
-Next, read in our point locations and rater template. 
+Next, read in our point locations and rater template.
 
 ```{r, eval = FALSE}
 
@@ -60,10 +55,9 @@ bou_pts <- bou_pts |>
 
 ```
 
+We can use the **spatSample** function to generate random points for our given study area. This function has many more options which can be reviewed by using : **?spatSample** in the console.
 
-We can use the **spatSample** function to generate random points for our given study area. This function has many more options which can be reviewed by using : **?spatSample** in the console. 
-
-Lets generate a set of points the same length as our "presence" locations using a "random" method. 
+Lets generate a set of points the same length as our "presence" locations using a "random" method.
 
 ```{r, eval = FALSE}
 
@@ -89,8 +83,7 @@ mapview(bou_pts, color = "red", cex= 3)
 
 ```
 
-
-We can now combine our caribou locations and "available" locations into a single data set. We will retain the spatial information to allow us to easily extract the values in the corresponding raster stack 
+We can now combine our caribou locations and "background" locations into a single data set. We will retain the spatial information to allow us to easily extract the values in the corresponding raster stack
 
 ```{r, eval = FALSE}
 
@@ -111,10 +104,9 @@ allpts <- bind_rows(bou_pts, avail_points)
 
 ```
 
-## Extract point values 
+## Extract point values
 
-Next, we can read in our prepared raster stack as an .rds object. We can now use the **extract** function from the **terra** package to extract information for all layers in the raster stack for each of our points.  
-
+Next, we can read in our prepared raster stack as an .rds object. We can now use the **extract** function from the **terra** package to extract information for all layers in the raster stack for each of our points.
 
 ```{r}
 # read in the raster stack 
@@ -132,7 +124,7 @@ bou_full_pts <- cbind(allpts, atts) |>
 
 ```
 
-Export as geo package or as csv table. 
+Export as geo package or as csv table.
 
 ```{r}
 
@@ -151,11 +143,9 @@ write.csv(bou_table, "clean_data/allpts_att.csv")
 
 ```
 
-
-
 ## 3. Summarise landscape information
 
-We can use our attributed point data to also provide valuable summaries of landscape feature. Lets looks at aspect and bec zones. 
+We can use our attributed point data to also provide valuable summaries of landscape feature. Lets looks at aspect and bec zones.
 
 ```{r}
 # Aspect
@@ -166,7 +156,6 @@ ggplot(bou_table, aes(aspect)) +
 
 ```
 
-
 ```{r}
 # BEC zones 
 
@@ -175,12 +164,10 @@ ggplot(bou_table, aes(MAP_LABEL, group = pres_bkg, fill = factor(pres_bkg))) +
   
 ```
 
-
-
 ## Your turn
 
 ::: {.callout-tip collapse="true"}
-1.  Generate a second set of available background points used a method other than "random".
+1.  Generate a second set of background points used a method other than "random".
 
 Solution:
 
@@ -193,8 +180,7 @@ mapview(avail_pts_regular)
 :::
 
 ::: {.callout-tip collapse="true"}
-2.  Use the **bou_table** we created above to explore other landscape patters. Build a ggplot to show the differences between the presence and background points. 
-
+2.  Use the **bou_table** we created above to explore other landscape patters. Build a ggplot to show the differences between the presence and background points.
 
 Solution:
 
@@ -216,7 +202,3 @@ ggplot(bou_table, aes(layer)) +
 
 ```
 :::
-
-
-
-
