@@ -145,7 +145,7 @@ write.csv(bou_table, "clean_data/allpts_att.csv")
 
 ## 3. Summarise landscape information
 
-We can use our attributed point data to also provide valuable summaries of landscape feature. Lets looks at aspect and bec zones.
+We can use our attributed point data to provide valuable summaries of landscape feature. Lets looks at aspect and BEC zones.
 
 ```{r}
 # Aspect
