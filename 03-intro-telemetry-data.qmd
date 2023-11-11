@@ -6,17 +6,32 @@ params:
   write: true
 ---
 
-## How to QA and summarise your Telemetry Data
+## How to QA and summarize telemetry data
 
-In this course we will be using Telemetry data from Mountain Caribou (*Rangifer terendus*) herds in the Peace region of British Columbia. While the full dataset and metadata can be found on [movebank](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study216040785), we will be working on a modified subset throughout this course. TEST
+## Overview:
 
-### 1. Reading our data into R.
+In this module we will read in, clean, QA and summarize raw telemetry data. This includes:
 
-Our first step is to see what our data looks like. In this course we will be providing two csv files (Mountain caribou in British Columbia-reference-data.csv and Mountain caribou.csv).
+-   read in data as csv/xlsx and convert to spatial data
+
+-   QA data for missing values and poor coordinate precision
+
+-   generate tabular summaries
+
+-   standardize fix rate of telemetry points for future analysis
+
+## Background data:
+
+In this workshop we will use GPS telemetry data from Mountain Caribou (*Rangifer terendus*) herds in the Peace region of British Columbia. The full data set and metadata can be found on [movebank](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study216040785), also see [bonus content - How to download data from movebank](bonus-movebank.qmd). The data set used in this course has been modified for demonstration purposes and should not be used in analysis.
+
+### 1. Reading data into R.
+
+In this course we will be providing two files (Mountain caribou in British Columbia-reference-data.csv and Mountain caribou.xlsx). The first task is to look at the data to make sense of what we have.
 
 ```{r read-in-raw-data}
 #| message: false
-# Read in our data files.
+
+# load libraries 
 
 library(readr)
 library(sf)
@@ -25,33 +40,48 @@ library(dplyr)
 library(lubridate)
 library(ggplot2)
 
+
+# Read in data files.
+
 ref_raw <- read_csv("raw_data/Mountain caribou in British Columbia-reference-data.csv", 
-                    name_repair = "universal")
+                    name_repair = "universal") # use this to standardise the column names
 
 loc_raw <- read_xlsx("raw_data/Mountain caribou.xlsx")
+
 ```
 
 Lets take a look....
 
 ```{r review-raw-data}
+
+# Reference data 
+
 head(ref_raw)
 
 names(ref_raw)
 
-ref_short <- ref_raw %>%
+ref_short <- ref_raw |> 
   select(tag.id, animal.id, deploy.on.date, animal.sex, animal.reproductive.condition,
          deployment.end.type,tag.model, tag.manufacturer.name, tag.serial.no)
 
+# Location data
+
 head(loc_raw)
+
+
 ```
 
-We can combine these two dataset and keep only the columns which are of interest
+We can combine these data sets and keep the columns of interest
 
 ```{r filter-raw-fields}
 
+# create a new data set by joining on a common field
+
 all_data <- left_join(loc_raw, ref_raw, by = c('tag.local.identifier' = 'tag.id') )
 
-all_data <- all_data %>% 
+# filter the columns of interest
+
+all_data <- all_data |> 
   select(event.id, location.long, location.lat, DOP, FixType, herd,
          study.specific.measurement, sensor.type, tag.local.identifier, date, animal.id,
          animal.sex, animal.reproductive.condition, tag.manufacturer.name, tag.model )
@@ -63,7 +93,7 @@ all_data <- all_data %>%
 
 #### 2a. Data input errors and column formats
 
-Now we have a single data set we can QA the data and provide more useful columns for further analysis.
+Lets check for NA or missing values.
 
 ```{r remove-NA-values}
 
@@ -73,14 +103,18 @@ head(all_data)
 
 apply(all_data, 2, function(x) any(is.na(x)))
 
-# Lets filter out any missing values 
+```
 
-length(all_data$event.id)
+Several columns contain NA's and need more exploration.
 
-tdata <- all_data %>% 
-  filter(!is.na(date)) %>%
-  filter(!is.na(location.long)) %>%
-  filter(!is.na(location.lat)) 
+```{r remove-NA-values2}
+
+# filter missing values for latitude, longitude and date.
+
+tdata <- all_data |> 
+  filter(!is.na(date)) |> # keep any rows which are not NA
+  filter(!is.na(location.long)) |> 
+  filter(!is.na(location.lat))
 
 
 # Herd
@@ -88,7 +122,7 @@ unique(tdata$herd)
 
 # two missing herd values which we can fill in (or delete)
 
-tdata <- tdata %>% 
+tdata <- tdata |> 
   mutate(herd = case_when(
     animal.id == "BP_car043" ~ "Burnt Pine", 
     animal.id == "SC_car170" ~ "Scott",
@@ -96,18 +130,22 @@ tdata <- tdata %>%
   ))
 
 
+## rerun the NA check to confirm 
 
-#length(tdata$event.id)
-
+# apply(tdata, 2, function(x) any(is.na(x)))
 
 ```
 
-Now lets covert the timestamp into a usable format
+#### 2b. Dealing with date-times
+
+Timestamps can be confusing and problematic, especially when working with multiple programs and file types. One solution is to split the date into separate components (year, month, day, time).
+
+We firstly need to format the raw data into a date format using **lubridate** package.
 
 ```{r convert-time-stamp}
 
 # calculate time differences
-tdata <- tdata  %>%
+tdata <- tdata  |> 
   mutate(date_time = ymd_hms(date)) 
 
 # owch we still have an error in this dataset
@@ -117,106 +155,124 @@ tdata <- tdata  %>%
 head(sort(unique(tdata$date)))
 tail(sort(unique(tdata$date)))
 
+# Note this is not the same format as an NA we searched for above. i.e. "NA" is not equal to NA. 
 
-tdata <- tdata  %>% 
+# lets remove the NA 
+
+tdata <- tdata  |> 
   filter(date != "NA")
 
-tdata  <- tdata  %>%
+# re-run the code to convert to a date format. 
+
+tdata  <- tdata  |> 
   mutate(date_time = ymd_hms(date)) 
 
-#head(tdata$date_time) 
+# lets take a look 
+
+head(tdata$date_time) 
 
 # Note the Universal Coordinated Time Zone
 
 
 # lets split this data format into something more useful 
 
-tdata  <- tdata  %>%
-  mutate(year = year(date_time )) %>%
+tdata  <- tdata  |> 
+  mutate(year = year(date_time )) |> 
   mutate(month = month(date_time ),
          day = day(date_time),
          hour = hour(date_time),
          minute = minute(date_time))
 
-
 ```
 
-#### 2a. QA Spatial accuracy values
+#### 2c. Spatial accuracy QA.
 
-Now we have fixed our data entry problems we also want to review the spatial accuracy. We have two metrics: DOP (Dilution of Precision), and a Fix Type.
+Next we will review the spatial accuracy of the point data. We have two columns which contain accuracy metrics: DOP (Dilution of Precision), and Fix Type.
+
+Note: For quick review of spatial errors it is helpful to view the data in QGIS or built a quick map or vizualisation (this is covered later in the [workshop](04-spatial-data-viz.qmd)).
 
 ```{r clean-lat-longs}
 
-# review the lat / longs 
+# review Latitudes and Longitude values 
 
 range(tdata$location.lat)
 hist(tdata$location.lat)
 
-# above 65 latidude
+# Note some points are above 65 Latitude
 
 range(tdata$location.long)
 hist(tdata$location.long)
 
-# greater than -100 longitude. 
+# Lets set an upper limit and filter values which are within the range we want.
 
-tdata <- tdata %>% 
-  filter(location.long <= -100) %>%
+tdata <- tdata |> 
+  filter(location.long <= -100) |> 
   filter(location.lat <= 65)
 
-# DOP 
+```
+
+#### 2d. Spatial Precision QA.
+
+To refine the level of precision we can use the metrics DOP (Dilution of Precision) and Fixtype information which is associated with each location observation.
+
+```{r DOP-review}
 
 range (tdata$DOP)
+
 hist(tdata$DOP)
-unique(tdata$DOP)
 
+#unique(tdata$DOP)
 
-# for this example we only want to keep fixes with a DOP less than 10m
+# We only want to keep fixes with a DOP less than 10m
 
-fdata <- tdata %>% 
+fdata <- tdata |> 
   filter(DOP <= 10)
 
-hist(fdata$DOP)
-unique(tdata$DOP)
 
-# Fix Type : 
+```
 
-fixtype <- fdata %>% 
-  group_by(FixType) %>%
+The Fixtype is generally classified into categories, based on the level of precision of the calculated location i.e. the number of satellite used to triangulate the fixes. These metrics will vary with the device type and model. More information will be available through the manufacturer website (For example: [Lotek Iridium collars](https://www.lotek.com/products/litetrack-iridium-250-750) ).
+
+```{r fixtype-review}
+
+# check the number of records per fix type
+
+fdata |> 
+  group_by(FixType) |> 
   summarise(count = n())
 
-fixtype
+# We will only keep the higher level of precision
 
-# remove the 2d locations 
-
-fdata <- fdata %>% 
+fdata <- fdata |> 
   filter(FixType != "GPS-2D")
 
 # see what the data looks like
 glimpse(fdata)
  
 # lets check if this column is any use? 
-unique(fdata$sensor.type)
-
-
-# remove the columns that we dont need
-fdata <- fdata %>% 
-  select(-FixType, -DOP, -date, -study.specific.measurement, -sensor.type, -event.id)
-
-
+# unique(fdata$sensor.type)
 
 ```
 
-## Output cleaned 
+The final step is to remove redundant columns.
 
-We can output out cleaned data as a table
+```{r remove-unused-cols}
+
+fdata <- fdata |> 
+  select(-FixType, -DOP, -date, -study.specific.measurement, -sensor.type, -event.id)
+
+```
+
+### 3. Export cleaned data
+
+#### 3a. Export as a table
 
 ```{r write-csv}
 #| eval: !expr '!file.exists(file.path("clean_data", "caribou.csv")) || isTRUE(params$write)'
-write_csv(fdata, file.path("clean_data", "caribou.csv"))
+write_csv(fdata, "clean_data/caribou.csv")
 ```
 
-
-## Convert to spatial file and export 
+#### 3b. Convert to spatial file and export
 
 ```{r write-out}
 
@@ -225,279 +281,109 @@ write_csv(fdata, file.path("clean_data", "caribou.csv"))
 bou <- st_as_sf(fdata, coords = c("location.long", "location.lat"), 
                 crs = 4326, remove = FALSE) |> 
   st_transform(3005)
+
 ```
 
 export as .gpkg
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "caribou.gpkg")) || isTRUE(params$write)'
-write_sf(bou, file.path("clean_data", "caribou.gpkg"))
+write_sf(bou, "clean_data/caribou.gpkg")
+
 ```
 
 We can also export to a .shp file
 
 ```{r}
 #| eval: false
-write_sf(bou, file.path("clean_data", "caribou.shp"))
+write_sf(bou, "clean_data/caribou.shp")
 
 # note warning on names for shapefile
 
 ```
 
-## Generating tabular summaries
+### 4. Generating tabular summaries
 
-
-Now we have clean data to work with we can get to the fun data exploration part! 
+Now we have clean data to work with we can get to the fun data exploration part!
 
 ```{r read-in-geopackage}
 
-#bou = read.csv(file.path("clean_data", "caribou.csv")
+#bou = read.csv("clean_data/caribou.csv")
 
 # or 
 
-bou_sf = read_sf(file.path("clean_data", "caribou.gpkg"))
+bou_sf = read_sf("clean_data/caribou.gpkg")
 
 bou <- st_drop_geometry(bou_sf)
 
-
-head(bou)
 glimpse(bou)
 
 ```
 
-Many questions we can ask here: 
+### Many questions we can ask here:
 
-- how many herds do we have? 
-- how many animals in each herd? 
-- what is the sex ratio of collared animals?
-- what is the duration of each collar? Start and end years?
+-   how many herds do we have?
+-   how many animals in each herd?
+-   what is the sex ratio of collared animals?
+-   what is the duration of each collar? Start and end years?
+
+Lets start with the basics:
 
 ```{r summarise-clean-data}
 
+# how many herds?
 no_herds = unique(bou$herd)
 
-no_records <- bou %>% 
-  group_by(herd) %>% 
+#How many records per herd ?
+no_records <- bou |> 
+  group_by(herd) |> 
   summarise(count = n())
 
-no_animals_id <- bou %>% 
-  group_by(herd, animal.id) %>% 
+# number of animal records per herd?
+no_animals_id <- bou |> 
+  group_by(herd, animal.id) |> 
   summarise(count = n())
 
-no_animals_sex <- bou %>% 
-  group_by(herd, animal.sex) %>% 
+# animals by sex by herd ?
+no_animals_sex <- bou |> 
+  group_by(herd, animal.sex) |> 
   summarise(count = n())
 
-collar_type <- bou %>% 
-  group_by(herd, tag.manufacturer.name, tag.model) %>% 
+# type of collar by herd by collar model?
+collar_type <- bou |> 
+  group_by(herd, tag.manufacturer.name, tag.model) |> 
   summarise(count = n())
 
 ```
-There is alot of data here. For the next section of this course we will just concentrate on the Scott Herd. 
+
+There is lots of data here, so to make it easy we will just use the Scott herd.
 
 ```{r summarise-scott-herd}
+# Filter the Scott herd only 
 
-# Filter to keep the Scott herd only 
-sbou <- bou %>% 
+sbou <- bou |> 
   filter(herd == "Scott")
 
 # tidy the data by removing columns that are redundant
-sbou <- sbou %>% select(-herd, -tag.local.identifier, -tag.manufacturer.name, -tag.model)
-
+sbou <- sbou |> select(-herd, -tag.local.identifier, -tag.manufacturer.name, -tag.model)
 
 # how many animals?
-no_animals <- unique(sbou$animal.id)
-
-
-# lets look at the time period: 
-p1 <- ggplot(sbou, aes(year, fill = animal.id)) +
-    geom_bar(position = "dodge")
-
-
-# duration of the collars within the Scott herd. 
-
-table_max <- sbou %>% 
-  select(animal.id, date_time) %>%
-  slice_max(date_time, by = animal.id) 
-colnames(table_max)<- c("animal.id","max")
-
-table_min <- sbou %>% 
-  select(animal.id, date_time) %>%
-  slice_min(date_time, by = animal.id) 
-
-colnames(table_min)<- c("animal.id","min")
-
-dur <- left_join(table_max, table_min, by = join_by(animal.id)) %>%
-  distinct() %>%
-  mutate(duration = max - min) %>%
-  mutate(dur_days = round( duration,1)) %>%
-  mutate(dur_hrs = round(as.numeric(dur_days)*24,1)) %>%
- #mutate(dur_days = round( dur_hrs/24,1)) %>%
-  mutate(year_start = year(min), 
-         year_end = year(max))
-
-
-
-dur_plot <- ggplot(dur, aes(y=factor(animal.id))) +
-  geom_segment(aes(x=min, xend=max, y=factor(animal.id), yend=factor(animal.id)), linewidth = 3)+
-  xlab("Date") + ylab("Tag") 
-
-dur_plot
-
-
-# months of the year. 
-p_duration <- ggplot(sbou, aes(factor(month), fill = factor(year)))+
-  geom_bar(position = "dodge") +
-  #xlim(1,12)+
-  facet_wrap(~animal.id)+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
-p_duration
-```
-
-#### Lets check the number of fixes per month per individual 
-
-we can see that the number of fixes are relatively steady throughout the years for all individuals except SC_car171? 
-something looks strange here: 
-
-Larger spikes in Oct 2015 and Feb 2016 
-
-
-```{r}
-
-
-head(sbou)
-
-sbou <- sbou %>% 
-  arrange(animal.id, date_time)
-
-sbou_dur <- sbou %>%
-    mutate(time = as.POSIXct(date_time, format = "%y/%d/%m %H:%M:%S")) %>%
-    group_by(animal.id) %>%
-    mutate(diff = difftime(time, lag(time),  units = c("hours")), 
-           diff = as.numeric(diff))
-
-
-# we can see a big range in the time intervals for the fixes
-
-range(sbou_dur$diff, na.rm = TRUE)
-
-# most fall in the less than than 10 
-hist(sbou_dur$diff)
-
-
-# lets look at the individual animals
-
-ggplot(sbou_dur, aes(diff)) + 
-  geom_histogram(bins=30) +
-  facet_grid(.~animal.id)
-
-# much of the problem is with the SC_car171 individual 
-
-ggplot(sbou_dur, aes(y = diff, x = date_time)) + 
-  geom_point() +
-  facet_wrap(.~animal.id, scales = "free")
-
-
-# suspect that these are a mortality signal from ? 
-# some collars have a higher fix rate (SC_car168 consistent less than 10 hr difference)
+no_sbou <- unique(sbou$animal.id)
 
 ```
 
+#### Question: What is the spread of fixes per season?
 
+Next we format the date variable so we can filter by months and years. We can also assign fixes to seasons based on the following dates :
 
-To create a standardized fix per day, lets take the first fix per day. This could be based on a number of factors, depending on our research question we want to ask 
-
-
-```{r}
-
-# we can subset base on a Julian date
-
-sbou_dur <- sbou_dur %>%
-  mutate(
-    date2=as.Date(date_time, format = '%Y-%m-%d'),
-    jdate=julian(date2)
-  )
-
-# Check the multiple counts of anaimals per day 
-counts.per.day.jdate <- sbou_dur %>% 
-  group_by(animal.id, jdate, year) %>% 
-  summarise(total = n(), unique = unique(jdate)) %>% 
-  group_by(animal.id, total, year) %>% 
-  summarise(total.j = n()) 
-
-
-ggplot(counts.per.day.jdate, aes(x = total, y = total.j)) + 
-  geom_point() +
-  geom_vline(xintercept = 1, color = "red")+
-  facet_wrap(.~animal.id + year)
-
-
-sbou_sub <- sbou_dur %>%
-    group_by(animal.id, jdate) %>%
-    slice_sample( n = 1) 
-
-
-# repeat this
-
-# Check the multiple counts of anaimals per day 
-counts.per.day.jdate <- sbou_sub %>% group_by(animal.id, jdate, year) %>% 
-  summarise(total = n(), unique = unique(jdate)) %>% 
-  group_by(animal.id, total, year) %>% 
-  summarise(total.j = n()) 
-
-
-ggplot(counts.per.day.jdate, aes(x = total, y = total.j)) + 
-  geom_point() +
-  geom_vline(xintercept = 1, color = "red") +
-  facet_wrap(.~animal.id + year)
-
-
-length(sbou_sub$location.long)
-```
-
-```{r}
-#| eval: !expr '!file.exists(file.path("clean_data", "scott_herd_subset.csv")) || isTRUE(params$write)'
-# lets write this out as .csv and .Gpkg
-
-write_csv(sbou_sub, file.path("clean_data", "scott_herd_subset.csv"))
-```
-
-
-convert to a sf object 
-
-```{r}
-sbou_sub_sf <- st_as_sf(sbou_sub, coords = c("location.long", "location.lat"), 
-                        crs = 4326, remove = FALSE) |> 
-  st_transform(3005)
-```
-
-Then write to a gpkg:
-
-```{r}
-#| eval: !expr '!file.exists(file.path("clean_data", "scott_herd_subset.gpkg")) || isTRUE(params$write)'
-# # export as .gpkg
-write_sf(sbou_sub_sf, file.path("clean_data", "scott_herd_subset.gpkg"))
-
-```
-
-
-
-
-
-# Convert the dates to seasons 
-
-Next we format the date variable so we can filter by months and years. We can also assign fixes to seasons based on the following dates : 
-
-* Spring/calving (April,May)
-* Summer (June to August)
-*	Fall (September to November)
-*	Winter (December to March)
-
+-   Spring/calving (April,May)
+-   Summer (June to August)
+-   Fall (September to November)
+-   Winter (December to March)
 
 ```{r add-seasons}
 
-sbou <- sbou_sub %>% 
+sbou <- sbou |> 
   mutate(season = case_when(
             month %in% c(4,5) ~ "spring",
             month %in% c(6,7,8) ~ "summer",
@@ -506,14 +392,15 @@ sbou <- sbou_sub %>%
             
   
 # check data spread
-counts.per.season = sbou %>%
-  group_by(season, animal.id) %>%
+counts.per.season = sbou |> 
+  group_by(season, animal.id) |> 
   summarise(count = n())
 
 ggplot(counts.per.season, aes(x = season, y = count)) + 
   geom_bar(stat = "identity") + 
   facet_wrap(~animal.id) +
   labs(x = "season", y = "no.of.fixes", title = "Scott Herd")
+
 ```
 
 Then we can save our plot
@@ -521,23 +408,177 @@ Then we can save our plot
 ```{r}
 #| eval: false
 ggsave("caribou_fixes_per_id.jpeg", width = 10, height = 10, units = "cm")
+
 ```
 
+#### Question: What is the duration of the collar data ?
+
+The duration of the collars is also an important question. These can tell us not only the first and last fix, but also point to potential errors or issues we need to consider for future analysis.
+
+Lets calculate the minimum, maximum and duration between fix times.
+
+```{r collar-duration}
+
+# which years were the collars active?
+ggplot(sbou, aes(year, fill = animal.id)) +
+  geom_bar(position = "dodge")
+
+# calculate the minimum and max dates per collar 
+
+table_max <- sbou |> 
+  select(animal.id, date_time) |> # select the columns of interest
+  slice_max(date_time, by = animal.id)  # select the max value of date_time, per animal.id
+colnames(table_max)<- c("animal.id","max")
+
+table_min <- sbou |> 
+  select(animal.id, date_time) |> 
+  slice_min(date_time, by = animal.id) 
+
+colnames(table_min)<- c("animal.id","min")
+
+
+# merge the two tables together and calculate the duration 
+
+dur <- left_join(table_max, table_min, by = join_by(animal.id)) |> 
+  distinct() |> 
+  mutate(duration = max - min) |> # calculate duration (default is days)
+  mutate(dur_days = round( duration, 1)) |> # format the duration 
+  mutate(dur_hrs = round(as.numeric(dur_days)*24,1)) |> # convert to hours
+  mutate(year_start = year(min), 
+         year_end = year(max))
+
+
+# plot total duration of collar data 
+
+ggplot(dur, aes(y=factor(animal.id))) +
+  geom_segment(aes(x=min, xend=max, y=factor(animal.id), yend=factor(animal.id)), linewidth = 3)+
+  xlab("Date") + ylab("Tag") 
+
+ggplot(sbou, aes(factor(month), fill = factor(year)))+
+  geom_bar(position = "dodge") +
+  facet_wrap(~animal.id)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+### 5. Standardize fix interval times
+
+Another data processing method we might need to consider is having a standard density or fix rate for all animals. This may not be required, depending on the research question being asked, but it is useful to assess measures of density.
+
+```{r check-fix-per-day}
+
+sbou <- sbou |> 
+  arrange(animal.id, date_time)
+
+sbou_dur <- sbou |> 
+    mutate(time = as.POSIXct(date_time, format = "%y/%d/%m %H:%M:%S")) |> 
+    group_by(animal.id) |> 
+    mutate(diff = difftime(time, lag(time),  units = c("hours")), 
+           diff = as.numeric(diff))
+
+
+# we can see a big range in the time intervals for the fixes
+range(sbou_dur$diff, na.rm = TRUE)
+
+# most fall in the less than than 10 
+hist(sbou_dur$diff)
+
+# lets look at the individual animals
+ggplot(sbou_dur, aes(diff)) + 
+  geom_histogram(bins=30) +
+  facet_grid(.~animal.id)
+
+
+# much of the problem is with the SC_car171 individual 
+ggplot(sbou_dur, aes(y = diff, x = date_time)) + 
+  geom_point() +
+  facet_wrap(.~animal.id, scales = "free")
+
+```
+
+The number of fixes are relatively steady throughout the years for all individuals except SC_car171? Something looks strange here as there are large spikes in October 2015 and February 2016. Potential mortality signals?
+
+To create a standardized fix per day, lets take the first fix per day. This could be based on a number of factors, depending on our research question we want to ask. We can use Julian date to filter all fixes.
 
 ```{r}
-# we know that all the collared animals are female, but which are with calf or not 
-
-with_calf <- sbou %>% 
-  select(animal.id, animal.reproductive.condition, season) %>% 
-  unique()
-
-# we know only one individual was seen with a calf... SC_car171 
-
+# we can subset base on a Julian date
+sbou_dur <- sbou_dur |> 
+  mutate(
+    date2=as.Date(date_time, format = '%Y-%m-%d'), # convert to date type
+    jdate=julian(date2)               # create new column and calculate Julian date 
+  )
 
 
-# Other questions???
+# Check the multiple counts of animals per day 
+counts.per.day.jdate <- sbou_dur |> 
+  group_by(animal.id, jdate, year) |> 
+  summarise(total = n(), unique = unique(jdate)) |> 
+  group_by(animal.id, total, year) |> 
+  summarise(total.j = n()) 
 
+
+# lets plot this data to make more sense of what is happening
+ggplot(counts.per.day.jdate, aes(x = total, y = total.j)) + 
+  geom_point() +
+  geom_vline(xintercept = 1, color = "red")+
+  facet_wrap(.~animal.id + year)
+
+
+# lets select the first fix per day 
+sbou_sub <- sbou_dur |> 
+    group_by(animal.id, jdate) |> 
+    slice_sample( n = 1) 
 
 
 ```
 
+We can write out the standardized fix rate file for future use in analysis.
+
+```{r write-standard-subset-csv}
+#| eval: !expr '!file.exists(file.path("clean_data", "scott_herd_subset.csv")) || isTRUE(params$write)'
+# lets write this out as .csv and .Gpkg
+
+write_csv(sbou_sub, "clean_data/scott_herd_subset.csv")
+
+```
+
+Alternatively we can convert to a sf object and export. Note this is required as we previously remove the spatial components to undertake the summaries above.
+
+```{r write-standard-subset-gpk}
+
+sbou_sub_sf <- st_as_sf(sbou_sub, coords = c("location.long", "location.lat"), crs = 4326, remove = FALSE) |> 
+  st_transform(3005)
+
+```
+
+Export as .gpkg
+
+```{r}
+#| eval: !expr '!file.exists(file.path("clean_data", "scott_herd_subset.gpkg")) || isTRUE(params$write)'
+# # export as .gpkg
+write_sf(sbou_sub_sf, "clean_data/scott_herd_subset.gpkg")
+
+```
+
+### Add Questions: STILL TO DO:
+
+::: {.callout-tip collapse="true" appearance="minimal"}
+## Your Turn
+
+The answer is:
+
+```{r}
+1 + 1
+```
+:::
+
+```{r}
+
+
+# plot months of the year. 
+ggplot(sbou, aes(factor(month), fill = factor(year)))+
+  geom_bar(position = "dodge") +
+  facet_wrap(~animal.id)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
