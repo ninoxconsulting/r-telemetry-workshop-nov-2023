@@ -191,7 +191,7 @@ saveRDS(all_stack, "clean_data/covars.RDS") # much faster
 
 Solution:
 
-```{r, eval = FALSE}
+```{r}
 # One example would be to generate the "max" value of the moving window. Note the w parameter is also reduced in the example. 
 
 rrdensmax <- focal(rroads, w=3, fun="max", na.rm=TRUE)
@@ -204,7 +204,7 @@ rrdensmax <- focal(rroads, w=3, fun="max", na.rm=TRUE)
 
 Solution:
 
-```{r, eval = FALSE}
+```{r}
 #This solution generates a distance from roads covariate
 
 # read in roads
