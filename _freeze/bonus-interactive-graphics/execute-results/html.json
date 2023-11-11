@@ -1,0 +1,16 @@
+{
+  "hash": "5ee9715f145c33667c23b1b900701b5f",
+  "result": {
+    "markdown": "---\ntitle: \"Interactive and animated maps\"\n---\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(dplyr)\nlibrary(ggplot2)\nlibrary(sf)\nlibrary(gganimate)\nlibrary(ggspatial)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nscott <- read_sf(\"clean_data/scott_herd_subset.gpkg\")\n\nscott <- cbind(st_coordinates(scott), scott)\n\ntop_animals <- c(\"SC_car171\", \"SC_car168\")\n\nmvmt <- scott |> filter(animal.id %in% top_animals) |> \n  mutate(doy = lubridate::yday(date2))\n\n\np <- ggplot(mvmt) + \n  # annotation_map_tile(zoom = 8) +\n  geom_path(aes(x = X, y = Y, colour = doy)) + \n  facet_grid(animal.id ~ year) +\n  scale_color_viridis_c() + \n  coord_sf() + \n  labs(colour = \"Day of Year\") + \n  theme_bw() + \n  theme(\n    axis.text = element_blank(),\n    axis.ticks = element_blank(),\n    axis.title = element_blank(),\n    legend.position = \"bottom\",\n    legend.key.width = unit(3, \"lines\")\n  )\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\np_animate <- p + \n  transition_reveal(along = doy) + \n  labs(title = \"Day of Year: {round(frame_along)}\")\n\nanimate(\n  p_animate, \n  width = 10, \n  height = 6, \n  units = \"in\", \n  res = 150, \n  fps = 10, \n  nframes = 300\n)\n```\n\n::: {.cell-output-display}\n![](bonus-interactive-graphics_files/figure-html/unnamed-chunk-3-1.gif)\n:::\n:::\n",
+    "supporting": [
+      "bonus-interactive-graphics_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

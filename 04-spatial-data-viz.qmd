@@ -192,8 +192,8 @@ ggplot() +
   geom_hex(aes(x = X, y = Y), data = caribou) + 
   scale_fill_viridis_c() + 
   coord_sf(
-    xlim = st_bbox(caribou)[c("xmin","xmax")] + c(-20000, 20000), 
-    ylim = st_bbox(caribou)[c("ymin","ymax")] + c(-20000, 20000)
+    xlim = range(caribou$X) + c(-20000, 20000),
+    ylim = range(caribou$Y) + c(-20000, 20000)
   ) +
   facet_wrap(vars(herd)) +
   theme_bw()
@@ -286,7 +286,57 @@ ggplot(caribou) +
   )
 ```
 
+We can also look at the movement of just one or two animals:
 
+```{r}
+scott <- read_sf("clean_data/scott_herd_subset.gpkg")
 
+scott <- cbind(st_coordinates(scott), scott)
 
+mvmt <- scott |> 
+  filter(animal.id == "SC_car171")
+
+ggplot(mvmt) + 
+  geom_path(aes(x = X, y = Y, colour = date2)) +
+  scale_color_viridis_c(n.breaks = 6, trans = "date") + 
+  coord_sf() + 
+  labs(colour = "Date") + 
+  theme_bw() + 
+  theme(
+    axis.title = element_blank(),
+    legend.position = "bottom",
+    legend.key.width = unit(4, "lines")
+  )
+```
+
+## Your turn:
+
+Modify the previous map to make a faceted (small-multiples) map for two 
+or more animals, and add a background map.
+
+::: {.callout-tip collapse="true"}
+## Solution
+
+```{r}
+#| warning: false
+top_animals <- c("SC_car171", "SC_car168")
+
+mvmt <- scott |> filter(animal.id %in% top_animals)
+
+ggplot(mvmt) + 
+  annotation_map_tile(zoom = 10) +
+  geom_path(aes(x = X, y = Y, colour = date2)) + 
+  facet_wrap(vars(animal.id)) +
+  scale_color_viridis_c(n.breaks = 6, trans = "date") + 
+  coord_sf() + 
+  labs(colour = "Date") + 
+  theme(
+    axis.title = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    legend.position = "bottom",
+    legend.key.width = unit(4, "lines")
+  )
+```
+:::
 
