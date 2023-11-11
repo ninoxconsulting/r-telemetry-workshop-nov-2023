@@ -383,7 +383,7 @@ Next we format the date variable so we can filter by months and years. We can al
 
 ```{r add-seasons}
 
-sbou_season <- sbou |> 
+sbou <- sbou |> 
   mutate(season = case_when(
             month %in% c(4,5) ~ "spring",
             month %in% c(6,7,8) ~ "summer",
@@ -392,7 +392,7 @@ sbou_season <- sbou |>
             
   
 # check data spread
-counts.per.season = sbou_season |> 
+counts.per.season = sbou |> 
   group_by(season, animal.id) |> 
   summarise(count = n())
 
@@ -478,22 +478,18 @@ sbou_dur <- sbou |>
 
 
 # we can see a big range in the time intervals for the fixes
-
 range(sbou_dur$diff, na.rm = TRUE)
 
 # most fall in the less than than 10 
 hist(sbou_dur$diff)
 
-
 # lets look at the individual animals
-
 ggplot(sbou_dur, aes(diff)) + 
   geom_histogram(bins=30) +
   facet_grid(.~animal.id)
 
 
 # much of the problem is with the SC_car171 individual 
-
 ggplot(sbou_dur, aes(y = diff, x = date_time)) + 
   geom_point() +
   facet_wrap(.~animal.id, scales = "free")
@@ -502,8 +498,7 @@ ggplot(sbou_dur, aes(y = diff, x = date_time)) +
 
 The number of fixes are relatively steady throughout the years for all individuals except SC_car171? Something looks strange here as there are large spikes in October 2015 and February 2016. Potential mortality signals?
 
-
-To create a standardized fix per day, lets take the first fix per day. This could be based on a number of factors, depending on our research question we want to ask. We can use Julian date to filter all fixes. 
+To create a standardized fix per day, lets take the first fix per day. This could be based on a number of factors, depending on our research question we want to ask. We can use Julian date to filter all fixes.
 
 ```{r}
 # we can subset base on a Julian date
@@ -550,7 +545,8 @@ write_csv(sbou_sub, "clean_data/scott_herd_subset.csv")
 Alternatively we can convert to a sf object and export. Note this is required as we previously remove the spatial components to undertake the summaries above.
 
 ```{r write-standard-subset-gpk}
-sbou_sub_sf <- read_sf(sbou_sub, coords = c("location.long", "location.lat"), 
+
+sbou_sub_sf <- st_as_sf(sbou_sub, coords = c("location.long", "location.lat"), 
                         crs = 4326, remove = FALSE) |> 
   st_transform(3005)
 
@@ -561,13 +557,11 @@ Export as .gpkg
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "scott_herd_subset.gpkg")) || isTRUE(params$write)'
 # # export as .gpkg
-write_sf(sbou_sub_sf, file.path("clean_data", "scott_herd_subset.gpkg"))
+write_sf(sbou_sub_sf, "clean_data/scott_herd_subset.gpkg")
 
 ```
 
-
-
-### Add Questions: STILL TO DO: 
+### Add Questions: STILL TO DO:
 
 ::: {.callout-tip collapse="true" appearance="minimal"}
 ## Your Turn
