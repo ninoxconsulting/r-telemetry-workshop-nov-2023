@@ -5,26 +5,31 @@ title: "Generate random sample points for RSF"
 
 ## Overview:
 
-In this module we use our prepared spatial data to generate the input datafiles to conduct a resource selection function analysis. This includes: 
+In this module we use our prepared spatial data to generate the input data files to conduct a resource selection function analysis. This includes: 
 
 -   generate a set of "available" or "background points" from our study area.
--   extract spatial information for presence and available point locations
+
+-   extract spatial information for presence and background point locations
+
 -   export as table for future use
--   use the extracted data to provide further graphics and summary options
+
+-   generate summary statistics
+
 
 
 ## Background: Resource Selection Functions
 
-Now that we have a cleaned and standardized dataset for the Scott Herd Caribou's we can prepare the data for further analysis.
+Now that we have a cleaned and standardized data set for the Scott Herd Caribou's we can prepare the data for further analysis.
 
-Resource Selection Functions are a common method used to assess what is driving patterns of animal habitat preference. This process uses information or covariates (i.e. landscape attribute features) for locations where animals are present and compares them to the same features where animals are absent. In this way we can gather some information on what conditions (i.e. landscape, aspect, distance from road, etc) which contribute to higher habitat use. You can find more references for Resource Selection Functions below.
+Resource Selection Functions are a common method used to assess what are the driving patterns of animal habitat preference. This process uses information or covariates (i.e. landscape attribute features) for locations where animals are present and compares them to all possible locations. In this way we can gather information on what conditions (i.e. landscape, aspect, distance from road, etc) characterize higher habitat use and selection for. 
 
-While in this example we are concentrating on future analysis, the process of extracting background information for known locations can also provide meaningful summary statistics, i.e. proportion of locations within a specific BEC zone.
+In addition to preparing data for future analysis, understanding the association with telemetry point locations and landscape information can provide meaningful summary statistics, i.e. proportion of locations within a specific BEC zone. 
 
 
-## 1. Generate availalble location points.
 
-We will generate a simple set of "available" based on the geographic distribution of the study area. Note you can limit this area in which you generate "background" points, using more sophisticated methods, such as within a kernal density or home range estimate.
+## 1. Generate available location points.
+
+We will generate a simple set of "background points" based on the geographic distribution of the study area. Note you can limit the area in which these points are drawn from using more sophisticated methods, such as restricting points within a kernal density or home range estimate.
 
 Lets start by reading in the libraries we will use.
 
@@ -38,26 +43,20 @@ library(ggplot2)
 
 ```
 
-Next, read in the standardized data points for the Scott herd. If needed we can transform to BC Albers projection (EPGS:3005) to match our raster stack prepared in the previous step. 
+Next, read in our point locations and rater template. 
 
 ```{r, eval = FALSE}
 
 # read in the aoi template 
-
-template <- rast(file.path("clean_data","template.tif"))
-
+template <- rast("clean_data/template.tif")
 
 # read in points 
+bou_pts <- st_read("clean_data/scott_herd_subset.gpkg") 
 
-bou_pts <- st_read(file.path("clean_data/scott_herd_subset.gpkg")) 
-bou_pts <- st_transform(bou_pts, 3005)
-
-
-# Lets keep only the important columns and add a "presence/absence" column. 
-
-bou_pts <- bou_pts %>% 
-  dplyr::select(animal.id, jdate)%>%
-  mutate(pres_abs = 1)
+# Lets keep only the important columns and add a "presence/background" column. 
+bou_pts <- bou_pts |>
+  dplyr::select(animal.id, jdate)|>
+  mutate(pres_bkg = 1)
 
 ```
 
@@ -75,12 +74,12 @@ avail_points <- spatSample(template, size = 2906, as.points = TRUE, na.rm = TRUE
 avail_points <- st_as_sf(avail_points)
 
 # lets rename the column to make it clear these are background points 
-avail_points <- avail_points %>%
-  rename("pres_abs" = lyr.1 )
+avail_points <- avail_points |>
+  rename("pres_bkg" = aoi )
 
 ```
 
-We can do a quick review fo the points to see what they look like using mapview.  
+We can do a quick review of the points using mapview
 
 ```{r, eval = FALSE}
 
@@ -91,103 +90,133 @@ mapview(bou_pts, color = "red", cex= 3)
 ```
 
 
-We can now combine our caribou locations and "available" locations into a single dataset. We will retain the spatial information to allow us to easily extract the values in the corresponding raster stack 
-
+We can now combine our caribou locations and "available" locations into a single data set. We will retain the spatial information to allow us to easily extract the values in the corresponding raster stack 
 
 ```{r, eval = FALSE}
 
-avail_points 
+head(avail_points)
 
+head(bou_pts)
 
-bou_pts
+allpts <- bind_rows(bou_pts, avail_points) 
+
+head(allpts)
+# hmmmmm...........that looks weird what happened? 
+
 
 # note we have slightly different column headers "geom" vs "geometry" 
 st_geometry(avail_points) = "geom" 
 
-
-allpts <- bind_rows(bou_pts, avail_points ) 
+allpts <- bind_rows(bou_pts, avail_points) 
 
 ```
 
+## Extract point values 
 
 Next, we can read in our prepared raster stack as an .rds object. We can now use the **extract** function from the **terra** package to extract information for all layers in the raster stack for each of our points.  
 
 
-```{r, eval = FALSE}
-
+```{r}
 # read in the raster stack 
-
-rstack <- readRDS(file.path("clean_data", "covars.RDS"))
-
+rstack <- readRDS("clean_data/covars.RDS")
 
 # extract all values in the raster stack for each location in the bou_pts file. 
-
 atts <- terra::extract(rstack, allpts)
 
+head(atts)
 
 # remove unused columns 
 # Could show how to use st_write() and explain the cbind(st_coordinates()) bit
-bou_full_pts <- cbind(allpts, atts) %>%
+bou_full_pts <- cbind(allpts, atts) |>
   select(-ID)
 
+```
 
-# export this as spatial file # or 
+Export as geo package or as csv table. 
 
+```{r}
+
+# spatial file 
+
+write.csv(bou_full_pts, "clean_data/allpts_att.gpkg")
+
+
+# write out as csv, keeping the XY values
 
 bou_table <- bou_full_pts %>%
-  cbind(st_coordinates(.)) %>%
+  cbind(st_coordinates(.)) |>
   st_drop_geometry()
 
-
-# write out as csv 
-
-write.csv(bou_table, file.path("clean_data", "allpts_att.csv"))
-
+write.csv(bou_table, "clean_data/allpts_att.csv")
 
 ```
 
 
-# Summary of the extracted Point Values
 
-```{r, eval = FALSE}
+## 3. Summarise landscape information
 
-# tri - good overlap
+We can use our attributed point data to also provide valuable summaries of landscape feature. Lets looks at aspect and bec zones. 
+
+```{r}
+# Aspect
 
 ggplot(bou_table, aes(aspect)) +
   geom_histogram(binwidth = 20) +
-  facet_wrap(~pres_abs)
-
-
-ggplot(bou_table, aes(lyr.1)) +
-  geom_histogram(binwidth = 0.5) +
-  facet_wrap(~pres_abs)
-
-
+  facet_wrap(~pres_bkg)
 
 ```
 
 
+```{r}
+# BEC zones 
 
-
-
-
-
-## OPTIONAL 
-
-## Build a mask with the "occurance point" (optional)
-
-```{r, eval = FALSE}
-
-occur_raster <- rasterize(bou_pts, template, field = "pres_abs")
-template_mask <- terra::mask(template, occur_raster, inverse = TRUE)
-
-plot(template_mask)
-
+ggplot(bou_table, aes(MAP_LABEL, group = pres_bkg, fill = factor(pres_bkg))) +
+  geom_bar(position = "dodge", show.legend = TRUE) 
+  
 ```
 
 
 
+## Your turn
 
-# Reference
+::: {.callout-tip collapse="true"}
+1.  Generate a second set of available background points used a method other than "random".
 
-## add RSF refs
+Solution:
+
+```{r}
+
+avail_pts_regular <- spatSample(template, size = 50, as.points = TRUE, na.rm = TRUE, method = "regular")
+mapview(avail_pts_regular)
+
+```
+:::
+
+::: {.callout-tip collapse="true"}
+2.  Use the **bou_table** we created above to explore other landscape patters. Build a ggplot to show the differences between the presence and background points. 
+
+
+Solution:
+
+```{r}
+# Here are a few example using elevation and distance to water. 
+
+# elevation 
+
+ggplot(bou_table, aes(elevation)) +
+  geom_histogram(binwidth = 20) +
+  facet_wrap(~pres_bkg)
+
+
+# distance to water (layer)
+ggplot(bou_table, aes(layer)) +
+  geom_histogram() +
+  facet_wrap(~pres_bkg)
+
+
+```
+:::
+
+
+
+
