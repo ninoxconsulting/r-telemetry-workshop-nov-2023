@@ -582,5 +582,4 @@ ggplot(sbou, aes(factor(month), fill = factor(year)))+
   facet_wrap(~animal.id)+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
-
 ```
