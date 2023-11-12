@@ -165,10 +165,10 @@ plot(roughness)
 ```
 :::
 
-::: {.callout-tip collapse="true"}
 2.  Compare outputs of aspect which the neighbours parameter is adjusted. What difference does this make to the output and the time to process?
 
-Solution:
+::: {.callout-tip collapse="true"}
+## Solution:
 
 ```{r, eval = FALSE}
 
