@@ -189,7 +189,7 @@ rrdensmax <- focal(rroads, w=3, fun="max", na.rm=TRUE)
 
 ::: {.callout-tip collapse="true"}
 
-##Solution:
+## Solution:
 
 ```{r}
 #This solution generates a distance from roads covariate
