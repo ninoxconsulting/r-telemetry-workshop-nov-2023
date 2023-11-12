@@ -59,7 +59,6 @@ We can now convert our polygon to a raster object.
 template <- rast(aoi, resolution = 25, names = "aoi", vals = 0)
 ```
 
-
 export the raster template for later processing
 
 ```{r}
