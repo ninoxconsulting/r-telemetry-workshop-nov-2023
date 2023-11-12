@@ -265,7 +265,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#create-a-standard-raster-template." id="toc-create-a-standard-raster-template." class="nav-link" data-scroll-target="#create-a-standard-raster-template.">1. Create a standard raster template.</a></li>
   <li><a href="#extract-base-data-using-the-cded-dataset" id="toc-extract-base-data-using-the-cded-dataset" class="nav-link" data-scroll-target="#extract-base-data-using-the-cded-dataset">2. Extract base data using the CDED dataset</a></li>
   <li><a href="#generate-dem-derived-covariates" id="toc-generate-dem-derived-covariates" class="nav-link" data-scroll-target="#generate-dem-derived-covariates">3. Generate DEM derived covariates</a></li>
-  <li><a href="#bonus-questions." id="toc-bonus-questions." class="nav-link" data-scroll-target="#bonus-questions.">Bonus Questions.</a></li>
+  <li><a href="#your-turn" id="toc-your-turn" class="nav-link" data-scroll-target="#your-turn">Your Turn</a></li>
   </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/06-raster-data.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
@@ -284,14 +284,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   
 
 </header><section id="overview" class="level2"><h2 class="anchored" data-anchor-id="overview">Overview:</h2>
-<p>In this module we will explore raster data, and the available datasets which can be used in R for analysis. We will:</p>
+<p>In this module we will explore raster data, and the available data sets which can be used in R for analysis. We will:</p>
 <ul>
 <li><p>prepare our study aoi to use with rasters</p></li>
 <li><p>extract DEM data through the <strong>bcmaps</strong> package</p></li>
 <li><p>generate DEM derived covariates,</p></li>
 <li><p>prepare a raster stack with all spatial layers generated to date.</p></li>
 </ul></section><section id="background-rasters" class="level2"><h2 class="anchored" data-anchor-id="background-rasters">Background: Rasters</h2>
-<p>Raster data is information built on a standard grid. These can be characterised by the grid extent (xmin, xmax, ymin, ymax) and can have a coordinate system to orient them in space. Rasters are made up of cells or pixels, based on a resolution or cell size. Each cell contains a single value. The <strong>terra</strong> package contains many functions for manipulating and processing rasters.</p>
+<p>Raster data is information built on a standard grid. These can be characterized by the grid extent (xmin, xmax, ymin, ymax) and can have a coordinate system to orient them in space. Rasters are made up of cells or pixels, based on a resolution or cell size. Each cell contains a single value. The <strong>terra</strong> package contains many functions for manipulating and processing rasters.</p>
 <p>Note we will be using the BC Albers coordinate reference system (EPSG:3005). The advantages of this are 1) BCAlbers is an equal area projection across BC, 2) extent is marked using meters.</p>
 </section><section id="create-a-standard-raster-template." class="level2"><h2 class="anchored" data-anchor-id="create-a-standard-raster-template.">1. Create a standard raster template.</h2>
 <p>For ease of calculations we will create a standard “template” raster which will form the basis for all our data analysis.</p>
@@ -307,26 +307,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># read in the spatial file</span></span>
 <span></span>
-<span><span class="va">bou</span> <span class="op">&lt;-</span> <span class="fu">read_sf</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"clean_data/scott_herd_subset.gpkg"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">bou</span> <span class="op">&lt;-</span> <span class="fu">read_sf</span><span class="op">(</span><span class="st">"clean_data/scott_herd_subset.gpkg"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># read in the aoi previously created</span></span>
-<span><span class="va">aoi</span> <span class="op">&lt;-</span> <span class="fu">read_sf</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"clean_data"</span>, <span class="st">"scott_aoi.gpkg"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span></span>
+<span><span class="va">aoi</span> <span class="op">&lt;-</span> <span class="fu">read_sf</span><span class="op">(</span><span class="st">"clean_data/scott_aoi.gpkg"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We can now convert our polygon to a raster object.</p>
 <div class="cell">
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># create a template raster with a resolution of 25m</span></span>
-<span><span class="va">template</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="va">aoi</span> , resolution <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># create a column name</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">template</span><span class="op">)</span> <span class="op">=</span> <span class="st">"aoi"</span></span>
-<span></span>
-<span><span class="co"># assign all values to zero </span></span>
-<span><span class="fu">values</span><span class="op">(</span><span class="va">template</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">template</span> <span class="op">&lt;-</span> <span class="fu">rast</span><span class="op">(</span><span class="va">aoi</span>, resolution <span class="op">=</span> <span class="fl">25</span>, names <span class="op">=</span> <span class="st">"aoi"</span>, vals <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>export the raster template for later processing</p>
 <div class="cell">
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">writeRaster</span><span class="op">(</span><span class="va">template</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"clean_data"</span>, <span class="st">"template.tif"</span><span class="op">)</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">writeRaster</span><span class="op">(</span><span class="va">template</span>, <span class="st">"clean_data/template.tif"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="extract-base-data-using-the-cded-dataset" class="level2"><h2 class="anchored" data-anchor-id="extract-base-data-using-the-cded-dataset">2. Extract base data using the CDED dataset</h2>
 <p>Now we can use the <strong>bcmaps</strong> package to directly download digital elevation data from the <a href="https://rdrr.io/github/bcgov/bcmaps/man/cded.html">Canadian Digital Elevation Model CDED</a>. Within BC, this is laregly equivalent to the TRIM DEM dataset. We will use the <strong>cded_terra</strong> function.</p>
@@ -344,11 +340,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="va">trim_raw</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>class       : SpatRaster 
-dimensions  : 1664, 3208, 1  (nrow, ncol, nlyr)
+dimensions  : 1656, 3054, 1  (nrow, ncol, nlyr)
 resolution  : 0.0002083333, 0.0002083333  (x, y)
-extent      : -123.6852, -123.0169, 55.67356, 56.02022  (xmin, xmax, ymin, ymax)
+extent      : -123.674, -123.0377, 55.67502, 56.02002  (xmin, xmax, ymin, ymax)
 coord. ref. : lon/lat NAD83 (EPSG:4269) 
-source      : file74fe5f60b320.vrt 
+source      : file15abc7ca8f688.vrt 
 name        : elevation </code></pre>
 </div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">res</span><span class="op">(</span><span class="va">trim_raw</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -362,10 +358,11 @@ name        : elevation </code></pre>
 </div>
 <div class="cell">
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># write out the individual raster</span></span>
-<span><span class="fu">writeRaster</span><span class="op">(</span><span class="va">trim_3005</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"clean_data"</span>, <span class="st">"dem.tif"</span><span class="op">)</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span></span>
+<span><span class="fu">writeRaster</span><span class="op">(</span><span class="va">trim_3005</span>, <span class="st">"clean_data/dem.tif"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="generate-dem-derived-covariates" class="level2"><h2 class="anchored" data-anchor-id="generate-dem-derived-covariates">3. Generate DEM derived covariates</h2>
-<p>Now we can use the terrain functions within the terra package to generate some standard base layers derived from the DEM.</p>
+<p>Now we can use the terrain functions within the <strong>terra</strong> package to generate some standard base layers derived from the DEM.</p>
 <div class="cell">
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># generate slope </span></span>
 <span><span class="va">rslope</span> <span class="op">&lt;-</span> <span class="fu">terrain</span><span class="op">(</span><span class="va">trim_3005</span>, v <span class="op">=</span> <span class="st">"slope"</span>, neighbors <span class="op">=</span> <span class="fl">8</span>, unit <span class="op">=</span> <span class="st">"degrees"</span><span class="op">)</span> </span>
@@ -384,21 +381,77 @@ name        : elevation </code></pre>
 <p><img src="06-raster-data_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>write our the individual rasters</p>
+<p>write our the individual rasters (.tif)</p>
 <div class="cell">
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">writeRaster</span><span class="op">(</span><span class="va">rslope</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"clean_data"</span>, <span class="st">"slope.tif"</span><span class="op">)</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">writeRaster</span><span class="op">(</span><span class="va">rslope</span>, <span class="st">"clean_data/slope.tif"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">writeRaster</span><span class="op">(</span><span class="va">aspect</span> , <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"clean_data"</span>, <span class="st">"aspect.tif"</span><span class="op">)</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">writeRaster</span><span class="op">(</span><span class="va">aspect</span>, <span class="st">"clean_data/aspect.tif"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">writeRaster</span><span class="op">(</span><span class="va">tri</span> , <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"clean_data"</span>, <span class="st">"tri.tif"</span><span class="op">)</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">writeRaster</span><span class="op">(</span><span class="va">tri</span>, <span class="st">"clean_data/tri.tif"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section><section id="bonus-questions." class="level2"><h2 class="anchored" data-anchor-id="bonus-questions.">Bonus Questions.</h2>
+</section><section id="your-turn" class="level2"><h2 class="anchored" data-anchor-id="your-turn">Your Turn</h2>
 <ol type="1">
-<li><p>Explore what other covariates you can generate using the <strong>terra::terrain</strong> function. Hint use <strong>?terrain</strong> to bring up a help file.</p></li>
-<li><p>Compare outputs of aspect which the neighbours parameter is adjusted. What difference does this make to the output and the time to process?</p></li>
+<li>Explore what other covariates you can generate using the <strong>terra::terrain</strong> function. Hint use <strong>?terrain</strong> to bring up a help file.</li>
 </ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution:
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># there are a number of other options to select from including TPI, TRIriley,  roughness, flowdir. </span></span>
+<span><span class="co"># you will need to read the help file to determine which parameter is needed for which terain calculation. </span></span>
+<span></span>
+<span><span class="co">#Example: </span></span>
+<span><span class="op">?</span><span class="fu">terra</span><span class="fu">::</span><span class="va">terrain</span></span>
+<span><span class="va">roughness</span> <span class="op">&lt;-</span>  <span class="fu">terrain</span><span class="op">(</span><span class="va">trim_3005</span>, v <span class="op">=</span> <span class="st">"roughness"</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">roughness</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li>Compare outputs of aspect which the neighbours parameter is adjusted. What difference does this make to the output and the time to process?</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution:
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># generate aspect</span></span>
+<span><span class="va">aspect4</span> <span class="op">&lt;-</span> <span class="fu">terrain</span><span class="op">(</span><span class="va">trim_3005</span>, v <span class="op">=</span> <span class="st">"aspect"</span>, neighbors <span class="op">=</span> <span class="fl">4</span>,  unit <span class="op">=</span> <span class="st">"degrees"</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="co"># generate aspect</span></span>
+<span><span class="va">aspect8</span> <span class="op">&lt;-</span> <span class="fu">terrain</span><span class="op">(</span><span class="va">trim_3005</span>, v <span class="op">=</span> <span class="st">"aspect"</span>, neighbors <span class="op">=</span> <span class="fl">8</span>,  unit <span class="op">=</span> <span class="st">"degrees"</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="co"># use the window to check </span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">aspect4</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">aspect8</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Explore the change in metric if any</span></span>
+<span><span class="va">aspectrr</span> <span class="op">&lt;-</span> <span class="fu">terrain</span><span class="op">(</span><span class="va">trim_3005</span>, v <span class="op">=</span> <span class="st">"aspect"</span>, neighbors <span class="op">=</span> <span class="fl">8</span>,  unit <span class="op">=</span> <span class="st">"radians"</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
 
 
 </section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
