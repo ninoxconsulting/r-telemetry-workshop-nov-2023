@@ -12,7 +12,6 @@ In this module we will create home range estimates using minimum convex polygons
 ```{r}
 library(sf)
 library(mapview)
-#library(ggdensity)
 library(adehabitatHR)
 library(sp)
 library(dplyr)
@@ -31,7 +30,7 @@ bou <- bou |>
 # add coordinates
 tdf <- st_coordinates(bou) |> 
     cbind(bou) |>
-    dplyr::select(location.long, location.lat, herd, animal.id, season) %>% 
+    dplyr::select(location.long, location.lat, herd, animal.id, season) |>  
     st_drop_geometry()
 ```
 
@@ -73,7 +72,7 @@ The **sp** package uses a specific format called SpatialPointsDataFrame. To use 
 
 ```{r}
 #  Create SpatialPointsDataFrame object
-  tdfid <- tdf %>% dplyr::select(location.long, location.lat, animal.id)
+  tdfid <- tdf |>  dplyr::select(location.long, location.lat, animal.id)
 
   coordinates(tdfid) <- c("location.long", "location.lat")
   proj4string(tdfid) <- CRS( "+proj=longlat +datum=WGS84 +units=m +no_defs" )
@@ -130,7 +129,7 @@ It is also possible to run KDE with set barriers and boundaries.
 #### 3.1 kde: h reference parameter
 
 ```{r}
-  tdfu <- tdf  %>% dplyr::select(location.long, location.lat, season)
+  tdfu <- tdf  |>  dplyr::select(location.long, location.lat, season)
     
   # Create a SpatialPointsDataFrame by defining the coordinates
   coordinates(tdfu) <- c("location.long", "location.lat")
@@ -139,9 +138,7 @@ It is also possible to run KDE with set barriers and boundaries.
 
   # define the parameters (h, kern, grid, extent) 
   kde_href  <- kernelUD(tdfgeo, h = "href", kern = c("bivnorm"), grid = 500, extent = 2)
-  
   kde_href
-  
 ```
 
 From this object (**Utilization distribution of several Animals**) we can extract the vertices or polygons which define the percentage we wish to include.
@@ -188,23 +185,23 @@ kde_h3000  <- kernelUD(tdfgeo, h = 3000, kern = c("bivnorm"), grid = 500,extent 
 
 ```
 
-Lets extract the verticies and compare the outputs by building a plot.
+Lets extract the vertices and compare the outputs by building a plot.
 
 ```{r}
 # kde - href = 1000
   ver95_1000 <- getverticeshr(kde_h1000, 95) # get vertices for home range
-  ver95_1000_sf <- st_as_sf(ver95_1000) %>%
+  ver95_1000_sf <- st_as_sf(ver95_1000) |> 
     mutate(h = 1000) # convert to sf object 
 
 # kde - href = 500
   ver95_500 <- getverticeshr(kde_h500, 95) # get vertices for home range
-  ver95_500_sf <- st_as_sf(ver95_500)  %>%
+  ver95_500_sf <- st_as_sf(ver95_500)  |> 
     mutate(h = 500) # convert to sf object 
   
   
 # kde - href = 3000
   ver95_3000 <- getverticeshr(kde_h3000, 95) # get vertices for home range
-  ver95_3000_sf <- st_as_sf(ver95_3000)  %>%
+  ver95_3000_sf <- st_as_sf(ver95_3000)  |> 
     mutate(h = 3000) # convert to sf object 
   
 # bind all data together 
@@ -223,10 +220,11 @@ Lets extract the verticies and compare the outputs by building a plot.
   
 ```
 
+
 ### References
 
--   Packages: estimate Kernel home range Utiliation Distribution Using adehabitatHR (Calenge et al. 2011) (https://cran.r-project.org/web/packages/adehabitatHR/vignettes/adehabitatHR.pdf)
--   KDE : "http://www.spatialecology.com/gme/kde.htm"
+-   Packages: Estimate Kernel home range Utilization Distribution Using adehabitatHR [(Calenge et al. 2011)](https://cran.r-project.org/web/packages/adehabitatHR/vignettes/adehabitatHR.pdf)
+-   [KDE]("http://www.spatialecology.com/gme/kde.htm")
 -   https://www.ckwri.tamuk.edu/sites/default/files/publication/pdfs/2017/leonard_analyzing_wildlife_telemetry_data_in_r.pdf
 -   Seaman, D. E., Millspaugh, J. J., Kernohan, B. J., Brundige, G. C., Raedeke, K. J., & Gitzen, R. A. (1999). Effects of sample #size on kernel home range estimates. The journal of wildlife management, 739-747.
 -   Kernohan, B. J., R. A. Gitzen, and J. J. Millspaugh. 2001. Analysis of animal space use and movements. Pages 125--166 in J. J. #Millspaugh and J. M. Marzluff, editors. Radio tracking and animal populations. Academic Press, San Diego, CA, USA
