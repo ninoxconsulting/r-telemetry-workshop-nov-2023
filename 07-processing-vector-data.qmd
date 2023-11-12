@@ -25,7 +25,6 @@ In this example we will generate a raster to quantifying the impact of road type
 ```{r}
 #| message: false
 # load in the libraries needed
-
 library(bcdata)
 library(sf)
 library(dplyr)
@@ -45,7 +44,6 @@ We can use this column to assign values to reflect this. In this example we assi
 
 ```{r}
 # assign a value to the roads based on estimated speed of travel or use
-
 roads <- roads |>
   mutate(rd_value = case_when(
             ROAD_SURFACE == "loose" ~ 25,
@@ -72,7 +70,6 @@ Moving windows or focal calculations estimate a new value for each pixel based o
 
 ```{r}
 # create a moving window 
-
 rrdens <- focal(rroads, w=9, fun="sum", na.rm=TRUE)
 
 plot(rrdens)
@@ -81,7 +78,6 @@ plot(rrdens)
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "road_density.tif")) || isTRUE(params$write)'
-
 writeRaster(rrdens, "clean_data/road_density.tif", overwrite = TRUE) 
 
 ```
@@ -125,7 +121,6 @@ water <- read_sf("clean_data/water.gpkg")
 streams <- read_sf("clean_data/streams.gpkg")
 roads <- read_sf("clean_data/roads.gpkg")
 
-
 # convert to rasters
 rbec <- rasterize(bec, template, field = "MAP_LABEL")
 rvri_conif <- rasterize(vri_conif, template, field = "conif")
@@ -136,9 +131,7 @@ rwater <- rasterize(water, template, field = "WATERBODY_TYPE" )
 rstreams <- rasterize(streams, template, field = "STREAM_ORDER" )
 rroads <- rasterize(roads, template, field = "ROAD_SURFACE" )
 
-
 # stack into a set of rasters
-
 vect_stack <- c(rbec, rvri_conif, rvri_ageclass, rvri_cc,
                 rcutblocks, rwater, rstreams, rroads, 
                 water_dis, rrdens)
@@ -150,25 +143,19 @@ plot(vect_stack)
 Lets combine these with the terrain rasters we created [earlier](06-raster-data.qmd).
 
 ```{r}
-
 rslope <- rast("clean_data/slope.tif")
 raspect <- rast("clean_data/aspect.tif")
 rtri  <- rast("clean_data/tri.tif")
 rtrim_3005 <- rast("clean_data/dem.tif")
 
-
 # create a raster stack
 rast_stack <- c(rtrim_3005, rslope, raspect, rtri)
-
 
 ```
 
 ## 4. Combine raster layers into a stack
 
 ```{r}
-
-# lets combine both the raster stack and the vector stack 
-
 all_stack <- c(vect_stack, rast_stack)
 
 plot(all_stack)
@@ -189,29 +176,26 @@ saveRDS(all_stack, "clean_data/covars.RDS") # much faster
 1.  Generate a road density later using a different function (i.e. not sum), and or different scale of window (w). Hint: use the ?focal to see other options available.
 
 ::: {.callout-tip collapse="true"}
-## Solution:
+## Solution
 
 ```{r}
 # One example would be to generate the "max" value of the moving window. Note the w parameter is also reduced in the example. 
-
 rrdensmax <- focal(rroads, w=3, fun="max", na.rm=TRUE)
 
 ```
 :::
 
-::: {.callout-tip collapse="true"}
 2.  Select another linear feature (roads, steams) and generate a raster to capture the distance to that feature for the study area.
 
-Solution:
+::: {.callout-tip collapse="true"}
+
+## Solution:
 
 ```{r}
 #This solution generates a distance from roads covariate
+roads <- read_sf("clean_data/roads.gpkg") # read in roads
 
-# read in roads
-roads <- read_sf("clean_data/roads.gpkg")
-
-# calculate distance - be patient this might take time. 
-road_dis <- distance(template, roads, unit = "km")
+road_dis <- distance(template, roads, unit = "km") # calculate distance - be patient this might take time. 
 
 plot(road_dis)
 

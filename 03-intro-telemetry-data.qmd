@@ -20,7 +20,7 @@ In this module we will read in, clean, QA and summarize raw telemetry data. This
 
 -   standardize fix rate of telemetry points for future analysis
 
-## Background data:
+## Caribou data set:
 
 In this workshop we will use GPS telemetry data from Mountain Caribou (*Rangifer terendus*) herds in the Peace region of British Columbia. The full data set and metadata can be found on [movebank](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study216040785), also see [bonus content - How to download data from movebank](bonus-movebank.qmd). The data set used in this course has been modified for demonstration purposes and should not be used in analysis.
 
@@ -30,9 +30,7 @@ In this course we will be providing two files (Mountain caribou in British Colum
 
 ```{r read-in-raw-data}
 #| message: false
-
 # load libraries 
-
 library(readr)
 library(sf)
 library(readxl)
@@ -40,9 +38,7 @@ library(dplyr)
 library(lubridate)
 library(ggplot2)
 
-
 # Read in data files.
-
 ref_raw <- read_csv("raw_data/Mountain caribou in British Columbia-reference-data.csv", 
                     name_repair = "universal") # use this to standardise the column names
 
@@ -53,9 +49,7 @@ loc_raw <- read_xlsx("raw_data/Mountain caribou.xlsx")
 Lets take a look....
 
 ```{r review-raw-data}
-
 # Reference data 
-
 head(ref_raw)
 
 names(ref_raw)
@@ -65,22 +59,17 @@ ref_short <- ref_raw |>
          deployment.end.type,tag.model, tag.manufacturer.name, tag.serial.no)
 
 # Location data
-
 head(loc_raw)
-
 
 ```
 
 We can combine these data sets and keep the columns of interest
 
 ```{r filter-raw-fields}
-
 # create a new data set by joining on a common field
-
 all_data <- left_join(loc_raw, ref_raw, by = c('tag.local.identifier' = 'tag.id') )
 
 # filter the columns of interest
-
 all_data <- all_data |> 
   select(event.id, location.long, location.lat, DOP, FixType, herd,
          study.specific.measurement, sensor.type, tag.local.identifier, date, animal.id,
@@ -96,11 +85,9 @@ all_data <- all_data |>
 Lets check for NA or missing values.
 
 ```{r remove-NA-values}
-
 head(all_data)
 
 # check if there are NA's in the data 
-
 apply(all_data, 2, function(x) any(is.na(x)))
 
 ```
@@ -108,14 +95,11 @@ apply(all_data, 2, function(x) any(is.na(x)))
 Several columns contain NA's and need more exploration.
 
 ```{r remove-NA-values2}
-
 # filter missing values for latitude, longitude and date.
-
 tdata <- all_data |> 
   filter(!is.na(date)) |> # keep any rows which are not NA
   filter(!is.na(location.long)) |> 
   filter(!is.na(location.lat))
-
 
 # Herd
 unique(tdata$herd)
@@ -128,7 +112,6 @@ tdata <- tdata |>
     animal.id == "SC_car170" ~ "Scott",
     .default = herd
   ))
-
 
 ## rerun the NA check to confirm 
 
@@ -143,12 +126,11 @@ Timestamps can be confusing and problematic, especially when working with multip
 We firstly need to format the raw data into a date format using **lubridate** package.
 
 ```{r convert-time-stamp}
-
 # calculate time differences
 tdata <- tdata  |> 
   mutate(date_time = ymd_hms(date)) 
 
-# owch we still have an error in this dataset
+# owch we still have an error in this data set
 
 # lets see if we can find it..... 
 
@@ -192,19 +174,15 @@ Next we will review the spatial accuracy of the point data. We have two columns 
 Note: For quick review of spatial errors it is helpful to view the data in QGIS or built a quick map or vizualisation (this is covered later in the [workshop](04-spatial-data-viz.qmd)).
 
 ```{r clean-lat-longs}
-
 # review Latitudes and Longitude values 
-
 range(tdata$location.lat)
 hist(tdata$location.lat)
 
 # Note some points are above 65 Latitude
-
 range(tdata$location.long)
 hist(tdata$location.long)
 
 # Lets set an upper limit and filter values which are within the range we want.
-
 tdata <- tdata |> 
   filter(location.long <= -100) |> 
   filter(location.lat <= 65)
@@ -216,33 +194,24 @@ tdata <- tdata |>
 To refine the level of precision we can use the metrics DOP (Dilution of Precision) and Fixtype information which is associated with each location observation.
 
 ```{r DOP-review}
-
 range (tdata$DOP)
-
 hist(tdata$DOP)
 
-#unique(tdata$DOP)
-
 # We only want to keep fixes with a DOP less than 10m
-
 fdata <- tdata |> 
   filter(DOP <= 10)
-
 
 ```
 
 The Fixtype is generally classified into categories, based on the level of precision of the calculated location i.e. the number of satellite used to triangulate the fixes. These metrics will vary with the device type and model. More information will be available through the manufacturer website (For example: [Lotek Iridium collars](https://www.lotek.com/products/litetrack-iridium-250-750) ).
 
 ```{r fixtype-review}
-
 # check the number of records per fix type
-
 fdata |> 
   group_by(FixType) |> 
   summarise(count = n())
 
 # We will only keep the higher level of precision
-
 fdata <- fdata |> 
   filter(FixType != "GPS-2D")
 
@@ -257,7 +226,6 @@ glimpse(fdata)
 The final step is to remove redundant columns.
 
 ```{r remove-unused-cols}
-
 fdata <- fdata |> 
   select(-FixType, -DOP, -date, -study.specific.measurement, -sensor.type, -event.id)
 
@@ -275,9 +243,7 @@ write_csv(fdata, "clean_data/caribou.csv")
 #### 3b. Convert to spatial file and export
 
 ```{r write-out}
-
 # convert to a sf object and transform to BC Albers
-
 bou <- st_as_sf(fdata, coords = c("location.long", "location.lat"), 
                 crs = 4326, remove = FALSE) |> 
   st_transform(3005)
@@ -307,16 +273,13 @@ write_sf(bou, "clean_data/caribou.shp")
 Now we have clean data to work with we can get to the fun data exploration part!
 
 ```{r read-in-geopackage}
+bou = read.csv("clean_data/caribou.csv")
 
-#bou = read.csv("clean_data/caribou.csv")
-
-# or 
+#or 
 
 bou_sf = read_sf("clean_data/caribou.gpkg")
 
 bou <- st_drop_geometry(bou_sf)
-
-glimpse(bou)
 
 ```
 
@@ -330,7 +293,6 @@ glimpse(bou)
 Lets start with the basics:
 
 ```{r summarise-clean-data}
-
 # how many herds?
 no_herds = unique(bou$herd)
 
@@ -360,7 +322,6 @@ There is lots of data here, so to make it easy we will just use the Scott herd.
 
 ```{r summarise-scott-herd}
 # Filter the Scott herd only 
-
 sbou <- bou |> 
   filter(herd == "Scott")
 
@@ -382,14 +343,12 @@ Next we format the date variable so we can filter by months and years. We can al
 -   Winter (December to March)
 
 ```{r add-seasons}
-
 sbou <- sbou |> 
   mutate(season = case_when(
             month %in% c(4,5) ~ "spring",
             month %in% c(6,7,8) ~ "summer",
             month %in% c(9,10,11) ~ "fall",
             month %in% c(12,1,2,3) ~ "winter")) 
-            
   
 # check data spread
 counts.per.season = sbou |> 
@@ -400,7 +359,6 @@ ggplot(counts.per.season, aes(x = season, y = count)) +
   geom_bar(stat = "identity") + 
   facet_wrap(~animal.id) +
   labs(x = "season", y = "no.of.fixes", title = "Scott Herd")
-
 ```
 
 Then we can save our plot
@@ -418,14 +376,11 @@ The duration of the collars is also an important question. These can tell us not
 Lets calculate the minimum, maximum and duration between fix times.
 
 ```{r collar-duration}
-
 # which years were the collars active?
 ggplot(sbou, aes(year, fill = animal.id)) +
   geom_bar(position = "dodge")
 
-
 # calculate the minimum and max dates per collar 
-
 table_max <- sbou |> 
   select(animal.id, date_time) |> # select the columns of interest
   slice_max(date_time, by = animal.id)  # select the max value of date_time, per animal.id
@@ -437,9 +392,7 @@ table_min <- sbou |>
 
 colnames(table_min)<- c("animal.id","min")
 
-
 # merge the two tables together and calculate the duration 
-
 dur <- left_join(table_max, table_min, by = join_by(animal.id)) |> 
   distinct() |> 
   mutate(duration = max - min) |> # calculate duration (default is days)
@@ -448,9 +401,7 @@ dur <- left_join(table_max, table_min, by = join_by(animal.id)) |>
   mutate(year_start = year(min), 
          year_end = year(max))
 
-
 # plot total duration of collar data 
-
 ggplot(dur, aes(y=factor(animal.id))) +
   geom_segment(aes(x=min, xend=max, y=factor(animal.id), yend=factor(animal.id)), linewidth = 3)+
   xlab("Date") + ylab("Tag") 
@@ -467,7 +418,6 @@ ggplot(sbou, aes(factor(month), fill = factor(year)))+
 Another data processing method we might need to consider is having a standard density or fix rate for all animals. This may not be required, depending on the research question being asked, but it is useful to assess measures of density.
 
 ```{r check-fix-per-day}
-
 sbou <- sbou |> 
   arrange(animal.id, date_time)
 
@@ -476,7 +426,6 @@ sbou_dur <- sbou |>
     group_by(animal.id) |> 
     mutate(diff = difftime(time, lag(time),  units = c("hours")), 
            diff = as.numeric(diff))
-
 
 # we can see a big range in the time intervals for the fixes
 range(sbou_dur$diff, na.rm = TRUE)
@@ -488,7 +437,6 @@ hist(sbou_dur$diff)
 ggplot(sbou_dur, aes(diff)) + 
   geom_histogram(bins=30) +
   facet_grid(.~animal.id)
-
 
 # much of the problem is with the SC_car171 individual 
 ggplot(sbou_dur, aes(y = diff, x = date_time)) + 
@@ -509,7 +457,6 @@ sbou_dur <- sbou_dur |>
     jdate=julian(date2)               # create new column and calculate Julian date 
   )
 
-
 # Check the multiple counts of animals per day 
 counts.per.day.jdate <- sbou_dur |> 
   group_by(animal.id, jdate, year) |> 
@@ -517,19 +464,16 @@ counts.per.day.jdate <- sbou_dur |>
   group_by(animal.id, total, year) |> 
   summarise(total.j = n()) 
 
-
 # lets plot this data to make more sense of what is happening
 ggplot(counts.per.day.jdate, aes(x = total, y = total.j)) + 
   geom_point() +
   geom_vline(xintercept = 1, color = "red")+
   facet_wrap(.~animal.id + year)
 
-
 # lets select the first fix per day 
 sbou_sub <- sbou_dur |> 
     group_by(animal.id, jdate) |> 
     slice_sample( n = 1) 
-
 
 ```
 
@@ -538,7 +482,6 @@ We can write out the standardized fix rate file for future use in analysis.
 ```{r write-standard-subset-csv}
 #| eval: !expr '!file.exists(file.path("clean_data", "scott_herd_subset.csv")) || isTRUE(params$write)'
 # lets write this out as .csv and .Gpkg
-
 write_csv(sbou_sub, "clean_data/scott_herd_subset.csv")
 
 ```
@@ -546,7 +489,6 @@ write_csv(sbou_sub, "clean_data/scott_herd_subset.csv")
 Alternatively we can convert to a sf object and export. Note this is required as we previously remove the spatial components to undertake the summaries above.
 
 ```{r write-standard-subset-gpk}
-
 sbou_sub_sf <- st_as_sf(sbou_sub, coords = c("location.long", "location.lat"), crs = 4326, remove = FALSE) |> 
   st_transform(3005)
 
@@ -561,25 +503,44 @@ write_sf(sbou_sub_sf, "clean_data/scott_herd_subset.gpkg")
 
 ```
 
-### Add Questions: STILL TO DO:
-
-::: {.callout-tip collapse="true" appearance="minimal"}
-## Your Turn
-
-The answer is:
 
 ```{r}
-1 + 1
-```
-:::
-
-```{r}
-
-
 # plot months of the year. 
-ggplot(sbou, aes(factor(month), fill = factor(year)))+
+ggplot(sbou, aes(factor(month), fill = factor(year))) +
   geom_bar(position = "dodge") +
   facet_wrap(~animal.id)+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 ```
+
+
+
+## Your Turn
+
+1. Use the Burnt Pine herd to answer the following questions: 
+- how many animals in this herd?
+- how many records are in this herd per animal?
+- what is the sex ratio of collared animals?
+
+::: {.callout-tip collapse="true"}
+## Solution
+
+```{r, eval = FALSE}
+bou_sf = read_sf("clean_data/caribou.gpkg")
+
+bp <- bou_sf |> 
+  filter(herd == "Burnt Pine")
+
+no_animals = unique(bp$animal.id)
+
+no_records_per_animal <- bp |> 
+  group_by(animal.id) |> 
+  summarise(count = n())
+
+no_animals_sex <- bp |> 
+  group_by(animal.sex) |> 
+  summarise(count = n())
+
+```
+:::
+
