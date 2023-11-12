@@ -199,10 +199,11 @@ rrdensmax <- focal(rroads, w=3, fun="max", na.rm=TRUE)
 ```
 :::
 
-::: {.callout-tip collapse="true"}
 2.  Select another linear feature (roads, steams) and generate a raster to capture the distance to that feature for the study area.
 
-Solution:
+::: {.callout-tip collapse="true"}
+
+##Solution:
 
 ```{r}
 #This solution generates a distance from roads covariate
