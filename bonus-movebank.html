@@ -321,7 +321,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu">select</span><span class="op">(</span><span class="va">id</span>, <span class="va">name</span>, <span class="va">number_of_deployed_locations</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">number_of_deployed_locations</span><span class="op">)</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We can get a full list of datasets available for download. We can use the id number to extract data directly from the movebank repository through the move2 API link.</p>
+<p>We can get a full list of data sets available for download. We can use the id number to extract data directly from the movebank repository through the move2 API link.</p>
 <p>Lets look at the <strong>Peregrine Falcon, High Arctic Institute, northwest Greenland..</strong> study, where the id = 7249090.</p>
 <p>This gives us an overview of the study information.</p>
 <div class="cell">
@@ -350,7 +350,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">bird_deply</span> <span class="op">&lt;-</span> <span class="fu">movebank_download_deployment</span><span class="op">(</span><span class="fl">7249090</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="extra-challenge" class="level2"><h2 class="anchored" data-anchor-id="extra-challenge">Extra challenge!</h2>
-<p>If you are interested in viewing the entire Caribou dataset you can find it on movebank (study_id = 216040785)</p>
+<p>If you are interested in viewing the entire Caribou data set you can find it on movebank (study_id = 216040785)</p>
 <div class="cell">
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># download the study info details</span></span>
 <span><span class="va">bou</span> <span class="op">&lt;-</span> <span class="fu">movebank_download_study_info</span><span class="op">(</span>study_id <span class="op">=</span> <span class="fl">216040785</span><span class="op">)</span></span>
