@@ -159,7 +159,7 @@ ggplot(bou_table, aes(MAP_LABEL, group = pres_bkg, fill = factor(pres_bkg))) +
 
 ::: {.callout-tip collapse="true"}
 
-##Solution:
+## Solution:
 
 ```{r}
 avail_pts_regular <- spatSample(template, size = 50, as.points = TRUE, na.rm = TRUE, method = "regular")
