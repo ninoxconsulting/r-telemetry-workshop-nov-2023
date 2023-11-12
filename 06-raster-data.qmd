@@ -29,7 +29,6 @@ For ease of calculations we will create a standard "template" raster which will 
 ```{r}
 #| message: false
 # read in the libraries needed
-
 library(dplyr)
 library(sf)
 library(bcmaps)
@@ -40,17 +39,13 @@ library(terra)
 Read in our AOI that we made and saved previously. We can then convert this to a raster with a resolution of given size. In this example we will select 25m.
 
 ```{r}
-
 # read in the spatial file
-
 bou <- read_sf("clean_data/scott_herd_subset.gpkg")
 
 ```
 
 ```{r}
-
 # read in the aoi previously created
-
 aoi <- read_sf("clean_data/scott_aoi.gpkg")
 
 ```
@@ -58,9 +53,7 @@ aoi <- read_sf("clean_data/scott_aoi.gpkg")
 We can now convert our polygon to a raster object.
 
 ```{r}
-
 # create a template raster with a resolution of 25m
-
 template <- rast(aoi, resolution = 25, names = "aoi", vals = 0)
 
 ```
@@ -76,21 +69,16 @@ writeRaster(template, "clean_data/template.tif", overwrite = TRUE)
 
 ## 2. Extract base data using the CDED dataset
 
-Now we can use the **bcmaps** package to directly download digital elevation data from the [Canadian Digital Elevation Model CDED](https://rdrr.io/github/bcgov/bcmaps/man/cded.html). Within BC, this is laregly equivalent to the TRIM DEM dataset. We will use the **cded_terra** function.
+Now we can use the **bcmaps** package to directly download digital elevation data from the [Canadian Digital Elevation Model CDED](https://rdrr.io/github/bcgov/bcmaps/man/cded.html). Within BC, this is largely equivalent to the TRIM DEM data set. We will use the **cded_terra** function.
 
 ```{r}
-
-# extract DEM raw data - Note this is downloaded in tiles which will be cached to avoid the need to redownload repeatedly 
-
+# Note this is downloaded in tiles which will be cached 
 trim_raw <- bcmaps::cded_terra(aoi)
 
-# lets look at the raster
-trim_raw
+trim_raw # note this is in WGS so we need to convert to 3005
 res(trim_raw)
 
-# note this is in WGS so we need to convert to 3005
 # reproject to match our raster template crs and extent
-
 trim_3005 <- project(trim_raw, template)
 
 ```
@@ -98,7 +86,6 @@ trim_3005 <- project(trim_raw, template)
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "dem.tif")) || isTRUE(params$write)'
 # write out the individual raster
-
 writeRaster(trim_3005, "clean_data/dem.tif", overwrite = TRUE) 
 
 ```
@@ -108,7 +95,6 @@ writeRaster(trim_3005, "clean_data/dem.tif", overwrite = TRUE)
 Now we can use the terrain functions within the **terra** package to generate some standard base layers derived from the DEM.
 
 ```{r}
-
 # generate slope 
 rslope <- terrain(trim_3005, v = "slope", neighbors = 8, unit = "degrees") 
 
@@ -146,18 +132,20 @@ writeRaster(tri, "clean_data/tri.tif", overwrite = TRUE)
 
 ```
 
+
 ## Your Turn
 
-1.  Explore what other covariates you can generate using the **terra::terrain** function. Hint use **?terrain** to bring up a help file.
+1.  Explore what other covariates you can generate using the **terra::terrain** function. Hint use **?terrain** to see the help file.
 
 ::: {.callout-tip collapse="true"}
 ## Solution:
 
 ```{r, eval = FALSE}
-# there are a number of other options to select from including TPI, TRIriley,  roughness, flowdir. 
-# you will need to read the help file to determine which parameter is needed for which terain calculation. 
+#There are a number of other options to select from including TPI, TRIriley, roughness, flowdir. 
+#Use the ?terrain to find details on the parameters needed
 
 #Example: 
+
 ?terra::terrain
 roughness <-  terrain(trim_3005, v = "roughness") 
 plot(roughness)
@@ -171,7 +159,6 @@ plot(roughness)
 ## Solution:
 
 ```{r, eval = FALSE}
-
 # generate aspect
 aspect4 <- terrain(trim_3005, v = "aspect", neighbors = 4,  unit = "degrees") 
 
@@ -181,7 +168,6 @@ aspect8 <- terrain(trim_3005, v = "aspect", neighbors = 8,  unit = "degrees")
 # use the window to check 
 plot(aspect4)
 plot(aspect8)
-
 
 # Explore the change in metric if any
 aspectrr <- terrain(trim_3005, v = "aspect", neighbors = 8,  unit = "radians") 
