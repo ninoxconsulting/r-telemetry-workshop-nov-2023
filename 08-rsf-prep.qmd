@@ -1,5 +1,7 @@
 ---
 title: "Generate random sample points for RSF"
+execute: 
+  eval: false
 ---
 
 ## Overview:

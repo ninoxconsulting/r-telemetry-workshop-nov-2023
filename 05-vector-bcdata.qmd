@@ -264,7 +264,7 @@ water <- bind_rows(lakes, wetlands) |>
 
 ```{r write-waterbodies}
 #| eval: !expr '!file.exists(file.path("clean_data", "water.gpkg")) || isTRUE(params$write)'
-write_sf(wetlands, file.path("clean_data", "water.gpkg"))
+write_sf(water, file.path("clean_data", "water.gpkg"))
 ```
 
 ## Stream Index
