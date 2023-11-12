@@ -144,8 +144,6 @@ writeRaster(tri, "clean_data/tri.tif", overwrite = TRUE)
 #There are a number of other options to select from including TPI, TRIriley, roughness, flowdir. 
 #Use the ?terrain to find details on the parameters needed
 
-#Example: 
-
 ?terra::terrain
 roughness <-  terrain(trim_3005, v = "roughness") 
 plot(roughness)
