@@ -10,7 +10,6 @@ In this module we will use caribou data to create home range estimates using ker
 
 
 ```{r}
-
 library(sf)
 #install.packages("ks")
 library(ks)
@@ -37,7 +36,7 @@ bou <- st_coordinates(bou) |>
 ```
 
 
-```{r, mcp-hr}
+```{r, mcp-hr, eval = FALSE}
 
 # Basic Home range 
 
@@ -51,7 +50,7 @@ plot(bou$geom, col = "blue", add = T)
 
 ```
 
-```{r, kernal-density-basic}
+```{r, kernal-density-basic, eval = FALSE}
 
 # 2. Kernal Density estimate. 
 
@@ -112,9 +111,9 @@ p + geom_hdr_lines()
 
 
 
-https://bookdown.org/egarpor/NP-UC3M/kde-i-kde.html
+#https://bookdown.org/egarpor/NP-UC3M/kde-i-kde.html
 
-https://cran.r-project.org/web/packages/ks/vignettes/kde.pdf
+#https://cran.r-project.org/web/packages/ks/vignettes/kde.pdf
 
 
 ###################################################################
