@@ -561,25 +561,39 @@ write_sf(sbou_sub_sf, "clean_data/scott_herd_subset.gpkg")
 
 ```
 
-### Add Questions: STILL TO DO:
-
-::: {.callout-tip collapse="true" appearance="minimal"}
-## Your Turn
-
-The answer is:
-
-```{r}
-1 + 1
-```
-:::
 
 ```{r}
 
 
 # plot months of the year. 
-ggplot(sbou, aes(factor(month), fill = factor(year)))+
+ggplot(sbou, aes(factor(month), fill = factor(year))) +
   geom_bar(position = "dodge") +
   facet_wrap(~animal.id)+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 ```
+
+
+
+## Your Turn
+
+1.  
+
+::: {.callout-tip collapse="true"}
+## Solution:
+
+```{r, eval = FALSE}
+
+```
+:::
+
+2.  
+
+::: {.callout-tip collapse="true"}
+## Solution:
+
+```{r, eval = FALSE}
+
+
+```
+:::
