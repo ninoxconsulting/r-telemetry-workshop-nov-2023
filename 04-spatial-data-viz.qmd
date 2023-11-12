@@ -5,13 +5,14 @@ title: "Visualization of Spatial Data"
 ## Outline
 
 - Quick recap of `plot()`
-- Pretty (and useful) maps with `ggplot2`
+- Pretty (and useful) maps with `{ggplot2}`
 - Visualizing point density
-- Interactive maps with mapview/leaflet
+- Visualize individual animal movement
 
 ## `plot` sf objects
 
-Previously we used `plot()` to quickly plot sf objects:
+Previously we used `plot()` to view our `sf` objects - this is a nice quick way
+to visualize our data for verification or glance at the different variables.
 
 First, read in the caribou data:
 
@@ -33,23 +34,29 @@ can plot just the points by extracting just the geometry with `st_geometry()`:
 st_geometry(caribou) |> 
   plot()
 ```
-Or, plot just one variable of interest:
+Or, plot just one or a few variables of interest:
 
 ```{r}
 #| warning: false
 caribou |> 
-  select(herd) |> # select just the herd column (called herd)
-  plot(key.pos = 1)
+  select(herd, animal.sex) |> # select just the herd and sex columns
+  plot(key.pos = 1) # put the legend at the bottom
 ```
 
-We can also add a base map for context. Let's use the `bcmaps` package to get a map of the
-B.C. Natural resource boundaries:
+We can also add a base map for context. Let's use the `bcmaps` package to get a 
+base map. `{bcmaps}` has a large collection of useful maps of B.C.:
 
 ```{r}
 #| warning: false
 #| message: false
 library(bcmaps)
 
+available_layers()
+```
+
+Let's get the B.C. Natural resource boundaries:
+
+```{r}
 nr <- nr_districts()
 
 st_geometry(nr) |> 
@@ -67,11 +74,12 @@ want to do...
 
 ## ggplot2
 
-[ggplot2](https://ggplot2.tidyverse.org) is a plotting package built on the theory of the "Grammar of Graphics", 
-where a plot is built up in layers:
+[ggplot2](https://ggplot2.tidyverse.org) is a plotting package built on the theory of the "Grammar of Graphics", where a plot is built up in layers:
 
-We start with the data, then add the graphical marks (points, lines, bars, etc. called "geom"s) we want to use
-to represent the data, and specify "aesthetics" for how to map variables in our data to
+1. We start with the data, then 
+2. add the graphical marks (points, lines, bars, etc. called "geom"s) we want to use
+to represent the data, and 
+3. specify "aesthetics" for how to map variables in our data to
 visual representations on the plot.
 
 Let's start with a simple histogram of fixes over time:
@@ -88,7 +96,8 @@ ggplot(data = caribou) + # start with data
   )
 ```
 
-We can add a "fill" aesthetic to differentiate herds:
+We can add a "fill" aesthetic to differentiate herds, i.e., group the bars by
+herd, and use a different fill colour for each herd:
 
 ```{r}
 library(ggplot2)
@@ -119,14 +128,17 @@ ggplot(data = caribou) +
   )
 ```
 
-We have a lot of overlapping points, so the actual density of fixes is somewhat
-obscured. We can fix this in several ways:
+We have a lot of overlapping points, so the actual density of fixes is 
+obscured. We can address this in several ways:
 
 ### Transparency
 
 We can see the density of points better by making them partially transparent. 
-We do this by setting the `alpha` aesthetic to a value between 0 and 1 
+We do this by setting the `alpha` parameter to a value between 0 and 1 
 (0 is fully transparent, 1 is fully opaque).
+
+Note that we are setting `alpha` to a constant value *outside* the `aes()` call, 
+so the setting applies equally to all points (it is not mapped to a variable).
 
 ```{r}
 ggplot(data = caribou) +
@@ -137,6 +149,10 @@ ggplot(data = caribou) +
   scale_colour_viridis_d() + 
   theme_bw()
 ```
+
+We can subset our plot into "small multiples", or "facets" - making a small
+plot for each level of a variable in our data. For example, let's look at the 
+distribution of points in each month, still colouring the points by herd:
 
 ```{r}
 ggplot(data = caribou) +
@@ -149,10 +165,51 @@ ggplot(data = caribou) +
   theme_bw()
 ```
 
-### Binning
+#### Your turn
+
+Read in the scott data (`clean_data/scott_herd_subset.gpkg`), 
+and plot the fixes, coloured by reproductive condition, and faceted by season 
+and year. Hint: see `?facet_grid`.
+
+For bonus points, remove the lat/long labels using the `theme()` function.
+
+::: {.callout-tip collapse="true"}
+## solution
 
 ```{r}
+scott <- read_sf("clean_data/scott_herd_subset.gpkg")
+
+ggplot(scott) +
+  geom_sf(aes(colour = animal.reproductive.condition), alpha = 0.3) + 
+  facet_grid(season ~ year) + 
+  theme(axis.text = element_blank())
+```
+
+to get the seasons in a sensible order, set them to a factor and define the order
+of the levels:
+
+```{r}
+ggplot(scott) +
+  geom_sf(aes(colour = animal.reproductive.condition), alpha = 0.3) + 
+  facet_grid(
+    factor(season, levels = c("winter", "spring", "summer", "fall")) ~ year
+  ) + 
+  theme(axis.text = element_blank())
+```
+:::
+
+### Binning
+
+Another way to look at the density of points is binning - sort of like a spatial 
+histogram, but instead of using bar height to represent relative numbers, use 
+colour. We can use `geom_hex()` to divide our space up into a hexagonal grid
+and colour the hexagons based on the number of points in each:
+
+```{r}
+# Start by extracting the X and Y coordinates as columns in our data set:
 caribou <- cbind(st_coordinates(caribou), caribou)
+
+head(caribou)
 
 ggplot(data = caribou) +
   geom_hex(aes(x = X, y = Y)) + 
@@ -161,7 +218,7 @@ ggplot(data = caribou) +
   theme_bw()
 ```
 
-We can use facetting to split out the two herds:
+We can still use faceting to split out the two herds:
 
 ```{r}
 ggplot(data = caribou) +
@@ -172,7 +229,7 @@ ggplot(data = caribou) +
   theme_bw()
 ```
 
-If we want to add multiple layers together, we simply add multiple geoms, and
+If we want to add multiple layers to our map, we simply add multiple geoms, and
 add the name of the layer to the `data` argument in each:
 
 ```{r}
@@ -184,7 +241,7 @@ ggplot() +
   theme_bw()
 ```
 
-We can zoom in be specifying the limits in `coord_sf()`
+We can zoom in by specifying the plot limits in `coord_sf()`
 
 ```{r}
 ggplot() +
@@ -192,16 +249,17 @@ ggplot() +
   geom_hex(aes(x = X, y = Y), data = caribou) + 
   scale_fill_viridis_c() + 
   coord_sf(
-    xlim = range(caribou$X) + c(-20000, 20000),
+    xlim = range(caribou$X) + c(-20000, 20000), # Add 20 km to all sides
     ylim = range(caribou$Y) + c(-20000, 20000)
   ) +
   facet_wrap(vars(herd)) +
   theme_bw()
 ```
 
-## Density
+## Probability density
 
-We can also visualize the probability density of fixes, using the `{ggdensity}` package:
+We can also visualize a smooth probability density of fixes, using the 
+`{ggdensity}` package:
 
 ```{r}
 #| warning: false
@@ -209,10 +267,13 @@ library(ggdensity)
 
 ggplot(data = caribou) +
   geom_hdr(aes(x = X, y = Y, fill = herd)) + 
-  scale_fill_viridis_d(option = "turbo") +
   coord_sf() + 
   theme_bw()
 ```
+
+The regions have probabilities mapped to the `alpha` aesthetic by default - the `probs` legend shows the alhpa levels.
+
+Now let's do a bit of work to make the plot look more finished:
 
 ```{r}
 #| warning: false

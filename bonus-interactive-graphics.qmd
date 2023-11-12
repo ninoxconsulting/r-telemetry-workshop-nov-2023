@@ -55,7 +55,7 @@ animate(
   width = 10, 
   height = 6, 
   units = "in", 
-  res = 150, 
+  res = 72, 
   fps = 10, 
   nframes = 300
 )
