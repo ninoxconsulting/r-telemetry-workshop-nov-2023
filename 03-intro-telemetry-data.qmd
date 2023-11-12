@@ -517,23 +517,30 @@ ggplot(sbou, aes(factor(month), fill = factor(year))) +
 
 ## Your Turn
 
-1.  
+1. Use the Burnt Pine herd to answer the following questions: 
+- how many animals in this herd?
+- how many records are in this herd per animal?
+- what is the sex ratio of collared animals?
 
 ::: {.callout-tip collapse="true"}
-## Solution:
+## Solution
 
 ```{r, eval = FALSE}
+bou_sf = read_sf("clean_data/caribou.gpkg")
+
+bp <- bou_sf |> 
+  filter(herd == "Burnt Pine")
+
+no_animals = unique(bp$animal.id)
+
+no_records_per_animal <- bp |> 
+  group_by(animal.id) |> 
+  summarise(count = n())
+
+no_animals_sex <- bp |> 
+  group_by(animal.sex) |> 
+  summarise(count = n())
 
 ```
 :::
 
-2.  
-
-::: {.callout-tip collapse="true"}
-## Solution:
-
-```{r, eval = FALSE}
-
-
-```
-:::
