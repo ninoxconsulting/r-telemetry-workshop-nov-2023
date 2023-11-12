@@ -423,6 +423,7 @@ Lets calculate the minimum, maximum and duration between fix times.
 ggplot(sbou, aes(year, fill = animal.id)) +
   geom_bar(position = "dodge")
 
+
 # calculate the minimum and max dates per collar 
 
 table_max <- sbou |> 

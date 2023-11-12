@@ -6,21 +6,21 @@ params:
 
 ## Overview:
 
-In this module we will post-process the vector data we prepared earlier to generate some additional covariates using the **terra** package. We will also prepare all data for the analysis. This includes  
+In this module we will post-process vector data we prepared [earlier](05-vector-bcdata.qmd) using the **terra** package. This includes;
 
--   generating a road density layer
+-   generate a road impact raster
 
--   calculating distance to water metrics
+-   calculate a distance to water raster
 
--   converting our prepared vector to raster
+-   converte vectors to rasters
 
--   building a raster stack with all covariate data
+-   combine all rasters into a raster stack and export
 
+## 1. Road influence
 
-## 1. Calculate density of road network. 
+To assemble meaningful information for modelling, we often need to post-process vector data. This could include manipulating the data into categories (i.e. high, medium, low) or exploring spatial patterns in more detail (i.e. distance from a road)
 
-Often we want to post-process our raw vector data to create more meaningful covariates in our analysis. In this case we are interested in the density of roads and how this might impact our caribou habitat choice. 
-
+In this example we will generate a raster to quantifying the impact of road type and spatial orientation.
 
 ```{r}
 #| message: false
@@ -32,19 +32,21 @@ library(dplyr)
 library(terra)
 
 # read in raster template
-template <- rast(file.path("clean_data", "template.tif"))
-```
-
-We can assume that the type of road will have a different impact on Caribou avoidance or predator use. We can assign a value based on the road type. In this case we will assign a higher value to roads used more frequently.
-
-```{r}
+template <- rast("clean_data/template.tif")
 
 # read in roads
-roads <- read_sf(file.path("clean_data", "roads.gpkg"))
+roads <- read_sf("clean_data/roads.gpkg")
 
+```
+
+We can assume the impact of road type (ROAD_SURFACE) might have a different impact on Caribou avoidance or predator use.
+
+We can use this column to assign values to reflect this. In this example we assign a higher value to roads that are likely to be traveled at a higher speed and would have more frequent use.
+
+```{r}
 # assign a value to the roads based on estimated speed of travel or use
 
-roads <- roads %>% 
+roads <- roads |>
   mutate(rd_value = case_when(
             ROAD_SURFACE == "loose" ~ 25,
             ROAD_SURFACE == "overgrown" ~ 5,
@@ -54,105 +56,114 @@ roads <- roads %>%
 
 ```
 
-Now we can convert this to a raster using the template we created already
+Now we can convert the vector to a raster using the template
 
 ```{r}
 # convert roads to a raster 
 rroads <- rasterize(roads, template, field = "rd_value" )
 
 plot(rroads)
+
 ```
-As the impact of the roads is likely to impact a wider influence than a single pixal we can use a moving window analysis to expand the influence of roads for a given value. 
+
+Secondly, we can assume the impact of the road will have a wider influence than a single pixel. To capture this influence we use a moving window analysis.
+
+Moving windows or focal calculations estimate a new value for each pixel based on the values of the surrounding pixels (neighbours) and the function we supply. In this example we will use a window of 9, and a calculation based on the sum of these 9 pixels.
 
 ```{r}
 # create a moving window 
+
 rrdens <- focal(rroads, w=9, fun="sum", na.rm=TRUE)
 
 plot(rrdens)
+
 ```
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "road_density.tif")) || isTRUE(params$write)'
 
-writeRaster(rrdens, file.path("clean_data", "road_density.tif"), overwrite = TRUE) 
+writeRaster(rrdens, "clean_data/road_density.tif", overwrite = TRUE) 
+
 ```
-
-
 
 ## 2. Calculate distance from water
 
-While density provides a measure of impact we may also be interested in capturing the distance of fixes to caribou points. In this case we will explore the distance to water bodies within the study areas. 
+We might also be interested in understanding the relationship between Caribou locations and distance to a particular feature or habitat type.
+
+In this case we will explore the distance to water bodies within the study areas.
 
 ```{r}
-
 # read in water 
-water <- read_sf(file.path("clean_data", "water.gpkg"))
+water <- read_sf("clean_data/water.gpkg")
 
 # calculate the distance to water for each pixel in the raster
 # be patient - this might take some time. 
 water_dis <- distance(template, water, unit = "km")
 
 plot(water_dis)
+plot(water$geom, add = T)
 
 # what sort of values are we seeing?
 range(water_dis)
-sort(unique(values(water_dis)))
-range(unique(values(water_dis)))
 
 ```
 
+## 3. Convert base vector data to rasters
 
-## 3. Convert base vector data to rasters 
+To prepare rasters for modelling and further analysis, we can convert all our vector data into one standard raster stack.
 
-We can also convert each vector layer we extracted into a raster. 
-
-
-Note this can also be done at the vector stage, however predictive modelling will normally require a stacked covariate list so that you can predict from the built model 
+Note: it is not always required to convert to a raster stack, but this is helpful for any future predictions.
 
 ```{r}
-
-bec <- read_sf(file.path("clean_data","bec.gpkg"))
-vri_cc <- read_sf(file.path("clean_data","vri_cc.gpkg"))
-vri_conif <- read_sf(file.path("clean_data","vri_conif.gpkg"))
-vri_ageclass <- read_sf(file.path("clean_data","vri_ageclass.gpkg"))
-#water
-#roads 
-#cutblocks
-
-
+# read in our prepared vector data sets
+bec <- read_sf("clean_data/bec.gpkg")
+vri_conif <- read_sf("clean_data/vri_conif.gpkg")
+vri_ageclass <- read_sf("clean_data/vri_ageclass.gpkg")
+vri_cc <- read_sf("clean_data/vri_cc.gpkg")
+cutblocks <- read_sf("clean_data/cutblocks.gpkg")
+water <- read_sf("clean_data/water.gpkg")
+streams <- read_sf("clean_data/streams.gpkg")
+roads <- read_sf("clean_data/roads.gpkg")
 
 
 # convert to rasters
-vri_cc <- rasterize(vri_cc, template, field = "cc_class" )
-vri_conif <- rasterize(vri_conif, template, field = "conif" )
-vri_ageclass <- rasterize(vri_ageclass, template, field = "age_class" )
+rbec <- rasterize(bec, template, field = "MAP_LABEL")
+rvri_conif <- rasterize(vri_conif, template, field = "conif")
+rvri_ageclass <- rasterize(vri_ageclass, template, field = "age_class")
+rvri_cc <- rasterize(vri_cc, template, field = "cc_class" )
+rcutblocks <- rasterize(cutblocks, template, field = "HARVEST_YEAR")
+rwater <- rasterize(water, template, field = "WATERBODY_TYPE" )
+rstreams <- rasterize(streams, template, field = "STREAM_ORDER" )
+rroads <- rasterize(roads, template, field = "ROAD_SURFACE" )
 
 
 # stack into a set of rasters
-vect_stack <- c(vri_cc, vri_conif, vri_ageclass, water_dis, rrdens)
 
+vect_stack <- c(rbec, rvri_conif, rvri_ageclass, rvri_cc,
+                rcutblocks, rwater, rstreams, rroads, 
+                water_dis, rrdens)
+
+plot(vect_stack)
 
 ```
 
-## Lets combine our already created rasters 
+Lets combine these with the terrain rasters we created [earlier](06-raster-data.qmd).
 
 ```{r}
 
-rslope <- rast(file.path("clean_data","slope.tif"))
-aspect <- rast(file.path("clean_data","aspect.tif"))
-tri  <- rast(file.path("clean_data","tri.tif"))
-trim_3005 <- rast(file.path("clean_data","dem.tif"))
-
+rslope <- rast("clean_data/slope.tif")
+raspect <- rast("clean_data/aspect.tif")
+rtri  <- rast("clean_data/tri.tif")
+rtrim_3005 <- rast("clean_data/dem.tif")
 
 
 # create a raster stack
-rast_stack <- c(trim_3005, rslope, aspect, tri)
+rast_stack <- c(rtrim_3005, rslope, raspect, rtri)
 
 
 ```
 
-
-## 4. Combine raster layers into a stack 
+## 4. Combine raster layers into a stack
 
 ```{r}
 
@@ -163,11 +174,46 @@ all_stack <- c(vect_stack, rast_stack)
 plot(all_stack)
 
 # we can write this out as a tif (raster object) 
-#writeRaster(all_stack, file.path("clean_data", "rstack.tif"), overwrite = T)
+#writeRaster(all_stack, "clean_data/rstack.tif", overwrite = T)
 ```
 
-Or we can write this out to a very small R object 
+Or we can write this out to a very small R object
+
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "covars.RDS")) || isTRUE(params$write)'
-saveRDS(all_stack, file.path("clean_data", "covars.RDS")) # much faster
+saveRDS(all_stack, "clean_data/covars.RDS") # much faster
 ```
+
+## Your turn
+
+1.  Generate a road density later using a different function (i.e. not sum), and or different scale of window (w). Hint: use the ?focal to see other options available.
+
+::: {.callout-tip collapse="true"}
+## Solution:
+
+```{r}
+# One example would be to generate the "max" value of the moving window. Note the w parameter is also reduced in the example. 
+
+rrdensmax <- focal(rroads, w=3, fun="max", na.rm=TRUE)
+
+```
+:::
+
+::: {.callout-tip collapse="true"}
+2.  Select another linear feature (roads, steams) and generate a raster to capture the distance to that feature for the study area.
+
+Solution:
+
+```{r}
+#This solution generates a distance from roads covariate
+
+# read in roads
+roads <- read_sf("clean_data/roads.gpkg")
+
+# calculate distance - be patient this might take time. 
+road_dis <- distance(template, roads, unit = "km")
+
+plot(road_dis)
+
+```
+:::
