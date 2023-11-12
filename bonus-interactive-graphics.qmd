@@ -2,6 +2,11 @@
 title: "Interactive and animated maps"
 ---
 
+## Animated maps
+
+We can visualize movement by animating their tracks, using the `{gganimate}` 
+package.
+
 ```{r}
 #| message: false
 library(dplyr)
@@ -10,6 +15,9 @@ library(sf)
 library(gganimate)
 library(ggspatial)
 ```
+
+Let's start with the map we made earlier of the paths of two animals, 
+faceted by year:
 
 ```{r}
 scott <- read_sf("clean_data/scott_herd_subset.gpkg")
@@ -23,7 +31,6 @@ mvmt <- scott |> filter(animal.id %in% top_animals) |>
 
 
 p <- ggplot(mvmt) + 
-  # annotation_map_tile(zoom = 8) +
   geom_path(aes(x = X, y = Y, colour = doy)) + 
   facet_grid(animal.id ~ year) +
   scale_color_viridis_c() + 
@@ -39,6 +46,8 @@ p <- ggplot(mvmt) +
   )
 ```
 
+We then add a `transition` to the plot that reveals each step along the path, 
+and create an animated gif:
 
 ```{r}
 #| warning: false
@@ -60,3 +69,33 @@ animate(
   nframes = 300
 )
 ```
+
+
+## Interactive maps with `{Leaflet}`
+
+```{r}
+library(dplyr)
+library(leaflet)
+
+scott_wgs84 <- filter(scott, year == 2014) |> 
+  st_transform(4326)
+
+animal_pal <- colorFactor(
+  palette = "viridis",
+  domain = unique(scott_wgs84$animal.id)
+)
+
+leaflet(scott_wgs84) |> 
+  addProviderTiles("CartoDB") |> 
+  addCircleMarkers(
+    color = ~ animal_pal(scott_feb1$animal.id), 
+    popup = ~ animal.sex
+  ) |> 
+  addLegend(
+    "bottomleft", 
+    pal = animal_pal,
+    values = ~ scott_wgs84$animal.id,
+    title = "Animal ID"
+  )
+```
+
