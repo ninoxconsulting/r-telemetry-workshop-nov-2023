@@ -68,7 +68,7 @@ plot(rroads)
 
 Secondly, we can assume the impact of the road will have a wider influence than a single pixel. To capture this influence we use a moving window analysis.
 
-Moving windows or focal calculations estimate a new value for each pixel based on the values of the surrounding pixels (neighbours) and the function we supply. In this example we will use a window or 9, and a calculation based on the sum of these 9 pixels.
+Moving windows or focal calculations estimate a new value for each pixel based on the values of the surrounding pixels (neighbours) and the function we supply. In this example we will use a window of 9, and a calculation based on the sum of these 9 pixels.
 
 ```{r}
 # create a moving window 
