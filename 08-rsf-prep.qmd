@@ -31,7 +31,6 @@ We will generate a simple set of "background points" based on the geographic dis
 Lets start by reading in the libraries we will use.
 
 ```{r, eval = FALSE}
-
 library(dplyr)
 library(terra)
 library(sf)
@@ -43,7 +42,6 @@ library(ggplot2)
 Next, read in our point locations and rater template.
 
 ```{r, eval = FALSE}
-
 # read in the aoi template 
 template <- rast("clean_data/template.tif")
 
@@ -62,7 +60,6 @@ We can use the **spatSample** function to generate random points for our given s
 Lets generate a set of points the same length as our "presence" locations using a "random" method.
 
 ```{r, eval = FALSE}
-
 # Generate random points for RSF use areas.
 set.seed(123)
 avail_points <- spatSample(template, size = 2906, as.points = TRUE, na.rm = TRUE, method = "random")
@@ -78,17 +75,14 @@ avail_points <- avail_points |>
 We can do a quick review of the points using mapview
 
 ```{r, eval = FALSE}
-
 mapview(avail_points) +
 mapview(bou_pts, color = "red", cex= 3)
-
 
 ```
 
 We can now combine our caribou locations and "background" locations into a single data set. We will retain the spatial information to allow us to easily extract the values in the corresponding raster stack
 
 ```{r, eval = FALSE}
-
 head(avail_points)
 
 head(bou_pts)
@@ -97,7 +91,6 @@ allpts <- bind_rows(bou_pts, avail_points)
 
 head(allpts)
 # hmmmmm...........that looks weird what happened? 
-
 
 # note we have slightly different column headers "geom" vs "geometry" 
 st_geometry(avail_points) = "geom" 
@@ -129,14 +122,10 @@ bou_full_pts <- cbind(allpts, atts) |>
 Export as geo package or as csv table.
 
 ```{r}
-
 # spatial file 
-
 write.csv(bou_full_pts, "clean_data/allpts_att.gpkg")
 
-
 # write out as csv, keeping the XY values
-
 bou_table <- st_coordinates(bou_full_pts) |> 
   cbind(bou_full_pts) |> 
   st_drop_geometry()
@@ -151,7 +140,6 @@ We can use our attributed point data to provide valuable summaries of landscape 
 
 ```{r}
 # Aspect
-
 ggplot(bou_table, aes(aspect)) +
   geom_histogram(binwidth = 20) +
   facet_wrap(~pres_bkg)
@@ -160,7 +148,6 @@ ggplot(bou_table, aes(aspect)) +
 
 ```{r}
 # BEC zones 
-
 ggplot(bou_table, aes(MAP_LABEL, group = pres_bkg, fill = factor(pres_bkg))) +
   geom_bar(position = "dodge", show.legend = TRUE) 
   
@@ -175,7 +162,6 @@ ggplot(bou_table, aes(MAP_LABEL, group = pres_bkg, fill = factor(pres_bkg))) +
 ##Solution:
 
 ```{r}
-
 avail_pts_regular <- spatSample(template, size = 50, as.points = TRUE, na.rm = TRUE, method = "regular")
 mapview(avail_pts_regular)
 
@@ -190,19 +176,15 @@ mapview(avail_pts_regular)
 
 ```{r}
 # Here are a few example using elevation and distance to water. 
-
 # elevation 
-
 ggplot(bou_table, aes(elevation)) +
   geom_histogram(binwidth = 20) +
   facet_wrap(~pres_bkg)
-
 
 # distance to water (layer)
 ggplot(bou_table, aes(layer)) +
   geom_histogram() +
   facet_wrap(~pres_bkg)
-
 
 ```
 :::
