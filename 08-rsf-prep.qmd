@@ -30,7 +30,7 @@ We will generate a simple set of "background points" based on the geographic dis
 
 Lets start by reading in the libraries we will use.
 
-```{r, eval = FALSE}
+```{r}
 library(dplyr)
 library(terra)
 library(sf)
@@ -41,7 +41,7 @@ library(ggplot2)
 
 Next, read in our point locations and rater template.
 
-```{r, eval = FALSE}
+```{r}
 # read in the aoi template 
 template <- rast("clean_data/template.tif")
 
@@ -59,7 +59,7 @@ We can use the **spatSample** function to generate random points for our given s
 
 Lets generate a set of points the same length as our "presence" locations using a "random" method.
 
-```{r, eval = FALSE}
+```{r}
 # Generate random points for RSF use areas.
 set.seed(123)
 avail_points <- spatSample(template, size = 2906, as.points = TRUE, na.rm = TRUE, method = "random")
@@ -74,7 +74,7 @@ avail_points <- avail_points |>
 
 We can do a quick review of the points using mapview
 
-```{r, eval = FALSE}
+```{r}
 mapview(avail_points) +
 mapview(bou_pts, color = "red", cex= 3)
 
@@ -82,7 +82,7 @@ mapview(bou_pts, color = "red", cex= 3)
 
 We can now combine our caribou locations and "background" locations into a single data set. We will retain the spatial information to allow us to easily extract the values in the corresponding raster stack
 
-```{r, eval = FALSE}
+```{r}
 head(avail_points)
 
 head(bou_pts)
@@ -123,7 +123,7 @@ Export as geo package or as csv table.
 
 ```{r}
 # spatial file 
-write.csv(bou_full_pts, "clean_data/allpts_att.gpkg")
+write_sf(bou_full_pts, "clean_data/allpts_att.gpkg")
 
 # write out as csv, keeping the XY values
 bou_table <- st_coordinates(bou_full_pts) |> 
@@ -131,7 +131,6 @@ bou_table <- st_coordinates(bou_full_pts) |>
   st_drop_geometry()
 
 write.csv(bou_table, "clean_data/allpts_att.csv")
-
 ```
 
 ## 3. Summarise attributed point data
