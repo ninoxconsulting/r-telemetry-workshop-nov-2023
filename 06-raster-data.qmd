@@ -67,7 +67,7 @@ writeRaster(template, "clean_data/template.tif", overwrite = TRUE)
 
 ```
 
-## 2. Extract base data using the CDED dataset
+## 2. Extract base data using the CDED data set
 
 Now we can use the **bcmaps** package to directly download digital elevation data from the [Canadian Digital Elevation Model CDED](https://rdrr.io/github/bcgov/bcmaps/man/cded.html). Within BC, this is largely equivalent to the TRIM DEM data set. We will use the **cded_terra** function.
 
