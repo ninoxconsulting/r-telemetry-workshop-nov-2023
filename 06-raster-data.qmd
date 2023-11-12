@@ -148,10 +148,10 @@ writeRaster(tri, "clean_data/tri.tif", overwrite = TRUE)
 
 ## Your Turn
 
-::: {.callout-tip collapse="true"}
 1.  Explore what other covariates you can generate using the **terra::terrain** function. Hint use **?terrain** to bring up a help file.
 
-Solution:
+::: {.callout-tip collapse="true"}
+## Solution:
 
 ```{r, eval = FALSE}
 # there are a number of other options to select from including TPI, TRIriley,  roughness, flowdir. 
