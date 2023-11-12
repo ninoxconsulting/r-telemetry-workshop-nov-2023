@@ -186,10 +186,10 @@ saveRDS(all_stack, "clean_data/covars.RDS") # much faster
 
 ## Your turn
 
-::: {.callout-tip collapse="true"}
 1.  Generate a road density later using a different function (i.e. not sum), and or different scale of window (w). Hint: use the ?focal to see other options available.
 
-Solution:
+::: {.callout-tip collapse="true"}
+## Solution:
 
 ```{r}
 # One example would be to generate the "max" value of the moving window. Note the w parameter is also reduced in the example. 
