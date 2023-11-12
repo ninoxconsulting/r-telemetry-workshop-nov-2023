@@ -10,6 +10,14 @@ params:
   write: true
 ---
 
+## Outline
+
+- Use an area of interest (AOI) to define study area
+- Explore the B.C. Data Catalogue
+- Use the `{bcdata}` package to query and download data
+
+## B.C. Data Catalogue
+
 The B.C. Government makes a huge amount of open data available, both spatial and 
 non-spatial, and documents it in the [B.C. Data Catalogue](https://catalogue.data.gov.bc.ca).
 
@@ -29,7 +37,7 @@ directly from within R.
 - **`bcdc_get_data()`**
   - Get catalogue data
 - **`bcdc_describe_feature()`**
-  - Describe the structure (columns and types) of a dataset
+  - Describe the structure (columns and types) of a data set
 - **`bcdc_query_geodata()`**
   - Get & query catalogue geospatial data available through a [Web Service](https://www2.gov.bc.ca/gov/content?id=95D78D544B244F34B89223EF06DF74E)
 ]
@@ -211,7 +219,7 @@ write_sf(vri_cc, file.path("clean_data", "vri_cc.gpkg"))
 To get the cutblocks, we filter to our AOI, and also choose those blocks that
 have a harvest year in the last 30 years.
 
-We can get information about the columns in a given dataset with `bcdc_describe_feature()`:
+We can get information about the columns in a given data set with `bcdc_describe_feature()`:
 
 ```{r cutblocks}
 bcdc_describe_feature("b1b647a6-f271-42e0-9cd0-89ec24bce9f7")
@@ -255,7 +263,7 @@ wetlands <- bcdc_query_geodata("93b413d8-1840-4770-9629-641d74bd1cc6") |>
   select(id, WATERBODY_TYPE, AREA_HA) |>
   collect()
 
-# Combine the datasets into one, select only the columns we want, and 
+# Combine the data sets into one, select only the columns we want, and 
 # clip to aoi
 water <- bind_rows(lakes, wetlands) |> 
   select(id, WATERBODY_TYPE, AREA_HA) |> 

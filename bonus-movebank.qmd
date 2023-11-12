@@ -61,7 +61,7 @@ mdata <- movebank_retrieve(entity_type = "study", license_type = "CC_0") %>%
 
 ```
 
-We can get a full list of datasets available for download. We can use the id number to extract data directly from the movebank repository through the move2 API link.
+We can get a full list of data sets available for download. We can use the id number to extract data directly from the movebank repository through the move2 API link.
 
 Lets look at the **Peregrine Falcon, High Arctic Institute, northwest Greenland..** study, where the id = 7249090.
 
@@ -114,7 +114,7 @@ bird_deply <- movebank_download_deployment(7249090)
 
 ## Extra challenge!
 
-If you are interested in viewing the entire Caribou dataset you can find it on movebank (study_id = 216040785)
+If you are interested in viewing the entire Caribou data set you can find it on movebank (study_id = 216040785)
 
 ```{r, eval = FALSE}
 

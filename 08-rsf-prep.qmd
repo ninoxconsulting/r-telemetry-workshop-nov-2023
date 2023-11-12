@@ -1,7 +1,5 @@
 ---
 title: "Generate random sample points for RSF"
-execute: 
-  eval: false
 ---
 
 ## Overview:
@@ -31,12 +29,12 @@ We will generate a simple set of "background points" based on the geographic dis
 Lets start by reading in the libraries we will use.
 
 ```{r}
+#| message: false
 library(dplyr)
 library(terra)
 library(sf)
 library(mapview)
 library(ggplot2)
-
 ```
 
 Next, read in our point locations and rater template.
