@@ -6,7 +6,7 @@ params:
 
 ## Overview:
 
-In this module we will explore raster data, and the available datasets which can be used in R for analysis. We will:
+In this module we will explore raster data, and the available data sets which can be used in R for analysis. We will:
 
 -   prepare our study aoi to use with rasters
 
@@ -18,7 +18,7 @@ In this module we will explore raster data, and the available datasets which can
 
 ## Background: Rasters
 
-Raster data is information built on a standard grid. These can be characterised by the grid extent (xmin, xmax, ymin, ymax) and can have a coordinate system to orient them in space. Rasters are made up of cells or pixels, based on a resolution or cell size. Each cell contains a single value. The **terra** package contains many functions for manipulating and processing rasters.
+Raster data is information built on a standard grid. These can be characterized by the grid extent (xmin, xmax, ymin, ymax) and can have a coordinate system to orient them in space. Rasters are made up of cells or pixels, based on a resolution or cell size. Each cell contains a single value. The **terra** package contains many functions for manipulating and processing rasters.
 
 Note we will be using the BC Albers coordinate reference system (EPSG:3005). The advantages of this are 1) BCAlbers is an equal area projection across BC, 2) extent is marked using meters.
 
@@ -44,26 +44,37 @@ Read in our AOI that we made and saved previously. We can then convert this to a
 # read in the spatial file
 
 bou <- read_sf("clean_data/scott_herd_subset.gpkg")
+
 ```
 
 ```{r}
 
 # read in the aoi previously created
+
 aoi <- read_sf("clean_data/scott_aoi.gpkg")
+
 ```
 
 We can now convert our polygon to a raster object.
 
 ```{r}
+
 # create a template raster with a resolution of 25m
+
 template <- rast(aoi, resolution = 25, names = "aoi", vals = 0)
+
+<<<<<<< HEAD
+=======
 ```
 
+>>>>>>> 8a5488cd42afad7daf1c45fb6d40e6b9b1bf62ea
 export the raster template for later processing
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "template.tif")) || isTRUE(params$write)'
+#| 
 writeRaster(template, "clean_data/template.tif", overwrite = TRUE)
+
 ```
 
 ## 2. Extract base data using the CDED dataset
@@ -84,18 +95,20 @@ res(trim_raw)
 # reproject to match our raster template crs and extent
 
 trim_3005 <- project(trim_raw, template)
+
 ```
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "dem.tif")) || isTRUE(params$write)'
 # write out the individual raster
+
 writeRaster(trim_3005, "clean_data/dem.tif", overwrite = TRUE) 
 
 ```
 
 ## 3. Generate DEM derived covariates
 
-Now we can use the terrain functions within the terra package to generate some standard base layers derived from the DEM.
+Now we can use the terrain functions within the **terra** package to generate some standard base layers derived from the DEM.
 
 ```{r}
 
@@ -112,27 +125,69 @@ tri <- terrain(trim_3005, v = "TRI", neighbors = 8)
 rstack <- c(trim_3005, rslope, aspect, tri)
 
 plot(rstack)
+
 ```
 
-write our the individual rasters
+write our the individual rasters (.tif)
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "slope.tif")) || isTRUE(params$write)'
+#| 
 writeRaster(rslope, "clean_data/slope.tif", overwrite = TRUE) 
+
 ```
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "aspect.tif")) || isTRUE(params$write)'
 writeRaster(aspect, "clean_data/aspect.tif", overwrite = TRUE) 
+
 ```
 
 ```{r}
 #| eval: !expr '!file.exists(file.path("clean_data", "tri.tif")) || isTRUE(params$write)'
 writeRaster(tri, "clean_data/tri.tif", overwrite = TRUE) 
+
 ```
 
-## Bonus Questions.
+## Your Turn
 
 1.  Explore what other covariates you can generate using the **terra::terrain** function. Hint use **?terrain** to bring up a help file.
 
+::: {.callout-tip collapse="true"}
+## Solution:
+
+```{r, eval = FALSE}
+# there are a number of other options to select from including TPI, TRIriley,  roughness, flowdir. 
+# you will need to read the help file to determine which parameter is needed for which terain calculation. 
+
+#Example: 
+?terra::terrain
+roughness <-  terrain(trim_3005, v = "roughness") 
+plot(roughness)
+
+```
+:::
+
 2.  Compare outputs of aspect which the neighbours parameter is adjusted. What difference does this make to the output and the time to process?
+
+::: {.callout-tip collapse="true"}
+## Solution:
+
+```{r, eval = FALSE}
+
+# generate aspect
+aspect4 <- terrain(trim_3005, v = "aspect", neighbors = 4,  unit = "degrees") 
+
+# generate aspect
+aspect8 <- terrain(trim_3005, v = "aspect", neighbors = 8,  unit = "degrees") 
+
+# use the window to check 
+plot(aspect4)
+plot(aspect8)
+
+
+# Explore the change in metric if any
+aspectrr <- terrain(trim_3005, v = "aspect", neighbors = 8,  unit = "radians") 
+
+```
+:::
