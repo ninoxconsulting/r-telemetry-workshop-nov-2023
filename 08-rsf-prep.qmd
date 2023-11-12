@@ -179,8 +179,10 @@ mapview(avail_pts_regular)
 ```
 :::
 
-::: {.callout-tip collapse="true"}
 2.  Use the **bou_table** we created above to explore other landscape patters. Build a ggplot to show the differences between the presence and background points.
+
+::: {.callout-tip collapse="true"}
+## Solution
 
 Solution:
 
