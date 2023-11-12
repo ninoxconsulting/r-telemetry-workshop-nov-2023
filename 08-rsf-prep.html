@@ -264,7 +264,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#background-resource-selection-functions" id="toc-background-resource-selection-functions" class="nav-link" data-scroll-target="#background-resource-selection-functions">Background: Resource Selection Functions</a></li>
   <li><a href="#generate-background-location-points." id="toc-generate-background-location-points." class="nav-link" data-scroll-target="#generate-background-location-points.">1. Generate background location points.</a></li>
   <li><a href="#extract-point-values" id="toc-extract-point-values" class="nav-link" data-scroll-target="#extract-point-values">Extract point values</a></li>
-  <li><a href="#summarise-landscape-information" id="toc-summarise-landscape-information" class="nav-link" data-scroll-target="#summarise-landscape-information">3. Summarise landscape information</a></li>
+  <li><a href="#summarise-attributed-point-data" id="toc-summarise-attributed-point-data" class="nav-link" data-scroll-target="#summarise-attributed-point-data">3. Summarise attributed point data</a></li>
   <li><a href="#your-turn" id="toc-your-turn" class="nav-link" data-scroll-target="#your-turn">Your turn</a></li>
   </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/08-rsf-prep.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
@@ -346,7 +346,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">allpts</span><span class="op">)</span></span>
 <span><span class="co"># hmmmmm...........that looks weird what happened? </span></span>
 <span></span>
-<span></span>
 <span><span class="co"># note we have slightly different column headers "geom" vs "geometry" </span></span>
 <span><span class="fu">st_geometry</span><span class="op">(</span><span class="va">avail_points</span><span class="op">)</span> <span class="op">=</span> <span class="st">"geom"</span> </span>
 <span></span>
@@ -371,50 +370,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Export as geo package or as csv table.</p>
 <div class="cell">
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># spatial file </span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html">write.csv</a></span><span class="op">(</span><span class="va">bou_full_pts</span>, <span class="st">"clean_data/allpts_att.gpkg"</span><span class="op">)</span></span>
-<span></span>
+<span><span class="fu">write_sf</span><span class="op">(</span><span class="va">bou_full_pts</span>, <span class="st">"clean_data/allpts_att.gpkg"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># write out as csv, keeping the XY values</span></span>
-<span></span>
-<span><span class="va">bou_table</span> <span class="op">&lt;-</span> <span class="va">bou_full_pts</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="fu">st_coordinates</span><span class="op">(</span><span class="va">.</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">bou_table</span> <span class="op">&lt;-</span> <span class="fu">st_coordinates</span><span class="op">(</span><span class="va">bou_full_pts</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">bou_full_pts</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">st_drop_geometry</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html">write.csv</a></span><span class="op">(</span><span class="va">bou_table</span>, <span class="st">"clean_data/allpts_att.csv"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section><section id="summarise-landscape-information" class="level2"><h2 class="anchored" data-anchor-id="summarise-landscape-information">3. Summarise landscape information</h2>
+</section><section id="summarise-attributed-point-data" class="level2"><h2 class="anchored" data-anchor-id="summarise-attributed-point-data">3. Summarise attributed point data</h2>
 <p>We can use our attributed point data to provide valuable summaries of landscape feature. Lets looks at aspect and BEC zones.</p>
 <div class="cell">
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Aspect</span></span>
-<span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span><span class="va">bou_table</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">aspect</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_histogram</span><span class="op">(</span>binwidth <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">pres_bkg</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># BEC zones </span></span>
-<span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span><span class="va">bou_table</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">MAP_LABEL</span>, group <span class="op">=</span> <span class="va">pres_bkg</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">pres_bkg</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_bar</span><span class="op">(</span>position <span class="op">=</span> <span class="st">"dodge"</span>, show.legend <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="your-turn" class="level2"><h2 class="anchored" data-anchor-id="your-turn">Your turn</h2>
+<ol type="1">
+<li>Generate a second set of background points used a method other than “random”.</li>
+</ol>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Tip
+Solution:
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<ol type="1">
-<li>Generate a second set of background points used a method other than “random”.</li>
-</ol>
-<p>Solution:</p>
 <div class="cell">
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">avail_pts_regular</span> <span class="op">&lt;-</span> <span class="fu">spatSample</span><span class="op">(</span><span class="va">template</span>, size <span class="op">=</span> <span class="fl">50</span>, as.points <span class="op">=</span> <span class="cn">TRUE</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span>, method <span class="op">=</span> <span class="st">"regular"</span><span class="op">)</span></span>
 <span><span class="fu">mapview</span><span class="op">(</span><span class="va">avail_pts_regular</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -437,16 +430,12 @@ Solution
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Solution:</p>
 <div class="cell">
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Here are a few example using elevation and distance to water. </span></span>
-<span></span>
 <span><span class="co"># elevation </span></span>
-<span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span><span class="va">bou_table</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">elevation</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_histogram</span><span class="op">(</span>binwidth <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">pres_bkg</span><span class="op">)</span></span>
-<span></span>
 <span></span>
 <span><span class="co"># distance to water (layer)</span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span><span class="va">bou_table</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">layer</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>

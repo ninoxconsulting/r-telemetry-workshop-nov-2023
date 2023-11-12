@@ -263,7 +263,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><a href="#how-to-qa-and-summarize-telemetry-data" id="toc-how-to-qa-and-summarize-telemetry-data" class="nav-link active" data-scroll-target="#how-to-qa-and-summarize-telemetry-data">How to QA and summarize telemetry data</a></li>
   <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview:</a></li>
   <li>
-<a href="#background-data" id="toc-background-data" class="nav-link" data-scroll-target="#background-data">Background data:</a>
+<a href="#caribou-data-set" id="toc-caribou-data-set" class="nav-link" data-scroll-target="#caribou-data-set">Caribou data set:</a>
   <ul class="collapse">
 <li><a href="#reading-data-into-r." id="toc-reading-data-into-r." class="nav-link" data-scroll-target="#reading-data-into-r.">1. Reading data into R.</a></li>
   <li><a href="#clean-and-qa-the-data" id="toc-clean-and-qa-the-data" class="nav-link" data-scroll-target="#clean-and-qa-the-data">2. Clean and QA the data</a></li>
@@ -271,9 +271,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#generating-tabular-summaries" id="toc-generating-tabular-summaries" class="nav-link" data-scroll-target="#generating-tabular-summaries">4. Generating tabular summaries</a></li>
   <li><a href="#many-questions-we-can-ask-here" id="toc-many-questions-we-can-ask-here" class="nav-link" data-scroll-target="#many-questions-we-can-ask-here">Many questions we can ask here:</a></li>
   <li><a href="#standardize-fix-interval-times" id="toc-standardize-fix-interval-times" class="nav-link" data-scroll-target="#standardize-fix-interval-times">5. Standardize fix interval times</a></li>
-  <li><a href="#add-questions-still-to-do" id="toc-add-questions-still-to-do" class="nav-link" data-scroll-target="#add-questions-still-to-do">Add Questions: STILL TO DO:</a></li>
   </ul>
 </li>
+  <li><a href="#your-turn" id="toc-your-turn" class="nav-link" data-scroll-target="#your-turn">Your Turn</a></li>
   </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/03-intro-telemetry-data.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
@@ -299,13 +299,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p>QA data for missing values and poor coordinate precision</p></li>
 <li><p>generate tabular summaries</p></li>
 <li><p>standardize fix rate of telemetry points for future analysis</p></li>
-</ul></section><section id="background-data" class="level2"><h2 class="anchored" data-anchor-id="background-data">Background data:</h2>
+</ul></section><section id="caribou-data-set" class="level2"><h2 class="anchored" data-anchor-id="caribou-data-set">Caribou data set:</h2>
 <p>In this workshop we will use GPS telemetry data from Mountain Caribou (<em>Rangifer terendus</em>) herds in the Peace region of British Columbia. The full data set and metadata can be found on <a href="https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study216040785">movebank</a>, also see <a href="./bonus-movebank.html">bonus content - How to download data from movebank</a>. The data set used in this course has been modified for demonstration purposes and should not be used in analysis.</p>
 <section id="reading-data-into-r." class="level3"><h3 class="anchored" data-anchor-id="reading-data-into-r.">1. Reading data into R.</h3>
 <p>In this course we will be providing two files (Mountain caribou in British Columbia-reference-data.csv and Mountain caribou.xlsx). The first task is to look at the data to make sense of what we have.</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/read-in-raw-data_672cea378d62e00cba702d82233c42cf">
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/read-in-raw-data_cefae122946e433be8ad05e860aedd7e">
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># load libraries </span></span>
-<span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://readr.tidyverse.org">readr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/">sf</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://readxl.tidyverse.org">readxl</a></span><span class="op">)</span></span>
@@ -313,18 +312,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org">lubridate</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
-<span></span>
 <span><span class="co"># Read in data files.</span></span>
-<span></span>
 <span><span class="va">ref_raw</span> <span class="op">&lt;-</span> <span class="fu">read_csv</span><span class="op">(</span><span class="st">"raw_data/Mountain caribou in British Columbia-reference-data.csv"</span>, </span>
 <span>                    name_repair <span class="op">=</span> <span class="st">"universal"</span><span class="op">)</span> <span class="co"># use this to standardise the column names</span></span>
 <span></span>
 <span><span class="va">loc_raw</span> <span class="op">&lt;-</span> <span class="fu">read_xlsx</span><span class="op">(</span><span class="st">"raw_data/Mountain caribou.xlsx"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Lets take a look….</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/review-raw-data_5e82e96d7bffafee3bf562718eba44bc">
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/review-raw-data_eb779dbfb1025f72c4148808711138af">
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Reference data </span></span>
-<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">ref_raw</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 26
@@ -365,7 +361,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>         <span class="va">deployment.end.type</span>,<span class="va">tag.model</span>, <span class="va">tag.manufacturer.name</span>, <span class="va">tag.serial.no</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Location data</span></span>
-<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">loc_raw</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 14
@@ -383,13 +378,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>We can combine these data sets and keep the columns of interest</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/filter-raw-fields_7834d4bcb41eb2985e772d85c4794a74">
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/filter-raw-fields_b074ca87db0ad983bbb92974957db0d5">
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># create a new data set by joining on a common field</span></span>
-<span></span>
 <span><span class="va">all_data</span> <span class="op">&lt;-</span> <span class="fu">left_join</span><span class="op">(</span><span class="va">loc_raw</span>, <span class="va">ref_raw</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'tag.local.identifier'</span> <span class="op">=</span> <span class="st">'tag.id'</span><span class="op">)</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="co"># filter the columns of interest</span></span>
-<span></span>
 <span><span class="va">all_data</span> <span class="op">&lt;-</span> <span class="va">all_data</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">event.id</span>, <span class="va">location.long</span>, <span class="va">location.lat</span>, <span class="va">DOP</span>, <span class="va">FixType</span>, <span class="va">herd</span>,</span>
 <span>         <span class="va">study.specific.measurement</span>, <span class="va">sensor.type</span>, <span class="va">tag.local.identifier</span>, <span class="va">date</span>, <span class="va">animal.id</span>,</span>
@@ -398,7 +391,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section><section id="clean-and-qa-the-data" class="level3"><h3 class="anchored" data-anchor-id="clean-and-qa-the-data">2. Clean and QA the data</h3>
 <section id="a.-data-input-errors-and-column-formats" class="level4"><h4 class="anchored" data-anchor-id="a.-data-input-errors-and-column-formats">2a. Data input errors and column formats</h4>
 <p>Lets check for NA or missing values.</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/remove-NA-values_189850773b355b47501ca44d5cafe27b">
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/remove-NA-values_4e79e56ad9c6e7e4dcf8a4709b49df27">
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">all_data</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 15
@@ -417,7 +410,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 #   tag.model &lt;chr&gt;</code></pre>
 </div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># check if there are NA's in the data </span></span>
-<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">all_data</span>, <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/any.html">any</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                     event.id                 location.long 
@@ -439,14 +431,12 @@ animal.reproductive.condition         tag.manufacturer.name
 </div>
 </div>
 <p>Several columns contain NA’s and need more exploration.</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/remove-NA-values2_8d00c43d058ab49d9b159055c5d8f200">
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/remove-NA-values2_acb5307f85a93eb7fceafc24a6b3e678">
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># filter missing values for latitude, longitude and date.</span></span>
-<span></span>
 <span><span class="va">tdata</span> <span class="op">&lt;-</span> <span class="va">all_data</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">date</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># keep any rows which are not NA</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">location.long</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">location.lat</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
 <span></span>
 <span><span class="co"># Herd</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">tdata</span><span class="op">$</span><span class="va">herd</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -462,7 +452,6 @@ animal.reproductive.condition         tag.manufacturer.name
 <span>    .default <span class="op">=</span> <span class="va">herd</span></span>
 <span>  <span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span></span>
 <span><span class="co">## rerun the NA check to confirm </span></span>
 <span></span>
 <span><span class="co"># apply(tdata, 2, function(x) any(is.na(x)))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -470,7 +459,7 @@ animal.reproductive.condition         tag.manufacturer.name
 </section><section id="b.-dealing-with-date-times" class="level4"><h4 class="anchored" data-anchor-id="b.-dealing-with-date-times">2b. Dealing with date-times</h4>
 <p>Timestamps can be confusing and problematic, especially when working with multiple programs and file types. One solution is to split the date into separate components (year, month, day, time).</p>
 <p>We firstly need to format the raw data into a date format using <strong>lubridate</strong> package.</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/convert-time-stamp_d12121617919b118307d9800aa345503">
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/convert-time-stamp_142ab9e36a7993ac2a8c381dd0ca8597">
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># calculate time differences</span></span>
 <span><span class="va">tdata</span> <span class="op">&lt;-</span> <span class="va">tdata</span>  <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>date_time <span class="op">=</span> <span class="fu">ymd_hms</span><span class="op">(</span><span class="va">date</span><span class="op">)</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -480,7 +469,7 @@ animal.reproductive.condition         tag.manufacturer.name
 Caused by warning:
 !  5 failed to parse.</code></pre>
 </div>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># owch we still have an error in this dataset</span></span>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># owch we still have an error in this data set</span></span>
 <span></span>
 <span><span class="co"># lets see if we can find it..... </span></span>
 <span></span>
@@ -531,9 +520,8 @@ Caused by warning:
 </section><section id="c.-spatial-accuracy-qa." class="level4"><h4 class="anchored" data-anchor-id="c.-spatial-accuracy-qa.">2c. Spatial accuracy QA.</h4>
 <p>Next we will review the spatial accuracy of the point data. We have two columns which contain accuracy metrics: DOP (Dilution of Precision), and Fix Type.</p>
 <p>Note: For quick review of spatial errors it is helpful to view the data in QGIS or built a quick map or vizualisation (this is covered later in the <a href="./04-spatial-data-viz.html">workshop</a>).</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/clean-lat-longs_25e6237db94e9747b4fca5b515410af7">
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/clean-lat-longs_2bec30f76001706d76f3d332de299952">
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># review Latitudes and Longitude values </span></span>
-<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">tdata</span><span class="op">$</span><span class="va">location.lat</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  55.2249 155.4764</code></pre>
@@ -543,7 +531,6 @@ Caused by warning:
 <p><img src="03-intro-telemetry-data_files/figure-html/clean-lat-longs-1.png" class="img-fluid" width="672"></p>
 </div>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Note some points are above 65 Latitude</span></span>
-<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">tdata</span><span class="op">$</span><span class="va">location.long</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -123.6684  -22.0000</code></pre>
@@ -553,14 +540,13 @@ Caused by warning:
 <p><img src="03-intro-telemetry-data_files/figure-html/clean-lat-longs-2.png" class="img-fluid" width="672"></p>
 </div>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Lets set an upper limit and filter values which are within the range we want.</span></span>
-<span></span>
 <span><span class="va">tdata</span> <span class="op">&lt;-</span> <span class="va">tdata</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">location.long</span> <span class="op">&lt;=</span> <span class="op">-</span><span class="fl">100</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">location.lat</span> <span class="op">&lt;=</span> <span class="fl">65</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="d.-spatial-precision-qa." class="level4"><h4 class="anchored" data-anchor-id="d.-spatial-precision-qa.">2d. Spatial Precision QA.</h4>
 <p>To refine the level of precision we can use the metrics DOP (Dilution of Precision) and Fixtype information which is associated with each location observation.</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/DOP-review_45f9d81d1d4dcfc7580a963fe6f9ff53">
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/DOP-review_f4a2d62799130bad78324bc32b856479">
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span> <span class="op">(</span><span class="va">tdata</span><span class="op">$</span><span class="va">DOP</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  1.0 43.1</code></pre>
@@ -569,17 +555,13 @@ Caused by warning:
 <div class="cell-output-display">
 <p><img src="03-intro-telemetry-data_files/figure-html/DOP-review-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co">#unique(tdata$DOP)</span></span>
-<span></span>
-<span><span class="co"># We only want to keep fixes with a DOP less than 10m</span></span>
-<span></span>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># We only want to keep fixes with a DOP less than 10m</span></span>
 <span><span class="va">fdata</span> <span class="op">&lt;-</span> <span class="va">tdata</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">DOP</span> <span class="op">&lt;=</span> <span class="fl">10</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The Fixtype is generally classified into categories, based on the level of precision of the calculated location i.e.&nbsp;the number of satellite used to triangulate the fixes. These metrics will vary with the device type and model. More information will be available through the manufacturer website (For example: <a href="https://www.lotek.com/products/litetrack-iridium-250-750">Lotek Iridium collars</a> ).</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/fixtype-review_99bf864b8225d0791c57654623c31f59">
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/fixtype-review_58a207762a44b4c016f05703255632fd">
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># check the number of records per fix type</span></span>
-<span></span>
 <span><span class="va">fdata</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">FixType</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">summarise</span><span class="op">(</span>count <span class="op">=</span> <span class="fu">n</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -592,7 +574,6 @@ Caused by warning:
 3 val. GPS-3D 16801</code></pre>
 </div>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># We will only keep the higher level of precision</span></span>
-<span></span>
 <span><span class="va">fdata</span> <span class="op">&lt;-</span> <span class="va">fdata</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">FixType</span> <span class="op">!=</span> <span class="st">"GPS-2D"</span><span class="op">)</span></span>
 <span></span>
@@ -627,7 +608,7 @@ $ minute                        &lt;int&gt; 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 0, 
 <span><span class="co"># unique(fdata$sensor.type)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The final step is to remove redundant columns.</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/remove-unused-cols_d367f15ee7ae2de18c425f668e6a632e">
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/remove-unused-cols_35c5264c548e4af82f4703315b284614">
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">fdata</span> <span class="op">&lt;-</span> <span class="va">fdata</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">FixType</span>, <span class="op">-</span><span class="va">DOP</span>, <span class="op">-</span><span class="va">date</span>, <span class="op">-</span><span class="va">study.specific.measurement</span>, <span class="op">-</span><span class="va">sensor.type</span>, <span class="op">-</span><span class="va">event.id</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -637,9 +618,8 @@ $ minute                        &lt;int&gt; 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 0, 
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">write_csv</span><span class="op">(</span><span class="va">fdata</span>, <span class="st">"clean_data/caribou.csv"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="b.-convert-to-spatial-file-and-export" class="level4"><h4 class="anchored" data-anchor-id="b.-convert-to-spatial-file-and-export">3b. Convert to spatial file and export</h4>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/write-out_e207a13208ef16a79a266a8250f23b40">
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/write-out_5b99bdf092df9bc6675db77846f4863c">
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># convert to a sf object and transform to BC Albers</span></span>
-<span></span>
 <span><span class="va">bou</span> <span class="op">&lt;-</span> <span class="fu">st_as_sf</span><span class="op">(</span><span class="va">fdata</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"location.long"</span>, <span class="st">"location.lat"</span><span class="op">)</span>, </span>
 <span>                crs <span class="op">=</span> <span class="fl">4326</span>, remove <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">st_transform</span><span class="op">(</span><span class="fl">3005</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -656,35 +636,14 @@ $ minute                        &lt;int&gt; 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 0, 
 </div>
 </section></section><section id="generating-tabular-summaries" class="level3"><h3 class="anchored" data-anchor-id="generating-tabular-summaries">4. Generating tabular summaries</h3>
 <p>Now we have clean data to work with we can get to the fun data exploration part!</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/read-in-geopackage_98be5dd0d2497c9772a2dd4f6067ec53">
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co">#bou = read.csv("clean_data/caribou.csv")</span></span>
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/read-in-geopackage_b71821121ccf9f526c527a2f757c3b68">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">bou</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="st">"clean_data/caribou.csv"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># or </span></span>
+<span><span class="co">#or </span></span>
 <span></span>
 <span><span class="va">bou_sf</span> <span class="op">=</span> <span class="fu">read_sf</span><span class="op">(</span><span class="st">"clean_data/caribou.gpkg"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">bou</span> <span class="op">&lt;-</span> <span class="fu">st_drop_geometry</span><span class="op">(</span><span class="va">bou_sf</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">glimpse</span><span class="op">(</span><span class="va">bou</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Rows: 17,092
-Columns: 15
-$ location.long                 &lt;dbl&gt; -123.6036, -123.5987, -123.5903, -123.49…
-$ location.lat                  &lt;dbl&gt; 55.90000, 55.87343, 55.87470, 55.83741, …
-$ herd                          &lt;chr&gt; "Scott", "Scott", "Scott", "Scott", "Sco…
-$ tag.local.identifier          &lt;chr&gt; "car170", "car170", "car170", "car170", …
-$ animal.id                     &lt;chr&gt; "SC_car170", "SC_car170", "SC_car170", "…
-$ animal.sex                    &lt;chr&gt; "f", "f", "f", "f", "f", "f", "f", "f", …
-$ animal.reproductive.condition &lt;chr&gt; "with calf: N", "with calf: N", "with ca…
-$ tag.manufacturer.name         &lt;chr&gt; "ATS", "ATS", "ATS", "ATS", "ATS", "ATS"…
-$ tag.model                     &lt;chr&gt; "GPS Iridium", "GPS Iridium", "GPS Iridi…
-$ date_time                     &lt;dttm&gt; 2013-09-23 03:01:00, 2013-10-09 03:01:0…
-$ year                          &lt;dbl&gt; 2013, 2013, 2013, 2014, 2013, 2014, 2014…
-$ month                         &lt;dbl&gt; 9, 10, 10, 8, 11, 8, 9, 12, 7, 11, 6, 12…
-$ day                           &lt;int&gt; 23, 9, 30, 11, 10, 7, 19, 6, 8, 24, 20, …
-$ hour                          &lt;int&gt; 10, 10, 10, 10, 2, 10, 2, 18, 18, 2, 2, …
-$ minute                        &lt;int&gt; 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 0, 0, 1…</code></pre>
-</div>
+<span><span class="va">bou</span> <span class="op">&lt;-</span> <span class="fu">st_drop_geometry</span><span class="op">(</span><span class="va">bou_sf</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="many-questions-we-can-ask-here" class="level3"><h3 class="anchored" data-anchor-id="many-questions-we-can-ask-here">Many questions we can ask here:</h3>
 <ul>
@@ -694,8 +653,8 @@ $ minute                        &lt;int&gt; 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 0, 
 <li>what is the duration of each collar? Start and end years?</li>
 </ul>
 <p>Lets start with the basics:</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/summarise-clean-data_ac95f2e520c0cb4500c9e7da47e18882">
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># how many herds?</span></span>
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/summarise-clean-data_2289a963de91897ca1a1edfe98089d1b">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># how many herds?</span></span>
 <span><span class="va">no_herds</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">bou</span><span class="op">$</span><span class="va">herd</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#How many records per herd ?</span></span>
@@ -711,7 +670,7 @@ $ minute                        &lt;int&gt; 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 0, 
 <pre><code>`summarise()` has grouped output by 'herd'. You can override using the
 `.groups` argument.</code></pre>
 </div>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># animals by sex by herd ?</span></span>
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># animals by sex by herd ?</span></span>
 <span><span class="va">no_animals_sex</span> <span class="op">&lt;-</span> <span class="va">bou</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">herd</span>, <span class="va">animal.sex</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">summarise</span><span class="op">(</span>count <span class="op">=</span> <span class="fu">n</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -719,7 +678,7 @@ $ minute                        &lt;int&gt; 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 0, 
 <pre><code>`summarise()` has grouped output by 'herd'. You can override using the
 `.groups` argument.</code></pre>
 </div>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># type of collar by herd by collar model?</span></span>
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># type of collar by herd by collar model?</span></span>
 <span><span class="va">collar_type</span> <span class="op">&lt;-</span> <span class="va">bou</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">herd</span>, <span class="va">tag.manufacturer.name</span>, <span class="va">tag.model</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">summarise</span><span class="op">(</span>count <span class="op">=</span> <span class="fu">n</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -729,9 +688,8 @@ override using the `.groups` argument.</code></pre>
 </div>
 </div>
 <p>There is lots of data here, so to make it easy we will just use the Scott herd.</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/summarise-scott-herd_85c9d8cae99f77ba0ae863024f2f3c33">
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Filter the Scott herd only </span></span>
-<span></span>
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/summarise-scott-herd_0f48c3ca4e3e0bb9ea0461a9eeae4031">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Filter the Scott herd only </span></span>
 <span><span class="va">sbou</span> <span class="op">&lt;-</span> <span class="va">bou</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">herd</span> <span class="op">==</span> <span class="st">"Scott"</span><span class="op">)</span></span>
 <span></span>
@@ -749,14 +707,13 @@ override using the `.groups` argument.</code></pre>
 <li>Fall (September to November)</li>
 <li>Winter (December to March)</li>
 </ul>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/add-seasons_cfa905fa03fb8c2b2eddfb9b1c211cef">
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">sbou</span> <span class="op">&lt;-</span> <span class="va">sbou</span> <span class="op">|&gt;</span> </span>
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/add-seasons_404965b37e2608fd140cd13ce923c10d">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">sbou</span> <span class="op">&lt;-</span> <span class="va">sbou</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>season <span class="op">=</span> <span class="fu">case_when</span><span class="op">(</span></span>
 <span>            <span class="va">month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">5</span><span class="op">)</span> <span class="op">~</span> <span class="st">"spring"</span>,</span>
 <span>            <span class="va">month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">6</span>,<span class="fl">7</span>,<span class="fl">8</span><span class="op">)</span> <span class="op">~</span> <span class="st">"summer"</span>,</span>
 <span>            <span class="va">month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">9</span>,<span class="fl">10</span>,<span class="fl">11</span><span class="op">)</span> <span class="op">~</span> <span class="st">"fall"</span>,</span>
 <span>            <span class="va">month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">12</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span> <span class="op">~</span> <span class="st">"winter"</span><span class="op">)</span><span class="op">)</span> </span>
-<span>            </span>
 <span>  </span>
 <span><span class="co"># check data spread</span></span>
 <span><span class="va">counts.per.season</span> <span class="op">=</span> <span class="va">sbou</span> <span class="op">|&gt;</span> </span>
@@ -766,7 +723,7 @@ override using the `.groups` argument.</code></pre>
 <pre><code>`summarise()` has grouped output by 'season'. You can override using the
 `.groups` argument.</code></pre>
 </div>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="va">counts.per.season</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">season</span>, y <span class="op">=</span> <span class="va">count</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="va">counts.per.season</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">season</span>, y <span class="op">=</span> <span class="va">count</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu">geom_bar</span><span class="op">(</span>stat <span class="op">=</span> <span class="st">"identity"</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">animal.id</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"season"</span>, y <span class="op">=</span> <span class="st">"no.of.fixes"</span>, title <span class="op">=</span> <span class="st">"Scott Herd"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -776,20 +733,19 @@ override using the `.groups` argument.</code></pre>
 </div>
 <p>Then we can save our plot</p>
 <div class="cell" data-hash="03-intro-telemetry-data_cache/html/unnamed-chunk-3_42213f0c59e291260cafd5120167744e">
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggsave</span><span class="op">(</span><span class="st">"caribou_fixes_per_id.jpeg"</span>, width <span class="op">=</span> <span class="fl">10</span>, height <span class="op">=</span> <span class="fl">10</span>, units <span class="op">=</span> <span class="st">"cm"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggsave</span><span class="op">(</span><span class="st">"caribou_fixes_per_id.jpeg"</span>, width <span class="op">=</span> <span class="fl">10</span>, height <span class="op">=</span> <span class="fl">10</span>, units <span class="op">=</span> <span class="st">"cm"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="question-what-is-the-duration-of-the-collar-data" class="level4"><h4 class="anchored" data-anchor-id="question-what-is-the-duration-of-the-collar-data">Question: What is the duration of the collar data ?</h4>
 <p>The duration of the collars is also an important question. These can tell us not only the first and last fix, but also point to potential errors or issues we need to consider for future analysis.</p>
 <p>Lets calculate the minimum, maximum and duration between fix times.</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/collar-duration_6e143ee9e11ed93698122abb0516e3b3">
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># which years were the collars active?</span></span>
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/collar-duration_7616dbece32857531e3a6db315b8134d">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># which years were the collars active?</span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span><span class="va">sbou</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">year</span>, fill <span class="op">=</span> <span class="va">animal.id</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_bar</span><span class="op">(</span>position <span class="op">=</span> <span class="st">"dodge"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="03-intro-telemetry-data_files/figure-html/collar-duration-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># calculate the minimum and max dates per collar </span></span>
-<span></span>
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># calculate the minimum and max dates per collar </span></span>
 <span><span class="va">table_max</span> <span class="op">&lt;-</span> <span class="va">sbou</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">animal.id</span>, <span class="va">date_time</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># select the columns of interest</span></span>
 <span>  <span class="fu">slice_max</span><span class="op">(</span><span class="va">date_time</span>, by <span class="op">=</span> <span class="va">animal.id</span><span class="op">)</span>  <span class="co"># select the max value of date_time, per animal.id</span></span>
@@ -801,9 +757,7 @@ override using the `.groups` argument.</code></pre>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">table_min</span><span class="op">)</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"animal.id"</span>,<span class="st">"min"</span><span class="op">)</span></span>
 <span></span>
-<span></span>
 <span><span class="co"># merge the two tables together and calculate the duration </span></span>
-<span></span>
 <span><span class="va">dur</span> <span class="op">&lt;-</span> <span class="fu">left_join</span><span class="op">(</span><span class="va">table_max</span>, <span class="va">table_min</span>, by <span class="op">=</span> <span class="fu">join_by</span><span class="op">(</span><span class="va">animal.id</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">distinct</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>duration <span class="op">=</span> <span class="va">max</span> <span class="op">-</span> <span class="va">min</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># calculate duration (default is days)</span></span>
@@ -812,16 +766,14 @@ override using the `.groups` argument.</code></pre>
 <span>  <span class="fu">mutate</span><span class="op">(</span>year_start <span class="op">=</span> <span class="fu">year</span><span class="op">(</span><span class="va">min</span><span class="op">)</span>, </span>
 <span>         year_end <span class="op">=</span> <span class="fu">year</span><span class="op">(</span><span class="va">max</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span></span>
 <span><span class="co"># plot total duration of collar data </span></span>
-<span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span><span class="va">dur</span>, <span class="fu">aes</span><span class="op">(</span>y<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">animal.id</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_segment</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">min</span>, xend<span class="op">=</span><span class="va">max</span>, y<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">animal.id</span><span class="op">)</span>, yend<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">animal.id</span><span class="op">)</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">xlab</span><span class="op">(</span><span class="st">"Date"</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ylab</span><span class="op">(</span><span class="st">"Tag"</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="03-intro-telemetry-data_files/figure-html/collar-duration-2.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="va">sbou</span>, <span class="fu">aes</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">month</span><span class="op">)</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="va">sbou</span>, <span class="fu">aes</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">month</span><span class="op">)</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">geom_bar</span><span class="op">(</span>position <span class="op">=</span> <span class="st">"dodge"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">animal.id</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">theme</span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">90</span>, vjust <span class="op">=</span> <span class="fl">0.5</span>, hjust<span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -831,8 +783,8 @@ override using the `.groups` argument.</code></pre>
 </div>
 </section></section><section id="standardize-fix-interval-times" class="level3"><h3 class="anchored" data-anchor-id="standardize-fix-interval-times">5. Standardize fix interval times</h3>
 <p>Another data processing method we might need to consider is having a standard density or fix rate for all animals. This may not be required, depending on the research question being asked, but it is useful to assess measures of density.</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/check-fix-per-day_3e79f5cb2fbf0b8c50e94ebb71fea221">
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">sbou</span> <span class="op">&lt;-</span> <span class="va">sbou</span> <span class="op">|&gt;</span> </span>
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/check-fix-per-day_0e66de18d732391e4c57d13df3b39968">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">sbou</span> <span class="op">&lt;-</span> <span class="va">sbou</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">arrange</span><span class="op">(</span><span class="va">animal.id</span>, <span class="va">date_time</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sbou_dur</span> <span class="op">&lt;-</span> <span class="va">sbou</span> <span class="op">|&gt;</span> </span>
@@ -841,18 +793,17 @@ override using the `.groups` argument.</code></pre>
 <span>    <span class="fu">mutate</span><span class="op">(</span>diff <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/difftime.html">difftime</a></span><span class="op">(</span><span class="va">time</span>, <span class="fu"><a href="https://rdrr.io/r/stats/lag.html">lag</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span>,  units <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"hours"</span><span class="op">)</span><span class="op">)</span>, </span>
 <span>           diff <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="va">diff</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span></span>
 <span><span class="co"># we can see a big range in the time intervals for the fixes</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">sbou_dur</span><span class="op">$</span><span class="va">diff</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]   0.01666667 111.75000000</code></pre>
 </div>
-<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># most fall in the less than than 10 </span></span>
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># most fall in the less than than 10 </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html">hist</a></span><span class="op">(</span><span class="va">sbou_dur</span><span class="op">$</span><span class="va">diff</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="03-intro-telemetry-data_files/figure-html/check-fix-per-day-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># lets look at the individual animals</span></span>
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># lets look at the individual animals</span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span><span class="va">sbou_dur</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">diff</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu">geom_histogram</span><span class="op">(</span>bins<span class="op">=</span><span class="fl">30</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">facet_grid</span><span class="op">(</span><span class="va">.</span><span class="op">~</span><span class="va">animal.id</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -862,7 +813,7 @@ override using the `.groups` argument.</code></pre>
 <div class="cell-output-display">
 <p><img src="03-intro-telemetry-data_files/figure-html/check-fix-per-day-2.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># much of the problem is with the SC_car171 individual </span></span>
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># much of the problem is with the SC_car171 individual </span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span><span class="va">sbou_dur</span>, <span class="fu">aes</span><span class="op">(</span>y <span class="op">=</span> <span class="va">diff</span>, x <span class="op">=</span> <span class="va">date_time</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu">geom_point</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="va">.</span><span class="op">~</span><span class="va">animal.id</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -875,14 +826,13 @@ override using the `.groups` argument.</code></pre>
 </div>
 <p>The number of fixes are relatively steady throughout the years for all individuals except SC_car171? Something looks strange here as there are large spikes in October 2015 and February 2016. Potential mortality signals?</p>
 <p>To create a standardized fix per day, lets take the first fix per day. This could be based on a number of factors, depending on our research question we want to ask. We can use Julian date to filter all fixes.</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/unnamed-chunk-4_fe52e19353c2cd9ebc3d024704e9b575">
-<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># we can subset base on a Julian date</span></span>
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/unnamed-chunk-4_9d1fafcc6ed2f31e5c0483e4a05c51a9">
+<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># we can subset base on a Julian date</span></span>
 <span><span class="va">sbou_dur</span> <span class="op">&lt;-</span> <span class="va">sbou_dur</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">mutate</span><span class="op">(</span></span>
 <span>    date2<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="va">date_time</span>, format <span class="op">=</span> <span class="st">'%Y-%m-%d'</span><span class="op">)</span>, <span class="co"># convert to date type</span></span>
 <span>    jdate<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/weekday.POSIXt.html">julian</a></span><span class="op">(</span><span class="va">date2</span><span class="op">)</span>               <span class="co"># create new column and calculate Julian date </span></span>
 <span>  <span class="op">)</span></span>
-<span></span>
 <span></span>
 <span><span class="co"># Check the multiple counts of animals per day </span></span>
 <span><span class="va">counts.per.day.jdate</span> <span class="op">&lt;-</span> <span class="va">sbou_dur</span> <span class="op">|&gt;</span> </span>
@@ -896,7 +846,7 @@ using the `.groups` argument.
 `summarise()` has grouped output by 'animal.id', 'total'. You can override
 using the `.groups` argument.</code></pre>
 </div>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># lets plot this data to make more sense of what is happening</span></span>
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># lets plot this data to make more sense of what is happening</span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span><span class="va">counts.per.day.jdate</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">total</span>, y <span class="op">=</span> <span class="va">total.j</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu">geom_point</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">1</span>, color <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span><span class="op">+</span></span>
@@ -904,63 +854,79 @@ using the `.groups` argument.</code></pre>
 <div class="cell-output-display">
 <p><img src="03-intro-telemetry-data_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># lets select the first fix per day </span></span>
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># lets select the first fix per day </span></span>
 <span><span class="va">sbou_sub</span> <span class="op">&lt;-</span> <span class="va">sbou_dur</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">group_by</span><span class="op">(</span><span class="va">animal.id</span>, <span class="va">jdate</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">slice_sample</span><span class="op">(</span> n <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We can write out the standardized fix rate file for future use in analysis.</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/write-standard-subset-csv_2a30695b8c4e0cdc32c1fa57229015d2">
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># lets write this out as .csv and .Gpkg</span></span>
-<span></span>
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/write-standard-subset-csv_20a1184273ce25fe91d11df42de136ef">
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># lets write this out as .csv and .Gpkg</span></span>
 <span><span class="fu">write_csv</span><span class="op">(</span><span class="va">sbou_sub</span>, <span class="st">"clean_data/scott_herd_subset.csv"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Alternatively we can convert to a sf object and export. Note this is required as we previously remove the spatial components to undertake the summaries above.</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/write-standard-subset-gpk_f9ee4fea4a3384876e3b3f684731a15f">
-<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">sbou_sub_sf</span> <span class="op">&lt;-</span> <span class="fu">st_as_sf</span><span class="op">(</span><span class="va">sbou_sub</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"location.long"</span>, <span class="st">"location.lat"</span><span class="op">)</span>, crs <span class="op">=</span> <span class="fl">4326</span>, remove <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/write-standard-subset-gpk_75f45d2295e23f2dbcded3df0b93f902">
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">sbou_sub_sf</span> <span class="op">&lt;-</span> <span class="fu">st_as_sf</span><span class="op">(</span><span class="va">sbou_sub</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"location.long"</span>, <span class="st">"location.lat"</span><span class="op">)</span>, crs <span class="op">=</span> <span class="fl">4326</span>, remove <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">st_transform</span><span class="op">(</span><span class="fl">3005</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Export as .gpkg</p>
 <div class="cell" data-hash="03-intro-telemetry-data_cache/html/unnamed-chunk-5_42f74571853b33f1e740c0a2193d8dc4">
-<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># # export as .gpkg</span></span>
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># # export as .gpkg</span></span>
 <span><span class="fu">write_sf</span><span class="op">(</span><span class="va">sbou_sub_sf</span>, <span class="st">"clean_data/scott_herd_subset.gpkg"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section><section id="add-questions-still-to-do" class="level3"><h3 class="anchored" data-anchor-id="add-questions-still-to-do">Add Questions: STILL TO DO:</h3>
-<div class="callout callout-style-simple callout-tip no-icon callout-titled">
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/unnamed-chunk-6_e78bc9a8d99341de00f2cc612601a20f">
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># plot months of the year. </span></span>
+<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">sbou</span>, <span class="fu">aes</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">month</span><span class="op">)</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_bar</span><span class="op">(</span>position <span class="op">=</span> <span class="st">"dodge"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">animal.id</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">90</span>, vjust <span class="op">=</span> <span class="fl">0.5</span>, hjust<span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="03-intro-telemetry-data_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section></section><section id="your-turn" class="level2"><h2 class="anchored" data-anchor-id="your-turn">Your Turn</h2>
+<ol type="1">
+<li>Use the Burnt Pine herd to answer the following questions:</li>
+</ol>
+<ul>
+<li>how many animals in this herd?</li>
+<li>how many records are in this herd per animal?</li>
+<li>what is the sex ratio of collared animals?</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
+<i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Your Turn
+Solution
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>The answer is:</p>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/unnamed-chunk-6_a039e05906524d7f195ea17b5cc2d87e">
-<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fl">1</span> <span class="op">+</span> <span class="fl">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 2</code></pre>
+<div class="cell" data-hash="03-intro-telemetry-data_cache/html/unnamed-chunk-7_2e5c8dd9d28a245b513dc150476c1acc">
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">bou_sf</span> <span class="op">=</span> <span class="fu">read_sf</span><span class="op">(</span><span class="st">"clean_data/caribou.gpkg"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">bp</span> <span class="op">&lt;-</span> <span class="va">bou_sf</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">herd</span> <span class="op">==</span> <span class="st">"Burnt Pine"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">no_animals</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">bp</span><span class="op">$</span><span class="va">animal.id</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">no_records_per_animal</span> <span class="op">&lt;-</span> <span class="va">bp</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">animal.id</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">summarise</span><span class="op">(</span>count <span class="op">=</span> <span class="fu">n</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">no_animals_sex</span> <span class="op">&lt;-</span> <span class="va">bp</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">animal.sex</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">summarise</span><span class="op">(</span>count <span class="op">=</span> <span class="fu">n</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
-</div>
-</div>
-</div>
-<div class="cell" data-hash="03-intro-telemetry-data_cache/html/unnamed-chunk-7_44f0f6ce255542954fdc2b4a91e40e62">
-<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># plot months of the year. </span></span>
-<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">sbou</span>, <span class="fu">aes</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">month</span><span class="op">)</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu">geom_bar</span><span class="op">(</span>position <span class="op">=</span> <span class="st">"dodge"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">animal.id</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu">theme</span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">90</span>, vjust <span class="op">=</span> <span class="fl">0.5</span>, hjust<span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="03-intro-telemetry-data_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 
 
-</section></section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
