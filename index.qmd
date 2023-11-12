@@ -21,7 +21,7 @@ This course will be for basic to medium R coders, but never fear, we will have m
 What is a hackathon? 
 A hackathon is an opportunity to work with your peers on common problems. This might be talking through options, paired coding or splitting up to separate tasks. We will provide more input during the course to help you best use this time. 
 
-If you have a dataset you would like to work on, please bring it with you and you can use this for the hackathon. 
+If you have a data set you would like to work on, please bring it with you and you can use this for the hackathon. 
 
 
 **Thank-you**

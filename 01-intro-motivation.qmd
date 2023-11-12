@@ -41,7 +41,8 @@ footer: "[Workshop Home](https://ninoxconsulting.github.io/r-telemetry-workshop-
 
 ## Code of Conduct
 
-
+In the interest of ensuring a safe environment for all, all attendees, 
+speakers and organisers of the workshop must agree to follow the workshop's [code of conduct](https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/blob/main/CODE_OF_CONDUCT.md).
 
 ## Housekeeping
 
