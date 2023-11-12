@@ -135,8 +135,8 @@ write.csv(bou_full_pts, "clean_data/allpts_att.gpkg")
 
 # write out as csv, keeping the XY values
 
-bou_table <- bou_full_pts %>%
-  cbind(st_coordinates(.)) |>
+bou_table <- st_coordinates(bou_full_pts) |> 
+  cbind(bou_full_pts) |> 
   st_drop_geometry()
 
 write.csv(bou_table, "clean_data/allpts_att.csv")
