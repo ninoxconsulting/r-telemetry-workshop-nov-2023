@@ -145,7 +145,7 @@ write.csv(bou_table, "clean_data/allpts_att.csv")
 
 ```
 
-## 3. Summarise landscape information
+## 3. Summarise attributed point data
 
 We can use our attributed point data to provide valuable summaries of landscape feature. Lets looks at aspect and BEC zones.
 
@@ -168,10 +168,11 @@ ggplot(bou_table, aes(MAP_LABEL, group = pres_bkg, fill = factor(pres_bkg))) +
 
 ## Your turn
 
-::: {.callout-tip collapse="true"}
 1.  Generate a second set of background points used a method other than "random".
 
-Solution:
+::: {.callout-tip collapse="true"}
+
+##Solution:
 
 ```{r}
 
@@ -186,7 +187,6 @@ mapview(avail_pts_regular)
 ::: {.callout-tip collapse="true"}
 ## Solution
 
-Solution:
 
 ```{r}
 # Here are a few example using elevation and distance to water. 
