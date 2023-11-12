@@ -70,31 +70,46 @@ animate(
 )
 ```
 
-
 ## Interactive maps with `{Leaflet}`
+
+Let's use the file that has the caribou locations with the attributes from 
+the base layers
 
 ```{r}
 library(dplyr)
 library(leaflet)
 
-scott_wgs84 <- filter(scott, year == 2014) |> 
+all_pts <- read_sf("clean_data/allpts_att.gpkg") |> 
   st_transform(4326)
+
+caribou <- filter(all_pts, !is.na(animal.id))
+background <- filter(all_pts, is.na(animal.id))
 
 animal_pal <- colorFactor(
   palette = "viridis",
-  domain = unique(scott_wgs84$animal.id)
+  domain = unique(caribou$animal.id)
 )
 
-leaflet(scott_wgs84) |> 
-  addProviderTiles("CartoDB") |> 
+leaflet(caribou) |> 
+  addProviderTiles(providers$Esri.NatGeoWorldMap) |> 
   addCircleMarkers(
-    color = ~ animal_pal(scott_feb1$animal.id), 
-    popup = ~ animal.sex
+    data = background, 
+    color = "grey", 
+    radius = 1
+    ) |> 
+  addCircleMarkers(
+    color = ~ animal_pal(caribou$animal.id),
+    weight = 1,
+    radius = ~ elevation / 300,
+    popup = ~ paste0(
+      "Animal: ", animal.id, "<br>",
+      "Elevation: ", round(elevation)
+    )
   ) |> 
   addLegend(
     "bottomleft", 
     pal = animal_pal,
-    values = ~ scott_wgs84$animal.id,
+    values = ~ caribou$animal.id,
     title = "Animal ID"
   )
 ```
