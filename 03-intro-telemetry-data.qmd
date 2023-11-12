@@ -130,7 +130,7 @@ We firstly need to format the raw data into a date format using **lubridate** pa
 tdata <- tdata  |> 
   mutate(date_time = ymd_hms(date)) 
 
-# owch we still have an error in this dataset
+# owch we still have an error in this data set
 
 # lets see if we can find it..... 
 
