@@ -72,12 +72,9 @@ The **sp** package uses a specific format called SpatialPointsDataFrame. To use 
 
 ```{r}
 #  Create SpatialPointsDataFrame object
-  tdfid <- tdf |>  dplyr::select(location.long, location.lat, animal.id)
-
-  coordinates(tdfid) <- c("location.long", "location.lat")
-  proj4string(tdfid) <- CRS( "+proj=longlat +datum=WGS84 +units=m +no_defs" )
-  
-  tdfgeo <- spTransform(tdfid, CRS("+init=epsg:3005")) # transform
+  tdfgeo <- bou |>  
+    dplyr::select(animal.id) |>
+    as("Spatial")
    
   # Calculate MCPs 
   c.mcp <- mcp(tdfgeo, percent = 100)
