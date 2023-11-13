@@ -90,7 +90,7 @@ The **sp** package uses a specific format called SpatialPointsDataFrame. To use 
   
 ```
 
-The advantage of using this package is that it provides many more outputs and enables us to customise the information we want. For example we can extract multiple homeranges based on varying levels of specificity; i.e. percent = 75%.
+The advantage of using the adhabitatHR package is that it provides many more outputs and enables us to customise the information we want. For example we can extract multiple homeranges based on varying levels of specificity; i.e. percent = 75%.
 
 ```{r}
   # lets look at 75% inclusion
