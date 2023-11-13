@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.3.450">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Using R for Wildlife Telemetry Data Analysis - Generating Kernel Density Estimates</title>
+<title>Using R for Wildlife Telemetry Data Analysis - Generating Home Range Estimates</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -131,7 +131,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./bonus-kde.html">Bonus content</a></li><li class="breadcrumb-item"><a href="./bonus-kde.html">Generating Kernel Density Estimates</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./bonus-kde.html">Bonus content</a></li><li class="breadcrumb-item"><a href="./bonus-kde.html">Generating Home Range Estimates</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -235,7 +235,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./bonus-kde.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Generating Kernel Density Estimates</span></a>
+ <span class="menu-text">Generating Home Range Estimates</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -260,13 +260,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
    
   <ul>
-<li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
-  <li><a href="#unconstrained-smoothed-cross-validation" id="toc-unconstrained-smoothed-cross-validation" class="nav-link" data-scroll-target="#unconstrained-smoothed-cross-validation">unconstrained Smoothed Cross Validation</a></li>
+<li>
+<a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a>
+  <ul class="collapse">
+<li><a href="#preparation" id="toc-preparation" class="nav-link" data-scroll-target="#preparation">1. Preparation</a></li>
+  <li><a href="#minimum-convex-polygons" id="toc-minimum-convex-polygons" class="nav-link" data-scroll-target="#minimum-convex-polygons">2. Minimum Convex Polygons</a></li>
+  <li><a href="#kernel-density-estimates-kde" id="toc-kernel-density-estimates-kde" class="nav-link" data-scroll-target="#kernel-density-estimates-kde">3. Kernel Density Estimates (kde)</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</li>
   </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/bonus-kde.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
-<h1 class="title">Generating Kernel Density Estimates</h1>
+<h1 class="title">Generating Home Range Estimates</h1>
 </div>
 
 
@@ -280,379 +287,193 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   
 
 </header><section id="overview" class="level2"><h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>In this module we will use caribou data to create home range estimates using kernal density and minimum convex polygons.</p>
+<p>In this module we will create home range estimates using minimum convex polygons and kernel density estimates (kde) exploring a range of methods available.</p>
+<section id="preparation" class="level3"><h3 class="anchored" data-anchor-id="preparation">1. Preparation</h3>
 <div class="cell">
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/">sf</a></span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Linking to GEOS 3.11.0, GDAL 3.5.3, PROJ 9.1.0; sf_use_s2() is TRUE</code></pre>
-</div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co">#install.packages("ks")</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://www.mvstat.net/mvksa/">ks</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/">sf</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/r-spatial/mapview">mapview</a></span><span class="op">)</span></span>
+<span><span class="co">#library(ggdensity)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">adehabitatHR</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/edzer/sp/">sp</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># read in sf object </span></span>
+<span><span class="va">bou</span> <span class="op">&lt;-</span> <span class="fu">read_sf</span><span class="op">(</span><span class="st">"clean_data/caribou.gpkg"</span><span class="op">)</span> </span>
 <span></span>
-<span><span class="va">scott</span> <span class="op">&lt;-</span> <span class="fu">st_read</span><span class="op">(</span><span class="st">"clean_data/caribou.gpkg"</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">st_transform</span><span class="op">(</span><span class="fl">3005</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Reading layer `caribou' from data source 
-  `/Users/andy/dev/r-telemetry-workshop-nov-2023/clean_data/caribou.gpkg' 
-  using driver `GPKG'
-Simple feature collection with 17092 features and 15 fields
-Geometry type: POINT
-Dimension:     XY
-Bounding box:  xmin: 1145290 ymin: 1143000 xmax: 1247842 ymax: 1227464
-Projected CRS: NAD83 / BC Albers</code></pre>
-</div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">spt</span> <span class="op">&lt;-</span> <span class="va">scott</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">st_coordinates</span><span class="op">(</span><span class="va">scott</span><span class="op">)</span></span>
-<span>  </span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">spt</span></span>
+<span><span class="co"># add seasons </span></span>
+<span><span class="va">bou</span> <span class="op">&lt;-</span> <span class="va">bou</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>season <span class="op">=</span> <span class="fu">case_when</span><span class="op">(</span></span>
+<span>            <span class="va">month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">5</span><span class="op">)</span> <span class="op">~</span> <span class="st">"spring"</span>,</span>
+<span>            <span class="va">month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">6</span>,<span class="fl">7</span>,<span class="fl">8</span><span class="op">)</span> <span class="op">~</span> <span class="st">"summer"</span>,</span>
+<span>            <span class="va">month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">9</span>,<span class="fl">10</span>,<span class="fl">11</span><span class="op">)</span> <span class="op">~</span> <span class="st">"fall"</span>,</span>
+<span>            <span class="va">month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">12</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span> <span class="op">~</span> <span class="st">"winter"</span><span class="op">)</span><span class="op">)</span> </span>
 <span></span>
-<span></span>
-<span></span>
-<span><span class="fu">st_boundary</span><span class="op">(</span><span class="va">scott</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Simple feature collection with 17092 features and 15 fields (with 17092 geometries empty)
-Geometry type: GEOMETRYCOLLECTION
-Dimension:     XY
-Bounding box:  xmin: NA ymin: NA xmax: NA ymax: NA
-Projected CRS: NAD83 / BC Albers
-First 10 features:
-   location.long location.lat  herd tag.local.identifier animal.id animal.sex
-1      -123.6036     55.90000 Scott               car170 SC_car170          f
-2      -123.5987     55.87343 Scott               car170 SC_car170          f
-3      -123.5903     55.87470 Scott               car170 SC_car170          f
-4      -123.4915     55.83741 Scott               car170 SC_car170          f
-5      -123.4740     55.87877 Scott               car170 SC_car170          f
-6      -123.4412     55.85412 Scott               car170 SC_car170          f
-7      -123.4325     55.91398 Scott               car171 SC_car171          f
-8      -123.4310     55.87820 Scott               car170 SC_car170          f
-9      -123.4280     55.87681 Scott               car170 SC_car170          f
-10     -123.4252     55.87287 Scott               car170 SC_car170          f
-   animal.reproductive.condition tag.manufacturer.name   tag.model
-1                   with calf: N                   ATS GPS Iridium
-2                   with calf: N                   ATS GPS Iridium
-3                   with calf: N                   ATS GPS Iridium
-4                   with calf: N                   ATS GPS Iridium
-5                   with calf: N                   ATS GPS Iridium
-6                   with calf: N                   ATS GPS Iridium
-7                   with calf: Y                   ATS GPS Iridium
-8                   with calf: N                   ATS GPS Iridium
-9                   with calf: N                   ATS GPS Iridium
-10                  with calf: N                   ATS GPS Iridium
-             date_time year month day hour minute                     geom
-1  2013-09-23 03:01:00 2013     9  23   10      1 GEOMETRYCOLLECTION EMPTY
-2  2013-10-09 03:01:00 2013    10   9   10      1 GEOMETRYCOLLECTION EMPTY
-3  2013-10-30 03:01:00 2013    10  30   10      1 GEOMETRYCOLLECTION EMPTY
-4  2014-08-11 03:01:00 2014     8  11   10      1 GEOMETRYCOLLECTION EMPTY
-5  2013-11-09 18:01:00 2013    11  10    2      1 GEOMETRYCOLLECTION EMPTY
-6  2014-08-07 03:01:00 2014     8   7   10      1 GEOMETRYCOLLECTION EMPTY
-7  2014-09-18 19:02:00 2014     9  19    2      2 GEOMETRYCOLLECTION EMPTY
-8  2013-12-06 10:02:00 2013    12   6   18      2 GEOMETRYCOLLECTION EMPTY
-9  2014-07-08 11:01:00 2014     7   8   18      1 GEOMETRYCOLLECTION EMPTY
-10 2013-11-23 18:01:00 2013    11  24    2      1 GEOMETRYCOLLECTION EMPTY</code></pre>
+<span><span class="co"># add coordinates</span></span>
+<span><span class="va">tdf</span> <span class="op">&lt;-</span> <span class="fu">st_coordinates</span><span class="op">(</span><span class="va">bou</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">bou</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu">select</span><span class="op">(</span><span class="va">location.long</span>, <span class="va">location.lat</span>, <span class="va">herd</span>, <span class="va">animal.id</span>, <span class="va">season</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>    <span class="fu">st_drop_geometry</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># minimujm convex polygons</span></span>
-<span></span>
-<span></span>
-<span><span class="va">pts1</span> <span class="op">&lt;-</span> <span class="fu">st_as_sf</span><span class="op">(</span>x <span class="op">=</span> <span class="va">scott</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'location.long'</span>, <span class="st">'location.lat'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">my_hull</span> <span class="op">&lt;-</span> <span class="fu">st_convex_hull</span><span class="op">(</span><span class="fu">st_union</span><span class="op">(</span><span class="va">pts1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">my_hull</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">pts1</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, cex<span class="op">=</span><span class="fl">2</span>, col<span class="op">=</span><span class="st">"blue"</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="bonus-kde_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># </span></span>
-<span><span class="co"># </span></span>
-<span><span class="co"># set.seed(8192) </span></span>
-<span><span class="co"># samp&lt;-200 </span></span>
-<span><span class="co"># mus&lt;-rbind(c(-2,2),c(0,0),c(2,-2)) </span></span>
-<span><span class="co"># Sigmas&lt;-rbind(diag(2),matrix(c(0.8,-0.72,-0.72,0.8),nrow=2),diag(2)) </span></span>
-<span><span class="co"># cwt&lt;-3/11 </span></span>
-<span><span class="co"># props&lt;-c((1-cwt)/2,cwt,(1-cwt)/2) </span></span>
-<span><span class="co"># x&lt;-rmvnorm.mixt(n=samp,mus=mus,Sigmas=Sigmas,props=props)</span></span>
-<span></span>
-<span></span>
-<span><span class="co"># Kernal density </span></span>
-<span></span>
-<span><span class="co"># using = h ref </span></span>
-<span></span>
-<span><span class="va">Hpi1</span> <span class="op">&lt;-</span> <span class="fu">Hpi</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">Hpi2</span> <span class="op">&lt;-</span> <span class="fu">Hpi.diag</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">fhat.pi1</span> <span class="op">&lt;-</span><span class="fu">kde</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,H<span class="op">=</span><span class="va">Hpi1</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in quantile.default(dobs, prob = (100 - cont)/100): partial argument
-match of 'prob' to 'probs'</code></pre>
-</div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">fhat.pi2</span> <span class="op">&lt;-</span><span class="fu">kde</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,H<span class="op">=</span><span class="va">Hpi2</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in quantile.default(dobs, prob = (100 - cont)/100): partial argument
-match of 'prob' to 'probs'</code></pre>
-</div>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fhat.pi1</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'level' to 'levels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'label' to 'labels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'level' to 'levels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'label' to 'labels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'level' to 'levels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'label' to 'labels'</code></pre>
-</div>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fhat.pi1</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'level' to 'levels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'label' to 'labels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'level' to 'levels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'label' to 'labels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'level' to 'levels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'label' to 'labels'</code></pre>
-</div>
-<div class="cell-output-display">
-<p><img src="bonus-kde_files/figure-html/unnamed-chunk-1-2.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-</section><section id="unconstrained-smoothed-cross-validation" class="level1"><h1>unconstrained Smoothed Cross Validation</h1>
+<p>Lets begin by checking we have enough points to be confident in our home range estimate. The total number of raw fixes will vary depending between individuals by season and years. In this example we will use a minimum of 50 unique locations as recommended for home range calculations (Seaman 1999, Kernohan 2001).</p>
+<p><strong>Note:</strong> telemetry data is yet to be subset by a specific time interval and currently includes all raw fixes.</p>
 <div class="cell">
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">Hscv1</span> <span class="op">&lt;-</span><span class="fu">Hscv</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">id_pts</span> <span class="op">&lt;-</span> <span class="va">tdf</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu">group_by</span><span class="op">(</span><span class="va">animal.id</span><span class="op">)</span><span class="op">|&gt;</span></span>
+<span>      <span class="fu">summarise</span><span class="op">(</span>count <span class="op">=</span> <span class="fu">n</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">season_pts</span> <span class="op">&lt;-</span> <span class="va">tdf</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu">group_by</span><span class="op">(</span><span class="va">herd</span>, <span class="va">season</span><span class="op">)</span><span class="op">|&gt;</span></span>
+<span>      <span class="fu">summarise</span><span class="op">(</span>count <span class="op">=</span> <span class="fu">n</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="minimum-convex-polygons" class="level3"><h3 class="anchored" data-anchor-id="minimum-convex-polygons">2. Minimum Convex Polygons</h3>
+<p>Minimum convex polygons (mcp) can be used to provide a quick estimate of data distribution. This provides a very broad brush approach and does not include density estimates.</p>
+<p>2.1 Using the <strong>sf</strong> package.</p>
+<div class="cell">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mcp</span> <span class="op">&lt;-</span> <span class="fu">st_convex_hull</span><span class="op">(</span><span class="fu">st_union</span><span class="op">(</span><span class="va">bou</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mcp</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">bou</span><span class="op">$</span><span class="va">geom</span>, col <span class="op">=</span> <span class="st">"blue"</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#this is not very representative so what other methods can we use. </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>2.2 Using the <strong>sp</strong> package.</p>
+<p>Alternatively we can use the <strong>adhabitatHR</strong> package, which contains many ecology specific tools and functions. The downside of using this package is the reliance on old spatial package (<strong>sp</strong>) . The <strong>sp</strong> package has largely been superseded by the <strong>sf</strong> package. Unfortunately this is the reality of a coding language which is constantly being updated and improved!</p>
+<p>The <strong>sp</strong> package uses a specific format called SpatialPointsDataFrame. To use these functions we need to convert from sf to sp formats.</p>
+<div class="cell">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co">#  Create SpatialPointsDataFrame object</span></span>
+<span>  <span class="va">tdfid</span> <span class="op">&lt;-</span> <span class="va">tdf</span> <span class="op">%&gt;%</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu">select</span><span class="op">(</span><span class="va">location.long</span>, <span class="va">location.lat</span>, <span class="va">animal.id</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="fu">coordinates</span><span class="op">(</span><span class="va">tdfid</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"location.long"</span>, <span class="st">"location.lat"</span><span class="op">)</span></span>
+<span>  <span class="fu">proj4string</span><span class="op">(</span><span class="va">tdfid</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu">CRS</span><span class="op">(</span> <span class="st">"+proj=longlat +datum=WGS84 +units=m +no_defs"</span> <span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="va">tdfgeo</span> <span class="op">&lt;-</span> <span class="fu">spTransform</span><span class="op">(</span><span class="va">tdfid</span>, <span class="fu">CRS</span><span class="op">(</span><span class="st">"+init=epsg:3005"</span><span class="op">)</span><span class="op">)</span> <span class="co"># transform</span></span>
+<span>   </span>
+<span>  <span class="co"># Calculate MCPs </span></span>
+<span>  <span class="va">c.mcp</span> <span class="op">&lt;-</span> <span class="fu">mcp</span><span class="op">(</span><span class="va">tdfgeo</span>, percent <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># convert this to a sf object </span></span>
+<span>  <span class="va">c.mcp_sf</span> <span class="op">&lt;-</span> <span class="fu">st_as_sf</span><span class="op">(</span><span class="va">c.mcp</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># plot with mapview</span></span>
+<span>  <span class="fu">mapview</span><span class="fu">::</span><span class="fu">mapview</span><span class="op">(</span><span class="va">c.mcp_sf</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The advantage of using this package is that it provides many more outputs and enables us to customise the information we want. For example we can extract multiple homeranges based on varying levels of specificity; i.e.&nbsp;percent = 75%.</p>
+<div class="cell">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span>  <span class="co"># lets look at 75% inclusion</span></span>
+<span>  <span class="va">c.mcp.75</span> <span class="op">&lt;-</span> <span class="fu">mcp</span><span class="op">(</span><span class="va">tdfgeo</span> , percent <span class="op">=</span> <span class="fl">75</span><span class="op">)</span></span>
+<span></span>
+<span>   <span class="co"># Plot</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">tdfgeo</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">as.factor</a></span><span class="op">(</span><span class="va">tdfgeo</span><span class="op">$</span><span class="va">animal.id</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">c.mcp</span>, col <span class="op">=</span> <span class="fu">alpha</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">0.5</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">c.mcp.75</span>, col <span class="op">=</span> <span class="fu">alpha</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">0.5</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Calculate the MCP by including 50 to 100 percent of points</span></span>
+<span>  <span class="va">hrarea</span> <span class="op">&lt;-</span> <span class="fu">mcp.area</span><span class="op">(</span><span class="va">tdfgeo</span>, percent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="kernel-density-estimates-kde" class="level3"><h3 class="anchored" data-anchor-id="kernel-density-estimates-kde">3. Kernel Density Estimates (kde)</h3>
+<p>Kernel Density Estimates (kde) are a popular method to estimate the distribution of data, hence are used to estimate home ranges. Calculations for KDE require consideration of the mathematical method to describe the density function. A detailed description of the parameters can be found <a href="http://www.spatialecology.com/gme/kde.htm">here</a>.</p>
+<p>KDEs are very sensitive to input parameters, specifically the bandwidth (h) which determines the <a href="https://cran.r-project.org/web/packages/adehabitatHR/vignettes/adehabitatHR.pdf">smoothing parameter</a>. H parameters can be estimated using three methods:</p>
+<ul>
+<li>a reference bandwidth (h = σ × n ^−1/6), however this is generally an overestimate of the range, and is not suitable for multi-modal distributions.</li>
+<li>Least Square Cross Validation (LSCV), which minimizes the difference in volume between the true UD and the estimates UD.</li>
+<li>A subjective visual choice for the smoothing parameter, based on successive trials (Silverman, 1986; Wand &amp; Jones 1995).</li>
+</ul>
+<p>Other parameters include:</p>
+<ul>
+<li><p>Kernel Type: The type of kernel is limited to Gaussian (bivariate normal), quadratic or normal. We used the bivariate normal model as default.</p></li>
+<li><p>Grid/extent: These determines the area or extent over which the home range will be estimated. This is a mix of fine scale and time consuming processing and faster blocky resolution over a continuous surface. As a rule of thumb you GME suggests: take the square root of the x or y variance value (whichever is smaller) and divide by 5 or 10 (I usually round to the nearest big number - so 36.7 becomes 40). Before using this rule of thumb value calculate how many cells this will result in for the output (take the width and height of you input points, divide by the cell size, and multiply the resulting numbers together). If you get a value somewhere between 1-20 million, then you have a reasonable value.</p></li>
+</ul>
+<p>To create home ranges for each unique id we used a bivariate normal kernel with a variety of h (smoothing parameters). We then interpreted visually to determine size to use based on successive trials. This is supported by the literature (Hemson et al.&nbsp;2005; Calenge et al.&nbsp;2011).</p>
+<p>It is also possible to run KDE with set barriers and boundaries.</p>
+<section id="kde-h-reference-parameter" class="level4"><h4 class="anchored" data-anchor-id="kde-h-reference-parameter">3.1 kde: h reference parameter</h4>
+<div class="cell">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span>  <span class="va">tdfu</span> <span class="op">&lt;-</span> <span class="va">tdf</span>  <span class="op">%&gt;%</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu">select</span><span class="op">(</span><span class="va">location.long</span>, <span class="va">location.lat</span>, <span class="va">season</span><span class="op">)</span></span>
+<span>    </span>
+<span>  <span class="co"># Create a SpatialPointsDataFrame by defining the coordinates</span></span>
+<span>  <span class="fu">coordinates</span><span class="op">(</span><span class="va">tdfu</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"location.long"</span>, <span class="st">"location.lat"</span><span class="op">)</span></span>
+<span>  <span class="fu">proj4string</span><span class="op">(</span><span class="va">tdfu</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu">CRS</span><span class="op">(</span> <span class="st">"+proj=longlat +datum=WGS84 +units=m +no_defs"</span> <span class="op">)</span></span>
+<span>  <span class="va">tdfgeo</span> <span class="op">&lt;-</span> <span class="fu">spTransform</span><span class="op">(</span><span class="va">tdfu</span>, <span class="fu">CRS</span><span class="op">(</span><span class="st">"+init=epsg:3005"</span><span class="op">)</span><span class="op">)</span> <span class="co"># Transform to UTM </span></span>
+<span></span>
+<span>  <span class="co"># define the parameters (h, kern, grid, extent) </span></span>
+<span>  <span class="va">kde_href</span>  <span class="op">&lt;-</span> <span class="fu">kernelUD</span><span class="op">(</span><span class="va">tdfgeo</span>, h <span class="op">=</span> <span class="st">"href"</span>, kern <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"bivnorm"</span><span class="op">)</span>, grid <span class="op">=</span> <span class="fl">500</span>, extent <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="va">kde_href</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>From this object (<strong>Utilization distribution of several Animals</strong>) we can extract the vertices or polygons which define the percentage we wish to include.</p>
+<div class="cell">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span>  <span class="va">ver95</span> <span class="op">&lt;-</span> <span class="fu">getverticeshr</span><span class="op">(</span><span class="va">kde_href</span>,<span class="fl">95</span><span class="op">)</span> <span class="co"># get vertices for home range</span></span>
+<span>  <span class="va">ver95_sf</span> <span class="op">&lt;-</span> <span class="fu">st_as_sf</span><span class="op">(</span><span class="va">ver95</span><span class="op">)</span>         <span class="co"># convert to sf object </span></span>
+<span>  </span>
+<span>  <span class="va">ver75</span> <span class="op">&lt;-</span> <span class="fu">getverticeshr</span><span class="op">(</span><span class="va">kde_href</span>,<span class="fl">75</span><span class="op">)</span></span>
+<span>  <span class="va">ver75_sf</span> <span class="op">&lt;-</span> <span class="fu">st_as_sf</span><span class="op">(</span><span class="va">ver75</span> <span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="va">ver50</span> <span class="op">&lt;-</span> <span class="fu">getverticeshr</span><span class="op">(</span><span class="va">kde_href</span>,<span class="fl">50</span><span class="op">)</span></span>
+<span>  <span class="va">ver50_sf</span><span class="op">&lt;-</span> <span class="fu">st_as_sf</span><span class="op">(</span><span class="va">ver50</span><span class="op">)</span></span>
+<span> </span>
+<span>  <span class="co"># plot the outputs </span></span>
+<span>  <span class="fu">mapview</span><span class="op">(</span><span class="va">ver50_sf</span>, zcol <span class="op">=</span> <span class="st">"id"</span><span class="op">)</span> </span>
+<span>  <span class="fu">mapview</span> <span class="op">(</span><span class="va">ver75_sf</span>, zcol <span class="op">=</span> <span class="st">"id"</span><span class="op">)</span></span>
+<span>  <span class="fu">mapview</span> <span class="op">(</span><span class="va">ver95_sf</span>, zcol <span class="op">=</span> <span class="st">"id"</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">st_geometry</span><span class="op">(</span><span class="va">ver95.2.sf</span><span class="op">)</span>,col <span class="op">=</span> <span class="st">"yellow"</span><span class="op">)</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">st_geometry</span><span class="op">(</span><span class="va">ver75.2.sf</span><span class="op">)</span>,col <span class="op">=</span> <span class="st">"blue"</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">st_geometry</span><span class="op">(</span><span class="va">ver50.2.sf</span><span class="op">)</span>,col <span class="op">=</span> <span class="st">"purple"</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">tdfgeo</span>, pch <span class="op">=</span> <span class="fl">1</span>, size <span class="op">=</span> <span class="fl">0.5</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>     <span class="co"># Add points </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="kde-least-squares-cross-validation-lscv-method." class="level4"><h4 class="anchored" data-anchor-id="kde-least-squares-cross-validation-lscv-method.">3.2 kde: Least Squares Cross Validation (lscv) method.</h4>
+<div class="cell">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span>  <span class="va">kde_lscv</span>  <span class="op">&lt;-</span> <span class="fu">kernelUD</span><span class="op">(</span><span class="va">tdfgeo</span>, h <span class="op">=</span> <span class="st">"LSCV"</span>, kern <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"bivnorm"</span><span class="op">)</span>, grid <span class="op">=</span> <span class="fl">500</span>, extent <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="kde-variable-smoothing-parameters-h" class="level4"><h4 class="anchored" data-anchor-id="kde-variable-smoothing-parameters-h">3.3 kde: variable smoothing parameters (h)</h4>
+<p>To test the sensitivity of the h value we can test a bivariate normal kernel with a variety of smoothing parameters (h = 1000, 2000, 4000).</p>
+<p>We can then interpreted visually to determine size to use based on successive trials. This approach is supported by literature (Hemson et al.&nbsp;2005; Calenge et al.&nbsp;2011).</p>
+<div class="cell">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">kde_h1000</span>  <span class="op">&lt;-</span> <span class="fu">kernelUD</span><span class="op">(</span><span class="va">tdfgeo</span>, h <span class="op">=</span> <span class="fl">1000</span>, kern <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"bivnorm"</span><span class="op">)</span>, grid <span class="op">=</span> <span class="fl">500</span>,extent <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">kde_h500</span>  <span class="op">&lt;-</span> <span class="fu">kernelUD</span><span class="op">(</span><span class="va">tdfgeo</span>, h <span class="op">=</span> <span class="fl">500</span>, kern <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"bivnorm"</span><span class="op">)</span>, grid <span class="op">=</span> <span class="fl">500</span>,extent <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">kde_h3000</span>  <span class="op">&lt;-</span> <span class="fu">kernelUD</span><span class="op">(</span><span class="va">tdfgeo</span>, h <span class="op">=</span> <span class="fl">3000</span>, kern <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"bivnorm"</span><span class="op">)</span>, grid <span class="op">=</span> <span class="fl">500</span>,extent <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Lets extract the verticies and compare the outputs by building a plot.</p>
+<div class="cell">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># kde - href = 1000</span></span>
+<span>  <span class="va">ver95_1000</span> <span class="op">&lt;-</span> <span class="fu">getverticeshr</span><span class="op">(</span><span class="va">kde_h1000</span>, <span class="fl">95</span><span class="op">)</span> <span class="co"># get vertices for home range</span></span>
+<span>  <span class="va">ver95_1000_sf</span> <span class="op">&lt;-</span> <span class="fu">st_as_sf</span><span class="op">(</span><span class="va">ver95_1000</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>    <span class="fu">mutate</span><span class="op">(</span>h <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span> <span class="co"># convert to sf object </span></span>
+<span></span>
+<span><span class="co"># kde - href = 500</span></span>
+<span>  <span class="va">ver95_500</span> <span class="op">&lt;-</span> <span class="fu">getverticeshr</span><span class="op">(</span><span class="va">kde_h500</span>, <span class="fl">95</span><span class="op">)</span> <span class="co"># get vertices for home range</span></span>
+<span>  <span class="va">ver95_500_sf</span> <span class="op">&lt;-</span> <span class="fu">st_as_sf</span><span class="op">(</span><span class="va">ver95_500</span><span class="op">)</span>  <span class="op">%&gt;%</span></span>
+<span>    <span class="fu">mutate</span><span class="op">(</span>h <span class="op">=</span> <span class="fl">500</span><span class="op">)</span> <span class="co"># convert to sf object </span></span>
+<span>  </span>
+<span>  </span>
+<span><span class="co"># kde - href = 3000</span></span>
+<span>  <span class="va">ver95_3000</span> <span class="op">&lt;-</span> <span class="fu">getverticeshr</span><span class="op">(</span><span class="va">kde_h3000</span>, <span class="fl">95</span><span class="op">)</span> <span class="co"># get vertices for home range</span></span>
+<span>  <span class="va">ver95_3000_sf</span> <span class="op">&lt;-</span> <span class="fu">st_as_sf</span><span class="op">(</span><span class="va">ver95_3000</span><span class="op">)</span>  <span class="op">%&gt;%</span></span>
+<span>    <span class="fu">mutate</span><span class="op">(</span>h <span class="op">=</span> <span class="fl">3000</span><span class="op">)</span> <span class="co"># convert to sf object </span></span>
+<span>  </span>
+<span><span class="co"># bind all data together </span></span>
+<span>  <span class="va">all_verts</span> <span class="op">&lt;-</span> <span class="fu">bind_rows</span><span class="op">(</span><span class="va">ver95_1000_sf</span>,  <span class="va">ver95_500_sf</span>,  <span class="va">ver95_3000_sf</span><span class="op">)</span></span>
+<span>  </span>
+<span><span class="co"># lets plot the output </span></span>
+<span>  <span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">all_verts</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span></span>
+<span>    <span class="fu">aes</span><span class="op">(</span>colour <span class="op">=</span> <span class="va">id</span><span class="op">)</span>, </span>
+<span>    alpha <span class="op">=</span> <span class="fl">0.1</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">scale_colour_viridis_d</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="fu">vars</span><span class="op">(</span><span class="va">h</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section></section><section id="references" class="level3"><h3 class="anchored" data-anchor-id="references">References</h3>
+<ul>
+<li>Packages: estimate Kernel home range Utiliation Distribution Using adehabitatHR (Calenge et al.&nbsp;2011) (https://cran.r-project.org/web/packages/adehabitatHR/vignettes/adehabitatHR.pdf)</li>
+<li>KDE : “http://www.spatialecology.com/gme/kde.htm”</li>
+<li>https://www.ckwri.tamuk.edu/sites/default/files/publication/pdfs/2017/leonard_analyzing_wildlife_telemetry_data_in_r.pdf</li>
+<li>Seaman, D. E., Millspaugh, J. J., Kernohan, B. J., Brundige, G. C., Raedeke, K. J., &amp; Gitzen, R. A. (1999). Effects of sample #size on kernel home range estimates. The journal of wildlife management, 739-747.</li>
+<li>Kernohan, B. J., R. A. Gitzen, and J. J. Millspaugh. 2001. Analysis of animal space use and movements. Pages 125–166 in J. J. #Millspaugh and J. M. Marzluff, editors. Radio tracking and animal populations. Academic Press, San Diego, CA, USA</li>
+<li>Hemson, G., Johnson, P., South, A., Kenward, R., Ripley, R., &amp; MACDONALD, D. (2005). Are kernels the mustard? Data from global positioning system (GPS) collars suggests problems for kernel home‐range analyses with least‐squares cross‐validation. Journal of Animal Ecology, 74(3), 455-463</li>
+</ul>
 
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
 
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">Hscv2</span> <span class="op">&lt;-</span><span class="fu">Hscv.diag</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">fhat.pi11</span><span class="op">&lt;-</span><span class="fu">kde</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,H<span class="op">=</span><span class="va">Hscv1</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'
-
-Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in quantile.default(dobs, prob = (100 - cont)/100): partial argument
-match of 'prob' to 'probs'</code></pre>
-</div>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">fhat.pi22</span><span class="op">&lt;-</span><span class="fu">kde</span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,H<span class="op">=</span><span class="va">Hscv2</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in seq.default(a[id], b[id], length = bgridsize[id]): partial argument
-match of 'length' to 'length.out'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in quantile.default(dobs, prob = (100 - cont)/100): partial argument
-match of 'prob' to 'probs'</code></pre>
-</div>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fhat.pi11</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'level' to 'levels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'label' to 'labels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'level' to 'levels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'label' to 'labels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'level' to 'levels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'label' to 'labels'</code></pre>
-</div>
-<div class="cell-output-display">
-<p><img src="bonus-kde_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fhat.pi22</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'level' to 'levels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'label' to 'labels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'level' to 'levels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'label' to 'labels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'level' to 'levels'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in contour.default(fhat$eval.points[[1]], fhat$eval.points[[2]], :
-partial argument match of 'label' to 'labels'</code></pre>
-</div>
-<div class="cell-output-display">
-<p><img src="bonus-kde_files/figure-html/unnamed-chunk-2-2.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-
-
-</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+</section></section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
