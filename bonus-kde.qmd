@@ -15,6 +15,7 @@ library(mapview)
 library(adehabitatHR)
 library(sp)
 library(dplyr)
+library(ggplot2)
 
 # read in sf object 
 bou <- read_sf("clean_data/caribou.gpkg") 
@@ -60,9 +61,10 @@ mcp <- st_convex_hull(st_union(bou))
 plot(mcp)
 plot(bou$geom, col = "blue", add = T)
 
-#this is not very representative so what other methods can we use. 
-
 ```
+
+This is not very representative so what other methods can we use? 
+
 
 2.2 Using the **sp** package.
 
@@ -75,7 +77,7 @@ The **sp** package uses a specific format called SpatialPointsDataFrame. To use 
   tdfgeo <- bou |>  
     dplyr::select(animal.id) |>
     as("Spatial")
-   
+
   # Calculate MCPs 
   c.mcp <- mcp(tdfgeo, percent = 100)
   
@@ -87,15 +89,15 @@ The **sp** package uses a specific format called SpatialPointsDataFrame. To use 
   
 ```
 
-The advantage of using the adhabitatHR package is that it provides many more outputs and enables us to customize the information we want. For example we can extract multiple homeranges based on varying levels of specificity; i.e. percent = 75%.
+The advantage of using the adhabitatHR package is that it provides many more outputs and enables us to customize the information we want. For example we can extract multiple home ranges based on varying levels of specificity; i.e. percent = 75%.
 
 ```{r}
   # lets look at 75% inclusion
-  c.mcp.75 <- mcp(tdfgeo , percent = 75)
+  c.mcp.75 <- mcp(tdfgeo, percent = 75)
 
    # Plot
   plot(tdfgeo, col = as.factor(tdfgeo$animal.id), pch = 16)
-  plot(c.mcp, col = alpha(1:5, 0.5), add = TRUE)
+  plot(c.mcp , col = alpha(1:5, 0.5), add = TRUE)
   plot(c.mcp.75, col = alpha(1:5, 0.5), add = TRUE)
   
   # Calculate the MCP by including 50 to 100 percent of points
@@ -130,41 +132,54 @@ tdfgeo <- bou |>
   dplyr::select(animal.id) |>
   as("Spatial")
 
-  # define the parameters (h, kern, grid, extent) 
-  kde_href  <- kernelUD(tdfgeo, h = "href", kern = c("bivnorm"), grid = 500, extent = 2)
-  kde_href
+# define the parameters (h, kern, grid, extent) 
+kde_href  <- kernelUD(tdfgeo, h = "href", kern = c("bivnorm"), grid = 500, extent = 2)
+
+kde_href
+
 ```
 
 From this object (**Utilization distribution of several Animals**) we can extract the vertices or polygons which define the percentage we wish to include.
 
 ```{r}
-  ver95 <- getverticeshr(kde_href,95) # get vertices for home range
-  ver95_sf <- st_as_sf(ver95)         # convert to sf object 
+ver95 <- getverticeshr(kde_href,95) # get vertices for home range
+ver95_sf <- st_as_sf(ver95)         # convert to sf object 
   
-  ver75 <- getverticeshr(kde_href,75)
-  ver75_sf <- st_as_sf(ver75 )
+ver75 <- getverticeshr(kde_href,75)
+ver75_sf <- st_as_sf(ver75 )
   
-  ver50 <- getverticeshr(kde_href,50)
-  ver50_sf<- st_as_sf(ver50)
+ver50 <- getverticeshr(kde_href,50)
+ver50_sf<- st_as_sf(ver50)
  
-  # plot the outputs 
-  mapview(ver50_sf, zcol = "id") 
-  mapview (ver75_sf, zcol = "id")
-  mapview (ver95_sf, zcol = "id")
+# plot the outputs 
+mapview(ver50_sf, zcol = "id") 
+mapview (ver75_sf, zcol = "id") 
+mapview (ver95_sf, zcol = "id")
   
-  plot(st_geometry(ver95.2.sf),col = "yellow") 
-  plot(st_geometry(ver75.2.sf),col = "blue", add = TRUE)
-  plot(st_geometry(ver50.2.sf),col = "purple", add = TRUE)
-  plot(tdfgeo, pch = 1, size = 0.5, add = TRUE)     # Add points 
+plot(st_geometry(ver95_sf),col = "yellow") 
+plot(st_geometry(ver75_sf),col = "blue", add = TRUE)
+plot(st_geometry(ver50_sf),col = "purple", add = TRUE)
+plot(tdfgeo, pch = 1, size = 0.5, add = TRUE)     # Add points 
   
 ```
 
 #### 3.2 kde: Least Squares Cross Validation (lscv) method.
 
 ```{r}
-  kde_lscv  <- kernelUD(tdfgeo, h = "LSCV", kern = c("bivnorm"), grid = 500, extent = 2)
+kde_lscv  <- kernelUD(tdfgeo, h = "LSCV", kern = c("bivnorm"), grid = 500, extent = 2)
 
+ver95ls <- getverticeshr(kde_lscv,95) # get vertices for home range
+ver95ls_sf <- st_as_sf(ver95ls) 
+
+ver50ls <- getverticeshr(kde_lscv,50)
+ver50ls_sf <- st_as_sf(ver50ls) 
+
+# plot the outputs 
+mapview(ver50ls_sf, zcol = "id") 
+mapview (ver95ls_sf, zcol = "id")
+ 
 ```
+
 
 #### 3.3 kde: variable smoothing parameters (h)
 
@@ -183,27 +198,25 @@ Lets extract the vertices and compare the outputs by building a plot.
 
 ```{r}
 # kde - href = 1000
-  ver95_1000 <- getverticeshr(kde_h1000, 95) # get vertices for home range
-  ver95_1000_sf <- st_as_sf(ver95_1000) |> 
-    mutate(h = 1000) # convert to sf object 
+ver95_1000 <- getverticeshr(kde_h1000, 95) # get vertices for home range
+ver95_1000_sf <- st_as_sf(ver95_1000) |>     mutate(h = 1000) # convert to sf object 
 
 # kde - href = 500
-  ver95_500 <- getverticeshr(kde_h500, 95) # get vertices for home range
-  ver95_500_sf <- st_as_sf(ver95_500)  |> 
-    mutate(h = 500) # convert to sf object 
-  
+ver95_500 <- getverticeshr(kde_h500, 95) # get vertices for home range
+ver95_500_sf <- st_as_sf(ver95_500)  |> 
+  mutate(h = 500) # convert to sf object 
   
 # kde - href = 3000
-  ver95_3000 <- getverticeshr(kde_h3000, 95) # get vertices for home range
-  ver95_3000_sf <- st_as_sf(ver95_3000)  |> 
-    mutate(h = 3000) # convert to sf object 
+ver95_3000 <- getverticeshr(kde_h3000, 95) # get vertices for home range
+ver95_3000_sf <- st_as_sf(ver95_3000)  |> 
+  mutate(h = 3000) # convert to sf object 
   
 # bind all data together 
-  all_verts <- bind_rows(ver95_1000_sf,  ver95_500_sf,  ver95_3000_sf)
+all_verts <- bind_rows(ver95_1000_sf,  ver95_500_sf,  ver95_3000_sf)
   
 # lets plot the output 
-  ggplot(data = all_verts) +
-  geom_sf(
+ggplot(data = all_verts) +
+geom_sf(
     aes(colour = id), 
     alpha = 0.1
   ) + 
@@ -211,8 +224,69 @@ Lets extract the vertices and compare the outputs by building a plot.
   facet_wrap(vars(h)) +
   theme_bw()
   
-  
 ```
+
+
+## Comparison of kde parameters
+
+Lets rerun the home range by season and compare the methods for the KDE. 
+
+
+```{r}
+
+tdfseason <- bou |>  
+  dplyr::filter(herd == "Burnt Pine") |>
+  dplyr::select(season) |>
+  as("Spatial")
+
+# href 
+kde_href  <- kernelUD(tdfseason, h = "href", kern = c("bivnorm"), grid = 500, extent = 2)
+
+# custome h values 
+kde_h1000  <- kernelUD(tdfseason, h = 1000, kern = c("bivnorm"), grid = 500,extent = 2)
+
+# lscv 
+kde_lscv  <- kernelUD(tdfseason, h = "LSCV", kern = c("bivnorm"), grid = 500, extent = 2)
+ 
+
+# build function to get vertices 
+
+get_verts <- function(in_kde, percent = 95, fieldname){
+  
+  ver <- getverticeshr(in_kde, percent) # get vertices for home range
+  ver_sf <- st_as_sf(ver)  |> 
+    mutate(type = fieldname) 
+  
+  return(ver_sf)
+}
+
+
+# genertate vertices for each KDE 
+
+href <- get_verts(kde_href, percent = 95, fieldname = "href")
+h1000 <- get_verts(kde_h1000, percent = 95, fieldname = "h1000")
+kde_lscv <- get_verts(kde_lscv, percent = 95, fieldname = "lscv")
+
+# bind all data together 
+all_seasons <- bind_rows(href, h1000, kde_lscv)
+  
+# lets plot the output 
+ggplot(data = all_seasons) +
+geom_sf(
+    aes(colour = id), 
+    alpha = 0.1
+  ) + 
+  scale_colour_viridis_d() + 
+  coord_sf() +
+  facet_wrap(vars(type)) +
+  theme_bw()
+
+
+```
+
+From this example we can see the large difference in home range estimates, depending on the type of method used and parameters selected. 
+
+When generating home range estimates it is important to think about the application of use, and test various parameters to estimate the best fit. 
 
 
 ### References
