@@ -21,7 +21,6 @@ We will providing a data set to use throughout the workshop, but we encourage yo
 ### The workshop will not include:
 
 -   Methodological details on technical telemetry parameters i.e. DOP estimates
-
 -   Advanced modeling techniques
 
 ### Agenda
