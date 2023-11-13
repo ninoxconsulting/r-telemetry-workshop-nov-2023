@@ -89,8 +89,11 @@ In R, install the necessary packages by running:
 ```{r}
 #| eval: false
 install.packages(
-  c("tidyverse", "sf", "terra", "mapview", "bcdata", "bcmaps", "readxl", "ggplot2", "usethis")
+  c("tidyverse", "sf", "terra", "mapview", "bcdata", "bcmaps", "readxl", "ggplot2", "usethis", "lubridate", "ggdensity","ggspatial", "prettymapr")
 )
+
+
+
 ```
 
 ### QGIS (optional) {#qgis}
