@@ -87,7 +87,7 @@ The **sp** package uses a specific format called SpatialPointsDataFrame. To use 
   
 ```
 
-The advantage of using the adhabitatHR package is that it provides many more outputs and enables us to customise the information we want. For example we can extract multiple homeranges based on varying levels of specificity; i.e. percent = 75%.
+The advantage of using the adhabitatHR package is that it provides many more outputs and enables us to customize the information we want. For example we can extract multiple homeranges based on varying levels of specificity; i.e. percent = 75%.
 
 ```{r}
   # lets look at 75% inclusion
@@ -117,7 +117,7 @@ Other parameters include:
 
 -   Kernel Type: The type of kernel is limited to Gaussian (bivariate normal), quadratic or normal. We used the bivariate normal model as default.
 
--   Grid/extent: These determines the area or extent over which the home range will be estimated. This is a mix of fine scale and time consuming processing and faster blocky resolution over a continuous surface. As a rule of thumb you GME suggests: take the square root of the x or y variance value (whichever is smaller) and divide by 5 or 10 (I usually round to the nearest big number - so 36.7 becomes 40). Before using this rule of thumb value calculate how many cells this will result in for the output (take the width and height of you input points, divide by the cell size, and multiply the resulting numbers together). If you get a value somewhere between 1-20 million, then you have a reasonable value.
+-   Grid/extent: These determines the area or extent over which the home range will be estimated. This is a mix of fine scale and time consuming processing and faster blocky resolution over a continuous surface. As a rule of thumb, Geospatial Modelling Environment program (GME) formally Hawth's tools suggest: take the square root of the x or y variance value (whichever is smaller) and divide by 5 or 10 (I usually round to the nearest big number - so 36.7 becomes 40). Before using this rule of thumb value calculate how many cells this will result in for the output (take the width and height of you input points, divide by the cell size, and multiply the resulting numbers together). If you get a value somewhere between 1-20 million, then you have a reasonable value.
 
 To create home ranges for each unique id we used a bivariate normal kernel with a variety of h (smoothing parameters). We then interpreted visually to determine size to use based on successive trials. This is supported by the literature (Hemson et al. 2005; Calenge et al. 2011).
 
