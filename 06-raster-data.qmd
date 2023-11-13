@@ -7,6 +7,7 @@ params:
 ## Overview:
 
 In this module we will explore raster data, and the available data sets which can be used in R for analysis. We will:
+
 - prepare our study aoi to use with rasters 
 - extract DEM data through the **bcmaps** package 
 - generate DEM derived covariates

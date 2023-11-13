@@ -19,7 +19,7 @@ In this module we will read in, clean, QA and summarize raw telemetry data. This
 
 ## Caribou data set:
 
-In this workshop we will use GPS telemetry data from Mountain Caribou (*Rangifer terendus*) herds in the Peace region of British Columbia. The full data set and metadata can be found on [movebank](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study216040785), also see [bonus content - How to download data from movebank](bonus-movebank.qmd). The data set used in this course has been modified for demonstration purposes and should not be used in analysis.
+In this workshop we will use GPS telemetry data from Mountain Caribou (*Rangifer terendus*) herds in the Peace region of British Columbia. The full data set and metadata can be found on [movebank](https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study216040785), also see [bonus content - How to download data from movebank](bonus-movebank.qmd). The data set used in this workshop has been modified for demonstration purposes and should not be used in analysis.
 
 ### 1. Reading data into R.
 
