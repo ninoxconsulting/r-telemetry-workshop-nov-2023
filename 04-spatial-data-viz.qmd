@@ -100,7 +100,6 @@ We can add a "fill" aesthetic to differentiate herds, i.e., group the bars by
 herd, and use a different fill colour for each herd:
 
 ```{r}
-library(ggplot2)
 
 caribou <- transform_bc_albers(caribou)
 
