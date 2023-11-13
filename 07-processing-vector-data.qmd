@@ -9,11 +9,8 @@ params:
 In this module we will post-process vector data we prepared [earlier](05-vector-bcdata.qmd) using the **terra** package. This includes;
 
 -   generate a road impact raster
-
 -   calculate a distance to water raster
-
--   converte vectors to rasters
-
+-   convert vectors to rasters
 -   combine all rasters into a raster stack and export
 
 ## 1. Road influence

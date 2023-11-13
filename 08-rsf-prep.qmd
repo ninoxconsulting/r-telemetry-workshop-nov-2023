@@ -7,12 +7,10 @@ title: "Generate random sample points for RSF"
 In this module we use our prepared spatial data to generate the input data files to conduct a resource selection function analysis. This includes:
 
 -   generate a set of "background points" from our study area.
-
 -   extract spatial information for presence and background point locations
-
 -   export as table for future use
-
 -   generate summary statistics
+
 
 ## Background: Resource Selection Functions
 

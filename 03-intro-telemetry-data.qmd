@@ -13,11 +13,8 @@ params:
 In this module we will read in, clean, QA and summarize raw telemetry data. This includes:
 
 -   read in data as csv/xlsx and convert to spatial data
-
 -   QA data for missing values and poor coordinate precision
-
 -   generate tabular summaries
-
 -   standardize fix rate of telemetry points for future analysis
 
 ## Caribou data set:
@@ -26,7 +23,7 @@ In this workshop we will use GPS telemetry data from Mountain Caribou (*Rangifer
 
 ### 1. Reading data into R.
 
-In this course we will be providing two files (Mountain caribou in British Columbia-reference-data.csv and Mountain caribou.xlsx). The first task is to look at the data to make sense of what we have.
+In this workshop we will be providing two files (Mountain caribou in British Columbia-reference-data.csv and Mountain caribou.xlsx). The first task is to look at the data to make sense of what we have.
 
 ```{r read-in-raw-data}
 #| message: false

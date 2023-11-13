@@ -7,14 +7,10 @@ params:
 ## Overview:
 
 In this module we will explore raster data, and the available data sets which can be used in R for analysis. We will:
-
--   prepare our study aoi to use with rasters
-
--   extract DEM data through the **bcmaps** package
-
--   generate DEM derived covariates,
-
--   prepare a raster stack with all spatial layers generated to date.
+- prepare our study aoi to use with rasters 
+- extract DEM data through the **bcmaps** package 
+- generate DEM derived covariates
+- prepare a raster stack with all spatial layers generated to date
 
 ## Background: Rasters
 
@@ -131,7 +127,6 @@ writeRaster(aspect, "clean_data/aspect.tif", overwrite = TRUE)
 writeRaster(tri, "clean_data/tri.tif", overwrite = TRUE) 
 
 ```
-
 
 ## Your Turn
 
