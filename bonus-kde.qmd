@@ -126,12 +126,9 @@ It is also possible to run KDE with set barriers and boundaries.
 #### 3.1 kde: h reference parameter
 
 ```{r}
-  tdfu <- tdf  |>  dplyr::select(location.long, location.lat, season)
-    
-  # Create a SpatialPointsDataFrame by defining the coordinates
-  coordinates(tdfu) <- c("location.long", "location.lat")
-  proj4string(tdfu) <- CRS( "+proj=longlat +datum=WGS84 +units=m +no_defs" )
-  tdfgeo <- spTransform(tdfu, CRS("+init=epsg:3005")) # Transform to UTM 
+tdfgeo <- bou |>  
+  dplyr::select(animal.id) |>
+  as("Spatial")
 
   # define the parameters (h, kern, grid, extent) 
   kde_href  <- kernelUD(tdfgeo, h = "href", kern = c("bivnorm"), grid = 500, extent = 2)
