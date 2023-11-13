@@ -276,7 +276,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#qgis" id="toc-qgis" class="nav-link" data-scroll-target="#qgis">QGIS (optional)</a></li>
   </ul>
 </li>
-  <li><a href="#course-materials-and-data" id="toc-course-materials-and-data" class="nav-link" data-scroll-target="#course-materials-and-data">Course materials and data</a></li>
+  <li><a href="#workshop-materials-and-data" id="toc-workshop-materials-and-data" class="nav-link" data-scroll-target="#workshop-materials-and-data">Workshop materials and data</a></li>
   </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/00-intro-setup.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
@@ -295,7 +295,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   
 
 </header><section id="overview" class="level2"><h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>This two-day course will introduce you to the basics of working with telemetry data in R.</p>
+<p>This two-day workshop will introduce you to the basics of working with telemetry data in R.</p>
 <p>We will providing a data set to use throughout the workshop, but we encourage you to bring along your own data for the hackathon session (Friday AM).</p>
 <section id="the-workshop-will-include" class="level3"><h3 class="anchored" data-anchor-id="the-workshop-will-include">The workshop will include:</h3>
 <ul>
@@ -308,8 +308,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>How to extract spatial information for telemetry and random location points</li>
 </ul></section><section id="the-workshop-will-not-include" class="level3"><h3 class="anchored" data-anchor-id="the-workshop-will-not-include">The workshop will not include:</h3>
 <ul>
-<li><p>Methodological details on technical telemetry parameters i.e.&nbsp;DOP estimates</p></li>
-<li><p>Advanced modeling techniques</p></li>
+<li>Methodological details on technical telemetry parameters i.e.&nbsp;DOP estimates</li>
+<li>Advanced modeling techniques</li>
 </ul></section><section id="agenda" class="level3"><h3 class="anchored" data-anchor-id="agenda">Agenda</h3>
 <section id="day-1" class="level4"><h4 class="anchored" data-anchor-id="day-1">Day 1</h4>
 <ul>
@@ -365,19 +365,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>In R, install the necessary packages by running:</p>
 <div class="cell">
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"tidyverse"</span>, <span class="st">"sf"</span>, <span class="st">"terra"</span>, <span class="st">"mapview"</span>, <span class="st">"bcdata"</span>, <span class="st">"bcmaps"</span>, <span class="st">"readxl"</span>, <span class="st">"ggplot2"</span>, <span class="st">"usethis"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"tidyverse"</span>, <span class="st">"sf"</span>, <span class="st">"terra"</span>, <span class="st">"mapview"</span>, <span class="st">"bcdata"</span>, <span class="st">"bcmaps"</span>, <span class="st">"readxl"</span>, <span class="st">"ggplot2"</span>, <span class="st">"usethis"</span>, <span class="st">"lubridate"</span>, <span class="st">"ggdensity"</span>,<span class="st">"ggspatial"</span>, <span class="st">"prettymapr"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="qgis" class="level3"><h3 class="anchored" data-anchor-id="qgis">QGIS (optional)</h3>
 <p>QGIS is a free and open-source geographic information system (GIS) that allows you to create, edit, visualize, analyze and publish geospatial information.</p>
 <p>Download and install from the <a href="https://qgis.org/en/site/forusers/download.html">QGIS website</a>.</p>
-</section></section><section id="course-materials-and-data" class="level2"><h2 class="anchored" data-anchor-id="course-materials-and-data">Course materials and data</h2>
-<p>We have created an empty RStudio project containing the course data.</p>
+</section></section><section id="workshop-materials-and-data" class="level2"><h2 class="anchored" data-anchor-id="workshop-materials-and-data">Workshop materials and data</h2>
+<p>We have created an empty RStudio project containing the workshop data.</p>
 <p>The easiest way to get started to run:</p>
 <div class="cell">
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">use_course</span><span class="op">(</span><span class="st">"https://tinyurl.com/3dmxtxaz"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>This will download the course materials, save them in a logical spot on your computer, and open the project in a new RStudio session.</p>
+<p>This will download the workshop materials, save them in a logical spot on your computer, and open the project in a new RStudio session.</p>
 <p>Alternatively, you can download the zip file from <a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/raw/main/r-telemetry-workshop.zip">here</a>, decompress the zip file somewhere convenient on your C:/ drive. Then, navigate to the newly created folder (called <code>r-telemetry-workshop</code>), and double click on the <code>r-telemetry-workshop.Rproj</code> file to open the project in RStudio.</p>
 
 
