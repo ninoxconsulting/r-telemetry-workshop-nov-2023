@@ -1,6 +1,9 @@
 ---
 title: "Generating Home Range Estimates"
-eval: false
+knitr:
+  opts_chunk:
+    message: false
+    warning: false
 ---
 
 ## Overview

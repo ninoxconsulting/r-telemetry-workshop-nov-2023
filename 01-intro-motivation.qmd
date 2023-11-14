@@ -46,11 +46,14 @@ speakers and organisers of the workshop must agree to follow the workshop's [cod
 
 ## Housekeeping
 
-**WiFi:**
+* **WiFi:**
+    - 
 
-**Washrooms:**
+* **Washrooms:**
+    - 
 
-**Etherpad:** https://etherpad.andyteucher.ca/p/r-telemetry-pg
+* **Etherpad:**  
+    - <https://etherpad.andyteucher.ca/p/r-telemetry-pg>
 
 ---
 
