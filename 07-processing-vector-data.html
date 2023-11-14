@@ -286,10 +286,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header><section id="overview" class="level2"><h2 class="anchored" data-anchor-id="overview">Overview:</h2>
 <p>In this module we will post-process vector data we prepared <a href="./05-vector-bcdata.html">earlier</a> using the <strong>terra</strong> package. This includes;</p>
 <ul>
-<li><p>generate a road impact raster</p></li>
-<li><p>calculate a distance to water raster</p></li>
-<li><p>converte vectors to rasters</p></li>
-<li><p>combine all rasters into a raster stack and export</p></li>
+<li>generate a road impact raster</li>
+<li>calculate a distance to water raster</li>
+<li>convert vectors to rasters</li>
+<li>combine all rasters into a raster stack and export</li>
 </ul></section><section id="road-influence" class="level2"><h2 class="anchored" data-anchor-id="road-influence">1. Road influence</h2>
 <p>To assemble meaningful information for modelling, we often need to post-process vector data. This could include manipulating the data into categories (i.e.&nbsp;high, medium, low) or exploring spatial patterns in more detail (i.e.&nbsp;distance from a road)</p>
 <p>In this example we will generate a raster to quantifying the impact of road type and spatial orientation.</p>
@@ -366,14 +366,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">water_dis</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>class       : SpatRaster 
-dimensions  : 1488, 1540, 2  (nrow, ncol, nlyr)
+dimensions  : 1484, 1596, 2  (nrow, ncol, nlyr)
 resolution  : 25, 25  (x, y)
-extent      : 1145800, 1184300, 1190300, 1227500  (xmin, xmax, ymin, ymax)
+extent      : 1145700, 1185600, 1190400, 1227500  (xmin, xmax, ymin, ymax)
 coord. ref. : NAD83 / BC Albers (EPSG:3005) 
 source(s)   : memory
 names       : range_min, range_max 
 min values  :  0.000000,  0.000000 
-max values  :  6.003342,  6.003342 </code></pre>
+max values  :  6.090321,  6.090321 </code></pre>
 </div>
 </div>
 </section><section id="convert-base-vector-data-to-rasters" class="level2"><h2 class="anchored" data-anchor-id="convert-base-vector-data-to-rasters">3. Convert base vector data to rasters</h2>

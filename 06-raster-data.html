@@ -286,10 +286,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header><section id="overview" class="level2"><h2 class="anchored" data-anchor-id="overview">Overview:</h2>
 <p>In this module we will explore raster data, and the available data sets which can be used in R for analysis. We will:</p>
 <ul>
-<li><p>prepare our study aoi to use with rasters</p></li>
-<li><p>extract DEM data through the <strong>bcmaps</strong> package</p></li>
-<li><p>generate DEM derived covariates,</p></li>
-<li><p>prepare a raster stack with all spatial layers generated to date.</p></li>
+<li>prepare our study aoi to use with rasters</li>
+<li>extract DEM data through the <strong>bcmaps</strong> package</li>
+<li>generate DEM derived covariates</li>
+<li>prepare a raster stack with all spatial layers generated to date</li>
 </ul></section><section id="background-rasters" class="level2"><h2 class="anchored" data-anchor-id="background-rasters">Background: Rasters</h2>
 <p>Raster data is information built on a standard grid. These can be characterized by the grid extent (xmin, xmax, ymin, ymax) and can have a coordinate system to orient them in space. Rasters are made up of cells or pixels, based on a resolution or cell size. Each cell contains a single value. The <strong>terra</strong> package contains many functions for manipulating and processing rasters.</p>
 <p>Note we will be using the BC Albers coordinate reference system (EPSG:3005). The advantages of this are 1) BCAlbers is an equal area projection across BC, 2) extent is marked using meters.</p>
@@ -334,11 +334,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">trim_raw</span> <span class="co"># note this is in WGS so we need to convert to 3005</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>class       : SpatRaster 
-dimensions  : 1660, 3062, 1  (nrow, ncol, nlyr)
+dimensions  : 1659, 3170, 1  (nrow, ncol, nlyr)
 resolution  : 0.0002083333, 0.0002083333  (x, y)
-extent      : -123.6756, -123.0377, 55.67421, 56.02005  (xmin, xmax, ymin, ymax)
+extent      : -123.6772, -123.0168, 55.67445, 56.02008  (xmin, xmax, ymin, ymax)
 coord. ref. : lon/lat NAD83 (EPSG:4269) 
-source      : filecc4cf2799e.vrt 
+source      : file15b9172c84853.vrt 
 name        : elevation </code></pre>
 </div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">res</span><span class="op">(</span><span class="va">trim_raw</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>

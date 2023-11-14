@@ -269,9 +269,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#binning" id="toc-binning" class="nav-link" data-scroll-target="#binning">Binning</a></li>
   </ul>
 </li>
-  <li><a href="#density" id="toc-density" class="nav-link" data-scroll-target="#density">Density</a></li>
+  <li><a href="#probability-density" id="toc-probability-density" class="nav-link" data-scroll-target="#probability-density">Probability density</a></li>
   <li><a href="#add-a-base-map-north-arrow-scale" id="toc-add-a-base-map-north-arrow-scale" class="nav-link" data-scroll-target="#add-a-base-map-north-arrow-scale">Add a base map, north arrow, &amp; scale</a></li>
-  <li><a href="#your-turn" id="toc-your-turn" class="nav-link" data-scroll-target="#your-turn">Your turn:</a></li>
+  <li><a href="#your-turn-1" id="toc-your-turn-1" class="nav-link" data-scroll-target="#your-turn-1">Your turn:</a></li>
   </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/edit/main/04-spatial-data-viz.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
@@ -293,13 +293,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li>Quick recap of <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code>
 </li>
-<li>Pretty (and useful) maps with <code>ggplot2</code>
+<li>Pretty (and useful) maps with <a href="https://ggplot2.tidyverse.org">ggplot2</a>
 </li>
 <li>Visualizing point density</li>
-<li>Interactive maps with mapview/leaflet</li>
+<li>Visualize individual animal movement</li>
 </ul></section><section id="plot-sf-objects" class="level2"><h2 class="anchored" data-anchor-id="plot-sf-objects">
 <code>plot</code> sf objects</h2>
-<p>Previously we used <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> to quickly plot sf objects:</p>
+<p>Previously we used <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> to view our <code>sf</code> objects - this is a nice quick way to visualize our data for verification or glance at the different variables.</p>
 <p>First, read in the caribou data:</p>
 <div class="cell">
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/">sf</a></span><span class="op">)</span></span>
@@ -320,22 +320,48 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Or, plot just one variable of interest:</p>
+<p>Or, plot just one or a few variables of interest:</p>
 <div class="cell">
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">caribou</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">select</span><span class="op">(</span><span class="va">herd</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># select just the herd column (called herd)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span>key.pos <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">herd</span>, <span class="va">animal.sex</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># select just the herd and sex columns</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span>key.pos <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># put the legend at the bottom</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>We can also add a base map for context. Let’s use the <code>bcmaps</code> package to get a map of the B.C. Natural resource boundaries:</p>
+<p>We can also add a base map for context. Let’s use the <code>bcmaps</code> package to get a base map. <a href="https://github.com/bcgov/bcmaps">bcmaps</a> has a large collection of useful maps of B.C.:</p>
 <div class="cell">
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcgov/bcmaps">bcmaps</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">nr</span> <span class="op">&lt;-</span> <span class="fu">nr_districts</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">st_geometry</span><span class="op">(</span><span class="va">nr</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="fu">available_layers</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 37 × 6
+   layer_name                title         record resource using_shortcuts local
+ * &lt;chr&gt;                     &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt;    &lt;lgl&gt;           &lt;lgl&gt;
+ 1 airzones                  British Colu… e8eee… c495d08… TRUE            FALSE
+ 2 bc_bound                  BC Boundary   b9bd9… f591698… FALSE           FALSE
+ 3 bc_bound_hres             High Resolut… 30aeb… 3d72cf3… FALSE           FALSE
+ 4 bc_cities                 BC Major Cit… b678c… 443dd85… TRUE            FALSE
+ 5 bc_neighbours             Boundary of … b9bd9… f591698… FALSE           FALSE
+ 6 bec                       British Colu… f358a… 3ec24cb… TRUE            FALSE
+ 7 cded_raster               Get Canadian… &lt;NA&gt;   &lt;NA&gt;     FALSE           FALSE
+ 8 cded_stars                Get Canadian… &lt;NA&gt;   &lt;NA&gt;     FALSE           FALSE
+ 9 census_dissemination_area Current Cens… a091f… a7fa66d… TRUE            FALSE
+10 census_division           Current Cens… ef179… 36b530c… TRUE            FALSE
+# ℹ 27 more rows
+
+------------------------
+All layers are downloaded from the internet and cached
+on your hard drive at /Users/andy/Library/Caches/org.R-project.R/R/bcmaps.</code></pre>
+</div>
+</div>
+<p>Let’s get the B.C. Natural resource boundaries:</p>
+<div class="cell">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">nr</span> <span class="op">&lt;-</span> <span class="fu">nr_districts</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>nr_districts was updated on 2023-11-03</code></pre>
+</div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">st_geometry</span><span class="op">(</span><span class="va">nr</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">caribou</span> <span class="op">|&gt;</span> </span>
@@ -343,16 +369,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">herd</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># select just the herd column (called herd)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span>add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>But we can quickly get past the point where basic plotting lets us do what we want to do…</p>
 </section><section id="ggplot2" class="level2"><h2 class="anchored" data-anchor-id="ggplot2">ggplot2</h2>
 <p><a href="https://ggplot2.tidyverse.org">ggplot2</a> is a plotting package built on the theory of the “Grammar of Graphics”, where a plot is built up in layers:</p>
-<p>We start with the data, then add the graphical marks (points, lines, bars, etc. called “geom”s) we want to use to represent the data, and specify “aesthetics” for how to map variables in our data to visual representations on the plot.</p>
+<ol type="1">
+<li>We start with the data, then</li>
+<li>add the graphical marks (points, lines, bars, etc. called “geom”s) we want to use to represent the data, and</li>
+<li>specify “aesthetics” for how to map variables in our data to visual representations on the plot.</li>
+</ol>
 <p>Let’s start with a simple histogram of fixes over time:</p>
 <div class="cell">
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span> <span class="co"># start with data</span></span>
 <span>  <span class="fu">geom_histogram</span><span class="op">(</span> <span class="co"># specify the geom</span></span>
@@ -365,14 +395,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>We can add a “fill” aesthetic to differentiate herds:</p>
+<p>We can add a “fill” aesthetic to differentiate herds, i.e., group the bars by herd, and use a different fill colour for each herd:</p>
 <div class="cell">
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">caribou</span> <span class="op">&lt;-</span> <span class="fu">transform_bc_albers</span><span class="op">(</span><span class="va">caribou</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">caribou</span> <span class="op">&lt;-</span> <span class="fu">transform_bc_albers</span><span class="op">(</span><span class="va">caribou</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span> <span class="co"># start with data</span></span>
 <span>  <span class="fu">geom_histogram</span><span class="op">(</span> <span class="co"># specify the geom</span></span>
@@ -386,31 +414,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>We can use the same pattern to make a map:</p>
 <div class="cell">
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_sf</span><span class="op">(</span><span class="op">)</span> <span class="co"># x and y are inferred from the geometry column</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_sf</span><span class="op">(</span></span>
-<span>    <span class="fu">aes</span><span class="op">(</span>colour <span class="op">=</span> <span class="va">herd</span>, shape <span class="op">=</span> <span class="va">animal.sex</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>We have a lot of overlapping points, so the actual density of fixes is somewhat obscured. We can fix this in several ways:</p>
-<section id="transparency" class="level3"><h3 class="anchored" data-anchor-id="transparency">Transparency</h3>
-<p>We can see the density of points better by making them partially transparent. We do this by setting the <code>alpha</code> aesthetic to a value between 0 and 1 (0 is fully transparent, 1 is fully opaque).</p>
 <div class="cell">
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span></span>
+<span>    <span class="fu">aes</span><span class="op">(</span>colour <span class="op">=</span> <span class="va">herd</span>, shape <span class="op">=</span> <span class="va">animal.sex</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We have a lot of overlapping points, so the actual density of fixes is obscured. We can address this in several ways:</p>
+<section id="transparency" class="level3"><h3 class="anchored" data-anchor-id="transparency">Transparency</h3>
+<p>We can see the density of points better by making them partially transparent. We do this by setting the <code>alpha</code> parameter to a value between 0 and 1 (0 is fully transparent, 1 is fully opaque).</p>
+<p>Note that we are setting <code>alpha</code> to a constant value <em>outside</em> the <code>aes()</code> call, so the setting applies equally to all points (it is not mapped to a variable).</p>
+<div class="cell">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_sf</span><span class="op">(</span></span>
 <span>    <span class="fu">aes</span><span class="op">(</span>colour <span class="op">=</span> <span class="va">herd</span><span class="op">)</span>, </span>
 <span>    alpha <span class="op">=</span> <span class="fl">0.1</span></span>
@@ -418,11 +447,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>  <span class="fu">scale_colour_viridis_d</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>We can subset our plot into “small multiples”, or “facets” - making a small plot for each level of a variable in our data. For example, let’s look at the distribution of points in each month, still colouring the points by herd:</p>
 <div class="cell">
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_sf</span><span class="op">(</span></span>
 <span>    <span class="fu">aes</span><span class="op">(</span>colour <span class="op">=</span> <span class="va">herd</span><span class="op">)</span>, </span>
 <span>    alpha <span class="op">=</span> <span class="fl">0.1</span></span>
@@ -431,78 +461,158 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="fu">vars</span><span class="op">(</span><span class="va">month</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-</section><section id="binning" class="level3"><h3 class="anchored" data-anchor-id="binning">Binning</h3>
-<div class="cell">
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">caribou</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="fu">st_coordinates</span><span class="op">(</span><span class="va">caribou</span><span class="op">)</span>, <span class="va">caribou</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_hex</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">coord_sf</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
 <p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>We can use facetting to split out the two herds:</p>
+<section id="your-turn" class="level4"><h4 class="anchored" data-anchor-id="your-turn">Your turn</h4>
+<p>Read in the scott data (<code>clean_data/scott_herd_subset.gpkg</code>), and plot the fixes, coloured by reproductive condition, and faceted by season and year. Hint: see <code>?facet_grid</code>.</p>
+<p>For bonus points, remove the lat/long labels using the <code>theme()</code> function.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
 <div class="cell">
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_hex</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">coord_sf</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="fu">vars</span><span class="op">(</span><span class="va">herd</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">scott</span> <span class="op">&lt;-</span> <span class="fu">read_sf</span><span class="op">(</span><span class="st">"clean_data/scott_herd_subset.gpkg"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">scott</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>colour <span class="op">=</span> <span class="va">animal.reproductive.condition</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">facet_grid</span><span class="op">(</span><span class="va">season</span> <span class="op">~</span> <span class="va">year</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">theme</span><span class="op">(</span>axis.text <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>If we want to add multiple layers together, we simply add multiple geoms, and add the name of the layer to the <code>data</code> argument in each:</p>
+<p>to get the seasons in a sensible order, set them to a factor and define the order of the levels:</p>
 <div class="cell">
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">nr</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">geom_hex</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="fu">vars</span><span class="op">(</span><span class="va">herd</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="va">scott</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>colour <span class="op">=</span> <span class="va">animal.reproductive.condition</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">facet_grid</span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">season</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"winter"</span>, <span class="st">"spring"</span>, <span class="st">"summer"</span>, <span class="st">"fall"</span><span class="op">)</span><span class="op">)</span> <span class="op">~</span> <span class="va">year</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">theme</span><span class="op">(</span>axis.text <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>We can zoom in be specifying the limits in <code>coord_sf()</code></p>
+</div>
+</div>
+</div>
+</section></section><section id="binning" class="level3"><h3 class="anchored" data-anchor-id="binning">Binning</h3>
+<p>Another way to look at the density of points is binning - sort of like a spatial histogram, but instead of using bar height to represent relative numbers, use colour. We can use <code>geom_hex()</code> to divide our space up into a hexagonal grid and colour the hexagons based on the number of points in each:</p>
 <div class="cell">
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">nr</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">geom_hex</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span> </span>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Start by extracting the X and Y coordinates as columns in our data set:</span></span>
+<span><span class="va">caribou</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="fu">st_coordinates</span><span class="op">(</span><span class="va">caribou</span><span class="op">)</span>, <span class="va">caribou</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">caribou</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 6 features and 17 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 1149513 ymin: 1207479 xmax: 1159827 ymax: 1214219
+Projected CRS: NAD83 / BC Albers
+        X       Y location.long location.lat  herd tag.local.identifier
+1 1149513 1214219     -123.6036     55.90000 Scott               car170
+2 1149921 1211265     -123.5987     55.87343 Scott               car170
+3 1150438 1211425     -123.5903     55.87470 Scott               car170
+4 1156753 1207479     -123.4915     55.83741 Scott               car170
+5 1157677 1212132     -123.4740     55.87877 Scott               car170
+6 1159827 1209456     -123.4412     55.85412 Scott               car170
+  animal.id animal.sex animal.reproductive.condition tag.manufacturer.name
+1 SC_car170          f                  with calf: N                   ATS
+2 SC_car170          f                  with calf: N                   ATS
+3 SC_car170          f                  with calf: N                   ATS
+4 SC_car170          f                  with calf: N                   ATS
+5 SC_car170          f                  with calf: N                   ATS
+6 SC_car170          f                  with calf: N                   ATS
+    tag.model           date_time year month day hour minute
+1 GPS Iridium 2013-09-23 03:01:00 2013     9  23   10      1
+2 GPS Iridium 2013-10-09 03:01:00 2013    10   9   10      1
+3 GPS Iridium 2013-10-30 03:01:00 2013    10  30   10      1
+4 GPS Iridium 2014-08-11 03:01:00 2014     8  11   10      1
+5 GPS Iridium 2013-11-09 18:01:00 2013    11  10    2      1
+6 GPS Iridium 2014-08-07 03:01:00 2014     8   7   10      1
+                     geom
+1 POINT (1149513 1214219)
+2 POINT (1149921 1211265)
+3 POINT (1150438 1211425)
+4 POINT (1156753 1207479)
+5 POINT (1157677 1212132)
+6 POINT (1159827 1209456)</code></pre>
+</div>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_hex</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">coord_sf</span><span class="op">(</span></span>
-<span>    xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">caribou</span><span class="op">$</span><span class="va">X</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">20000</span>, <span class="fl">20000</span><span class="op">)</span>,</span>
-<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">caribou</span><span class="op">$</span><span class="va">Y</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">20000</span>, <span class="fl">20000</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="fu">vars</span><span class="op">(</span><span class="va">herd</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">coord_sf</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-</section></section><section id="density" class="level2"><h2 class="anchored" data-anchor-id="density">Density</h2>
-<p>We can also visualize the probability density of fixes, using the <a href="https://jamesotto852.github.io/ggdensity/">ggdensity</a> package:</p>
+<p>We can still use faceting to split out the two herds:</p>
 <div class="cell">
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://jamesotto852.github.io/ggdensity/">ggdensity</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_hdr</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, fill <span class="op">=</span> <span class="va">herd</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">scale_fill_viridis_d</span><span class="op">(</span>option <span class="op">=</span> <span class="st">"turbo"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">coord_sf</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_hex</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">coord_sf</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="fu">vars</span><span class="op">(</span><span class="va">herd</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>If we want to add multiple layers to our map, we simply add multiple geoms, and add the name of the layer to the <code>data</code> argument in each:</p>
 <div class="cell">
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">month_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span><span class="op">(</span><span class="va">month.name</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">nr</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">geom_hex</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="fu">vars</span><span class="op">(</span><span class="va">herd</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can zoom in by specifying the plot limits in <code>coord_sf()</code></p>
+<div class="cell">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">nr</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">geom_hex</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">coord_sf</span><span class="op">(</span></span>
+<span>    xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">caribou</span><span class="op">$</span><span class="va">X</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">20000</span>, <span class="fl">20000</span><span class="op">)</span>, <span class="co"># Add 20 km to all sides</span></span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">caribou</span><span class="op">$</span><span class="va">Y</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">20000</span>, <span class="fl">20000</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="fu">vars</span><span class="op">(</span><span class="va">herd</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section></section><section id="probability-density" class="level2"><h2 class="anchored" data-anchor-id="probability-density">Probability density</h2>
+<p>We can also visualize a smooth probability density of fixes, using the <a href="https://jamesotto852.github.io/ggdensity/">ggdensity</a> package:</p>
+<div class="cell">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://jamesotto852.github.io/ggdensity/">ggdensity</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_hdr</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, fill <span class="op">=</span> <span class="va">herd</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">coord_sf</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The regions have probabilities mapped to the <code>alpha</code> aesthetic by default - the <code>probs</code> legend shows the alhpa levels.</p>
+<p>Now let’s do a bit of work to make the plot look more finished:</p>
+<div class="cell">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">month_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span><span class="op">(</span><span class="va">month.name</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_hdr</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, fill <span class="op">=</span> <span class="va">herd</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -521,14 +631,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>    fill <span class="op">=</span> <span class="st">"Herd"</span></span>
 <span>  <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="960"></p>
+<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="960"></p>
 </div>
 </div>
 </section><section id="add-a-base-map-north-arrow-scale" class="level2"><h2 class="anchored" data-anchor-id="add-a-base-map-north-arrow-scale">Add a base map, north arrow, &amp; scale</h2>
 <p>We can use functions from the <a href="https://paleolimbot.github.io/ggspatial/">ggspatial</a> package to add some nice touches to our map to make it pretty.</p>
 <p>We can also customize the labels, legend, and theme elements</p>
 <div class="cell">
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># install.packages(c("ggspatial", "prettymapr"))</span></span>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># install.packages(c("ggspatial", "prettymapr"))</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://paleolimbot.github.io/ggspatial/">ggspatial</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span><span class="va">caribou</span><span class="op">)</span> <span class="op">+</span></span>
@@ -564,12 +674,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>    legend.position <span class="op">=</span> <span class="st">"bottom"</span></span>
 <span>  <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="960"></p>
+<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="960"></p>
 </div>
 </div>
 <p>We can also look at the movement of just one or two animals:</p>
 <div class="cell">
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">scott</span> <span class="op">&lt;-</span> <span class="fu">read_sf</span><span class="op">(</span><span class="st">"clean_data/scott_herd_subset.gpkg"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">scott</span> <span class="op">&lt;-</span> <span class="fu">read_sf</span><span class="op">(</span><span class="st">"clean_data/scott_herd_subset.gpkg"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">scott</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="fu">st_coordinates</span><span class="op">(</span><span class="va">scott</span><span class="op">)</span>, <span class="va">scott</span><span class="op">)</span></span>
 <span></span>
@@ -588,13 +698,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>    legend.key.width <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">4</span>, <span class="st">"lines"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-</section><section id="your-turn" class="level2"><h2 class="anchored" data-anchor-id="your-turn">Your turn:</h2>
+</section><section id="your-turn-1" class="level2"><h2 class="anchored" data-anchor-id="your-turn-1">Your turn:</h2>
 <p>Modify the previous map to make a faceted (small-multiples) map for two or more animals, and add a background map.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -603,10 +713,10 @@ Solution
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <div class="cell">
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">top_animals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"SC_car171"</span>, <span class="st">"SC_car168"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">top_animals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"SC_car171"</span>, <span class="st">"SC_car168"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mvmt</span> <span class="op">&lt;-</span> <span class="va">scott</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">animal.id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="va">top_animals</span><span class="op">)</span></span>
 <span></span>
@@ -625,7 +735,7 @@ Solution
 <span>    legend.key.width <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">4</span>, <span class="st">"lines"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+<p><img src="04-spatial-data-viz_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </div>

@@ -295,14 +295,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section><section id="overview" class="level2"><h2 class="anchored" data-anchor-id="overview">Overview:</h2>
 <p>In this module we will read in, clean, QA and summarize raw telemetry data. This includes:</p>
 <ul>
-<li><p>read in data as csv/xlsx and convert to spatial data</p></li>
-<li><p>QA data for missing values and poor coordinate precision</p></li>
-<li><p>generate tabular summaries</p></li>
-<li><p>standardize fix rate of telemetry points for future analysis</p></li>
+<li>read in data as csv/xlsx and convert to spatial data</li>
+<li>QA data for missing values and poor coordinate precision</li>
+<li>generate tabular summaries</li>
+<li>standardize fix rate of telemetry points for future analysis</li>
 </ul></section><section id="caribou-data-set" class="level2"><h2 class="anchored" data-anchor-id="caribou-data-set">Caribou data set:</h2>
-<p>In this workshop we will use GPS telemetry data from Mountain Caribou (<em>Rangifer terendus</em>) herds in the Peace region of British Columbia. The full data set and metadata can be found on <a href="https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study216040785">movebank</a>, also see <a href="./bonus-movebank.html">bonus content - How to download data from movebank</a>. The data set used in this course has been modified for demonstration purposes and should not be used in analysis.</p>
+<p>In this workshop we will use GPS telemetry data from Mountain Caribou (<em>Rangifer terendus</em>) herds in the Peace region of British Columbia. The full data set and metadata can be found on <a href="https://www.movebank.org/cms/webapp?gwt_fragment=page=studies,path=study216040785">movebank</a>, also see <a href="./bonus-movebank.html">bonus content - How to download data from movebank</a>. The data set used in this workshop has been modified for demonstration purposes and should not be used in analysis.</p>
 <section id="reading-data-into-r." class="level3"><h3 class="anchored" data-anchor-id="reading-data-into-r.">1. Reading data into R.</h3>
-<p>In this course we will be providing two files (Mountain caribou in British Columbia-reference-data.csv and Mountain caribou.xlsx). The first task is to look at the data to make sense of what we have.</p>
+<p>In this workshop we will be providing two files (Mountain caribou in British Columbia-reference-data.csv and Mountain caribou.xlsx). The first task is to look at the data to make sense of what we have.</p>
 <div class="cell" data-hash="03-intro-telemetry-data_cache/html/read-in-raw-data_cefae122946e433be8ad05e860aedd7e">
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># load libraries </span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://readr.tidyverse.org">readr</a></span><span class="op">)</span></span>
