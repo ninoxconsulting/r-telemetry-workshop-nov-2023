@@ -109,8 +109,7 @@ We have created an empty RStudio project containing the workshop data.
 The easiest way to get started to run:
 
 ```{r}
-#| eval: false
-usethis::use_course("https://tinyurl.com/3dmxtxaz")
+usethis::use_course("https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/raw/main/r-telemetry-workshop.zip")
 ```
 
 This will download the workshop materials, save them in a logical spot on your computer, 
