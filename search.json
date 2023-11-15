@@ -88,7 +88,7 @@
     "href": "02-intro-spatial-data.html#before-we-start",
     "title": "Introduction to Spatial Data with R",
     "section": "Before we start",
-    "text": "Before we start\n\nConfigure RStudio\nGet the course materials (if you haven’t already):\n\n\nusethis::use_course(\n  \"https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/raw/main/r-telemetry-workshop.zip\"\n)"
+    "text": "Before we start\n\nConfigure RStudio\nGet the course materials (if you haven’t already):\n\n\nusethis::use_course(\n  \"https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/raw/main/r-telemetry-workshop.zip\"\n)\n\n&lt;etherpad.andyteucher.ca/p/r-telemetry-pg&gt;"
   },
   {
     "objectID": "02-intro-spatial-data.html#vector-simple-features",
