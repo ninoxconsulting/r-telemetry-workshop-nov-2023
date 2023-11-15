@@ -9,6 +9,41 @@ footer: "[Workshop Home](https://ninoxconsulting.github.io/r-telemetry-workshop-
 
 ## Welcome
 
+:::: {.columns}
+
+::: {.column width="50%"}
+### Who we are:
+
+Genevieve Perkins
+
+- ninoxconsulting.ca
+
+Andy Teucher
+
+- andyteucher.ca
+:::
+
+::: {.column width="50%"}
+### Who are you?
+
+- Name, where you are from, and what you want to get out of the course
+:::
+::::
+
+## Structure of the course
+
+- Day 1 & 2: structured content, live coding
+- Day 3 (half day): hackathon
+  - Write your questions on the whiteboard
+
+### Take-homes
+
+- Course website
+- Bonus materials
+- Survey
+
+
+
 ## Agenda - Day 1
 
 ::: { .smaller }
@@ -43,14 +78,19 @@ footer: "[Workshop Home](https://ninoxconsulting.github.io/r-telemetry-workshop-
 
 In the interest of ensuring a safe environment for all, all attendees, 
 speakers and organisers of the workshop must agree to follow the workshop's [code of conduct](https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/blob/main/CODE_OF_CONDUCT.md).
+<br>
+<br>
+Be kind to yourself! Everyone has different background and experiences - stop us,
+ask questions!
 
 ## Housekeeping
 
 * **WiFi:**
-    - 
+    - BCNGN
+    - Dogwood
 
 * **Washrooms:**
-    - 
+    - Down the hall & turn left
 
 * **Etherpad:**  
     - <https://etherpad.andyteucher.ca/p/r-telemetry-pg>

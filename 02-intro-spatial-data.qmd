@@ -37,12 +37,17 @@ library(bcmaps)
 
 ## Before we start
 
-Get the course materials (if you haven't already):
+1. Configure RStudio
+2. Get the course materials (if you haven't already):
 
 ```{r}
 #| eval: false
-usethis::use_course("https://tinyurl.com/3dmxtxaz")
+usethis::use_course(
+  "https://github.com/ninoxconsulting/r-telemetry-workshop-nov-2023/raw/main/r-telemetry-workshop.zip"
+)
 ```
+
+etherpad.andyteucher.ca/p/r-telemetry-pg
 
 ---
 
