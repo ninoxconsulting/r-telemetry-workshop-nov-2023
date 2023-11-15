@@ -47,7 +47,7 @@ usethis::use_course(
 )
 ```
 
-etherpad.andyteucher.ca/p/r-telemetry-pg
+<etherpad.andyteucher.ca/p/r-telemetry-pg>
 
 ---
 
