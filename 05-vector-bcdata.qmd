@@ -91,7 +91,7 @@ scott_aoi <- st_as_sfc(scott_bbox)
 
 ```{r write-aoi}
 #| eval: !expr '!file.exists(file.path("clean_data", "scott_aoi.gpkg")) || isTRUE(params$write)'
-write_sf(scott_aoi, file.path("clean_data", "scott_aoi.gpkg"))
+write_sf(scott_aoi, "clean_data/scott_aoi.gpkg")
 ```
 
 First, let's open the B.C. Data Catalogue in our browser:
@@ -124,6 +124,17 @@ You can use `dplyr` verbs `filter()` and `select()` to cut down the amount of
 data you need to download from the web service. `filter()` can take logical 
 predicates such as `==`, `>`, `%in%` etc., as well as geometry predicates such as `INTERSECTS()`, `OVERLAPS()`, `WITHIN()` etc. See [this vignette](https://bcgov.github.io/bcdata/articles/efficiently-query-spatial-data-in-the-bc-data-catalogue.html) for details.
 
+We can run the query without assigning it to anything, to see what 
+effect the filter and select statements will have on what we are downloading:
+
+```{r bec-query-2}
+bcdc_query_geodata("f358a53b-ffde-4830-a325-a5a03ff672c3") |>
+    filter(INTERSECTS(scott_aoi)) |> 
+    select(MAP_LABEL)
+```
+
+Note that now we will be only downloading 64 features (rows) instead of the ~ 15000 in the full record.
+
 Once your query is complete you call `collect()` to tell the server to 
 execute the query and send you the data:
 
@@ -154,7 +165,7 @@ And now we can write our BEC data to a file to use later in the analysis.
 
 ```{r write-bec}
 #| eval: !expr '!file.exists(file.path("clean_data", "bec.gpkg")) || isTRUE(params$write)'
-write_sf(bec, file.path("clean_data", "bec.gpkg"))
+write_sf(bec, "clean_data/bec.gpkg")
 ```
  
 ## VRI
@@ -186,7 +197,7 @@ vri_conif <- vri |>
 
 ```{r write-vri-conif}
 #| eval: !expr '!file.exists(file.path("clean_data","vri_conif.gpkg")) || isTRUE(params$write)'
-write_sf(vri_conif, file.path("clean_data","vri_conif.gpkg"))
+write_sf(vri_conif, "clean_data/vri_conif.gpkg")
 ```
 
 ```{r vri-ageclass}
@@ -199,7 +210,7 @@ vri_ageclass <- vri |>
 
 ```{r write-vri-ageclass}
 #| eval: !expr '!file.exists(file.path("clean_data", "vri_ageclass.gpkg")) || isTRUE(params$write)'
-write_sf(vri_ageclass, file.path("clean_data", "vri_ageclass.gpkg"))
+write_sf(vri_ageclass, "clean_data/vri_ageclass.gpkg")
 ```
 
 ```{r vri-cc}
@@ -211,7 +222,7 @@ vri_cc <- vri |>
 
 ```{r write-vri-cc}
 #| eval: !expr '!file.exists(file.path("clean_data", "vri_cc.gpkg")) || isTRUE(params$write)'
-write_sf(vri_cc, file.path("clean_data", "vri_cc.gpkg"))
+write_sf(vri_cc, "clean_data/vri_cc.gpkg")
 ```
  
 ## Cutblocks
@@ -237,7 +248,7 @@ mapview(cutblocks, zcol = "HARVEST_YEAR")
 
 ```{r write-cutblocks}
 #| eval: !expr '!file.exists(file.path("clean_data", "cutblocks.gpkg")) || isTRUE(params$write)'
-write_sf(cutblocks, file.path("clean_data", "cutblocks.gpkg"))
+write_sf(cutblocks, "clean_data/cutblocks.gpkg")
 ```
 
 ## Water bodies
@@ -272,7 +283,7 @@ water <- bind_rows(lakes, wetlands) |>
 
 ```{r write-waterbodies}
 #| eval: !expr '!file.exists(file.path("clean_data", "water.gpkg")) || isTRUE(params$write)'
-write_sf(water, file.path("clean_data", "water.gpkg"))
+write_sf(water, "clean_data/water.gpkg")
 ```
 
 ## Stream Index
@@ -302,7 +313,7 @@ mapview(streams)
 
 ```{r write-streams}
 #| eval: !expr '!file.exists(file.path("clean_data", "streams.gpkg")) || isTRUE(params$write)'
-write_sf(streams, file.path("clean_data", "streams.gpkg"))
+write_sf(streams, "clean_data/streams.gpkg")
 ```
 
 ## Roads
@@ -319,5 +330,5 @@ roads <- bcdc_query_geodata("bb060417-b6e6-4548-b837-f9060d94743e") |>
 
 ```{r write-roads}
 #| eval: !expr '!file.exists(file.path("clean_data", "roads.gpkg"))'
-write_sf(roads, file.path("clean_data", "roads.gpkg"))
+write_sf(roads, "clean_data/roads.gpkg")
 ```
